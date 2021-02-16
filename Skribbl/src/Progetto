@@ -1,0 +1,27 @@
+pinturillo con java:
+!! chiara distinzione tra Model-Controller-View !!
+
+
+-- client-server:
+	-quello che disegno io lo devono vedere tutti (condivisione lavagna)
+	-diversi ruoli:
+		*disegnatore
+		*guest
+-- thread
+-- GUI
+-- Lettura da file (parole disegnabili)
+
+
+SERVER
+	-collezione parole
+	-gestione chat
+	-gestione lavagna condivisa
+	-gestione parola indovinata + punti giocatori + classifica
+
+CLIENT
+	DISEGNATORE
+		-lavagna modificabile
+		-sceglie parola (tra 3)
+	GUEST
+		-poter scrivere in chat
+		-
