@@ -14,8 +14,15 @@ pinturillo con java:
 
 SERVER
 	-collezione parole
+		
 	-gestione chat
+		La parola da Indovinare, non viene visualizzata nella chat globale
+		
 	-gestione lavagna condivisa
+		Size della lavagna Fissa - Gestione dei Colori
+		Come condivido gli effetti sulla lavagna?
+		Modificabile solo dal Disegnatore eletto (scelto dal Server) nel rispettivo turno
+		
 	-gestione parola indovinata + punti giocatori + classifica
 
 CLIENT
@@ -24,4 +31,6 @@ CLIENT
 		-sceglie parola (tra 3)
 	GUEST
 		-poter scrivere in chat
-		-
+		
+		
+
