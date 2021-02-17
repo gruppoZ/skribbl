@@ -16,24 +16,23 @@ public class Client {
 				PrintWriter out = new PrintWriter(server.getOutputStream(), true);
 				BufferedReader in = new BufferedReader(new InputStreamReader(server.getInputStream()));		
 		) {
+			ServerProtocol serverProtocol = new ServerProtocol(server);
+			serverProtocol.start();
+			
 			BufferedReader consoleIn = new BufferedReader(new InputStreamReader(System.in));
 			
 			String request;
-			
 			//questo msg apparirà in chat con "benvenuto"
-			System.out.println("Inserire una richiesta: ");
+			System.out.println("Inserisci il tuo nome: ");
 			
 			while((request = consoleIn.readLine()) != null) {
 				System.out.printf("\nRichiesta: %s", request);
 				out.println(request);
 				
-				String response = in.readLine();
-				System.out.println(response);
-				
-				//faremo bottone che manda "quit"
 				if("quit".equals(request))
 					break;
 			}
+			
 			
 		} catch (IOException e) {
 			System.out.printf("Errore nel client, %s", e);

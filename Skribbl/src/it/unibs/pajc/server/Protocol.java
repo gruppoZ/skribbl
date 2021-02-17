@@ -28,7 +28,7 @@ public class Protocol implements Runnable{
 	public Protocol(Socket clientSocket, String clientName) {
 		this.clientSocket = clientSocket;
 		this.clientName = clientName;
-		this.active = active;
+		this.active = true;
 		clientList.add(this);
 	}
 	
@@ -44,12 +44,13 @@ public class Protocol implements Runnable{
 	@Override
 	public void run() {
 		try(
-				BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))
+				BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 		) {
 			out = new PrintWriter(clientSocket.getOutputStream(), true);
-			System.out.printf("Client connesso: %s [%d] - Name: %s\n",
+			System.out.printf("\nClient connesso: %s [%d] - Name: %s\n",
 					clientSocket.getInetAddress(), clientSocket.getPort(),clientName);
-			sendMsg(this, "Inserisci il tuo nome: ");
+			
+//			sendMsg(this, "Inserisci il tuo nome: ");
 			String clientNameRequest = in.readLine();
 			synchronized (clientNameRequest) {
 				if(getClientByName(clientNameRequest) == null) {

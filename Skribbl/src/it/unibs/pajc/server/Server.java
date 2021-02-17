@@ -9,7 +9,7 @@ public class Server {
 		System.out.println("Server in avvio...");
 		
 		try(
-			ServerSocket server = new ServerSocket(port)
+			ServerSocket server = new ServerSocket(port);
 		) {
 			int id = 0;
 			while(true) {
