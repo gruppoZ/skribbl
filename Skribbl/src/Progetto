@@ -31,6 +31,13 @@ CLIENT
 		-sceglie parola (tra 3)
 	GUEST
 		-poter scrivere in chat
+<<<<<<< HEAD
 		
 		
 
+=======
+		-
+
+		
+Lavagna uguale per tutti modificabile solo da uno
+>>>>>>> branch 'master' of https://github.com/gruppoZ/skribbl.git
