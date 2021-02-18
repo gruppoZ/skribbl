@@ -19,6 +19,7 @@ public class ServerProtocol extends Thread{
 		try {
 			while(true) {
 				String response = input.readLine();
+				this.setResponse(response); 
 				System.out.println(response);
 			}
 		} catch (IOException e) {
@@ -30,6 +31,15 @@ public class ServerProtocol extends Thread{
 				System.out.printf("Errore: %s", e);
 			}
 		}
+	}
+	
+	String result = null;
+	
+	public void setResponse(String response) {
+		this.result = response;
+	}
+	public String getResponse() {
+		return this.result;
 	}
 	
 }
