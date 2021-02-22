@@ -17,7 +17,8 @@ public class ClientModel extends BaseModel{
 	private Socket server;
 	private PrintWriter out;
 	private BufferedReader in;
-	private ServerProtocol serverProtocol;
+//	private ServerProtocol serverProtocol;
+	private String response;
 	
 	public ClientModel() {
 		try {
@@ -36,27 +37,37 @@ public class ClientModel extends BaseModel{
 		}
 		//chiuderemo out, in e socket con un metodo apposito
 		
+		new Thread(new Listener()).start();
 		
 	}
 	
 	public void sendMsg(String msg) {
 		out.println(msg);
-		fireValuesChange(new ChangeEvent(this));
 	}
 	
 	public String updateChat() {
-		return "ciao";
-//		while(true) {
-//			String response;
-//			try {
-//				response = in.readLine();
-//				return response;
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//				return null;
-//			}
-//			
-//		}
+		StringBuffer sb = new StringBuffer();
+		sb.append(response);
+		sb.append("\n");
+		
+		return sb.toString();
+	}
+	
+	private class Listener implements Runnable {
+		@Override
+		public void run() {
+			while(true) {
+				try {
+					response = in.readLine();
+					fireValuesChange(new ChangeEvent(this));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+			}
+		}
+
 	}
 	
 	

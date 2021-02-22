@@ -19,6 +19,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.awt.event.ActionEvent;
 import javax.swing.JScrollBar;
+import javax.swing.DropMode;
 
 public class ClientView {
 
@@ -73,13 +74,11 @@ public class ClientView {
 		txtWrite.setColumns(10);
 		
 		txtChat = new JTextArea();
+		txtChat.setLineWrap(true);
+		txtChat.setWrapStyleWord(true);
 		txtChat.setEditable(false);
 		txtChat.setBounds(224, 11, 177, 163);
 		frame.getContentPane().add(txtChat);
-		
-		JScrollBar scrollBar = new JScrollBar();
-		scrollBar.setBounds(407, 11, 17, 163);
-		frame.getContentPane().add(scrollBar);
 		
 		setNickname();
 		
