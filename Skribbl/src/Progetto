@@ -1,6 +1,10 @@
 pinturillo con java:
 !! chiara distinzione tra Model-Controller-View !!
 
+Model: Metodi, attributi. Sa come gestire i dati
+Controller: Gestisce gli input, Fà da ponte tra Model e View
+View: Mostra I dati che riceve dal Controller
+
 
 -- client-server:
 	-quello che disegno io lo devono vedere tutti (condivisione lavagna)
@@ -31,6 +35,10 @@ CLIENT
 		-sceglie parola (tra 3)
 	GUEST
 		-poter scrivere in chat
+		
+Cosa devo mandare al Server?
+ - Messaggi relativi alla chat
+ - Dati sulla lavagna nel caso io sia il Disegnatore
 <<<<<<< HEAD
 		
 		
