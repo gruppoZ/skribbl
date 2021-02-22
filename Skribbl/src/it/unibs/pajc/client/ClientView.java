@@ -91,18 +91,15 @@ public class ClientView {
 		
 		setNickname();
 		
-		btnSend.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				model.sendMsg(txtWrite.getText());
-				txtWrite.setText("");
-				//sbagliato da fare con eventi
-			}
-		});
-		
-		
+		btnSend.addActionListener(e -> this.send());
 		
 	}
 	
+	private void send() {
+		model.sendMsg(txtWrite.getText());
+		txtWrite.setText("");
+	}
+
 	private void setNickname() {
 		String nickname = JOptionPane.showInputDialog(frame,"What is your name?", null);
 		model.sendMsg(nickname);
@@ -112,4 +109,5 @@ public class ClientView {
 		txtChat.append(model.updateChat());
 		txtChat.setCaretPosition(txtChat.getDocument().getLength());
 	}
+	
 }

@@ -17,7 +17,6 @@ public class ClientModel extends BaseModel{
 	private Socket server;
 	private PrintWriter out;
 	private BufferedReader in;
-//	private ServerProtocol serverProtocol;
 	private String response;
 	
 	public ClientModel() {
@@ -25,9 +24,6 @@ public class ClientModel extends BaseModel{
 			this.server = new Socket(serverName, port);
 			this.out = new PrintWriter(server.getOutputStream(), true);
 			this.in = new BufferedReader(new InputStreamReader(server.getInputStream()));
-			
-//			serverProtocol = new ServerProtocol(server);
-//			serverProtocol.start();
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -35,14 +31,15 @@ public class ClientModel extends BaseModel{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		//chiuderemo out, in e socket con un metodo apposito
+		//TODO:chiuderemo out, in e socket con un metodo apposito
 		
 		new Thread(new Listener()).start();
 		
 	}
 	
 	public void sendMsg(String msg) {
-		out.println(msg);
+		if(msg.strip().length() > 0)
+			out.println(msg);
 	}
 	
 	public String updateChat() {
