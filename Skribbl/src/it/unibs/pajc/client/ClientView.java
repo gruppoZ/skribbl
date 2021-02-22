@@ -5,6 +5,7 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextPane;
+import javax.swing.text.DefaultCaret;
 
 import it.unibs.pajc.core.BaseModel;
 
@@ -19,6 +20,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.awt.event.ActionEvent;
 import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
 import javax.swing.DropMode;
 
 public class ClientView {
@@ -80,11 +82,19 @@ public class ClientView {
 		txtChat.setBounds(224, 11, 177, 163);
 		frame.getContentPane().add(txtChat);
 		
+		
+		
+		JScrollPane scrollBar = new JScrollPane(txtChat);
+		scrollBar.setAutoscrolls(true);
+		scrollBar.setBounds(268, 11, 160, 163);
+		frame.getContentPane().add(scrollBar);
+		
 		setNickname();
 		
 		btnSend.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				model.sendMsg(txtWrite.getText());
+				txtWrite.setText("");
 				//sbagliato da fare con eventi
 			}
 		});
@@ -100,5 +110,6 @@ public class ClientView {
 	
 	private void updateChat() {
 		txtChat.append(model.updateChat());
+		txtChat.setCaretPosition(txtChat.getDocument().getLength());
 	}
 }
