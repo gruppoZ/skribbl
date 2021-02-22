@@ -21,6 +21,7 @@ public class ServerProtocol extends Thread{
 				String response = input.readLine();
 				this.setResponse(response); 
 				System.out.println(response);
+				//fire
 			}
 		} catch (IOException e) {
 			System.out.printf("Errore: %s", e);
