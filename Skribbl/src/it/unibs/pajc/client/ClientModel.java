@@ -16,14 +16,13 @@ public class ClientModel extends BaseModel{
 	private int port = 1234;
 	private Socket server;
 	private PrintWriter out;
-	private BufferedReader in;
+//	private BufferedReader in;
 	private String response;
 	
 	public ClientModel() {
 		try {
 			this.server = new Socket(serverName, port);
 			this.out = new PrintWriter(server.getOutputStream(), true);
-			this.in = new BufferedReader(new InputStreamReader(server.getInputStream()));
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -33,6 +32,7 @@ public class ClientModel extends BaseModel{
 		}
 		//TODO:chiuderemo out, in e socket con un metodo apposito
 		
+		//start di un thread per il listener
 		new Thread(new Listener()).start();
 		
 	}
@@ -50,18 +50,31 @@ public class ClientModel extends BaseModel{
 		return sb.toString();
 	}
 	
+	public void close() {
+		if(out != null)
+			out.close();
+//		try {
+//			server.close();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+	}
+	
 	private class Listener implements Runnable {
 		@Override
 		public void run() {
-			while(true) {
-				try {
-					response = in.readLine();
+			try(
+					BufferedReader in = new BufferedReader(new InputStreamReader(server.getInputStream()));
+			) {
+				while((response = in.readLine()) != null) {
 					fireValuesChange(new ChangeEvent(this));
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
 				}
-				
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} finally {
+				close();
 			}
 		}
 

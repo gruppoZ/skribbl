@@ -58,7 +58,7 @@ public class Protocol implements Runnable{
 				}
 			}
 			
-			sendMsg(this, "Buongiorno, il tuo nome e': " + clientName);
+			this.welcome();
 			
 			//protocollo di comunicazione
 			String request;
@@ -98,6 +98,14 @@ public class Protocol implements Runnable{
 	
 	private void sendMsgToAll(Protocol sender, String msg) {
 		clientList.forEach((p) -> p.sendMsg(sender, msg));
+	}
+	
+	//non worka
+	private void welcome() {
+		if(clientList.size() > 1) {
+			sendMsg(this, "Buongiorno, il tuo nome e': " + clientName);
+		} else
+			sendMsg(this, "Buongiorno, il tuo nome e': " + clientName + "\nNon ci sono altri utenti connessi...");
 	}
 	
 

@@ -13,6 +13,8 @@ import javax.swing.JButton;
 import javax.swing.JTextField;
 import javax.swing.JTextArea;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -29,7 +31,6 @@ public class ClientView {
 	private JTextField txtWrite;
 
 	private ClientModel model;
-	private static Socket socket;
 	private JTextArea txtChat;
 	/**
 	 * Launch the application.
@@ -98,6 +99,10 @@ public class ClientView {
 	private void send() {
 		model.sendMsg(txtWrite.getText());
 		txtWrite.setText("");
+	}
+	
+	private void close() {
+		model.close();
 	}
 
 	private void setNickname() {
