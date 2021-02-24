@@ -50,9 +50,11 @@ public class ClientView {
 
 	/**
 	 * Create the application.
+	 * Controller App Client
 	 */
 	public ClientView() {
 		model = new ClientModel();
+		
 		initialize();
 		
 		model.addChangeListener(e -> this.updateChat());
