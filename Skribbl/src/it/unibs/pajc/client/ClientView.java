@@ -65,16 +65,16 @@ public class ClientView {
 	 */
 	private void initialize() {
 		frame = new JFrame();
-		frame.setBounds(100, 100, 473, 319);
+		frame.setBounds(100, 100, 700, 500);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
 		JButton btnSend = new JButton("Send");
-		btnSend.setBounds(335, 227, 89, 23);
+		btnSend.setBounds(585, 404, 89, 46);
 		frame.getContentPane().add(btnSend);
 		
 		txtWrite = new JTextField();
-		txtWrite.setBounds(235, 228, 86, 20);
+		txtWrite.setBounds(432, 404, 143, 44);
 		frame.getContentPane().add(txtWrite);
 		txtWrite.setColumns(10);
 		
@@ -89,11 +89,11 @@ public class ClientView {
 		
 		JScrollPane scrollBar = new JScrollPane(txtChat);
 		scrollBar.setAutoscrolls(true);
-		scrollBar.setBounds(268, 11, 160, 163);
+		scrollBar.setBounds(452, 11, 222, 373);
 		frame.getContentPane().add(scrollBar);
 		
 		PaintArea paintArea = new PaintArea();
-		paintArea.setBounds(10, 11, 230, 211);
+		paintArea.setBounds(10, 71, 369, 300);
 		frame.getContentPane().add(paintArea);
 		paintArea.setLayout(null);
 		
