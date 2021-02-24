@@ -32,6 +32,8 @@ public class ClientView {
 
 	private ClientModel model;
 	private JTextArea txtChat;
+	
+	private PnlPaintArea paintArea;
 	/**
 	 * Launch the application.
 	 */
@@ -92,15 +94,23 @@ public class ClientView {
 		scrollBar.setBounds(452, 11, 222, 373);
 		frame.getContentPane().add(scrollBar);
 		
-		PaintArea paintArea = new PaintArea();
+		paintArea = new PnlPaintArea();
 		paintArea.setBounds(10, 71, 369, 300);
 		frame.getContentPane().add(paintArea);
 		paintArea.setLayout(null);
 		
+		JButton btnPainter = new JButton("Painter");
+		btnPainter.setBounds(10, 416, 89, 23);
+		frame.getContentPane().add(btnPainter);
+		
 		setNickname();
 		
+		//send msg
 		btnSend.addActionListener(e -> this.send());
+		txtWrite.addActionListener(e -> this.send());
 		
+		//painter
+		btnPainter.addActionListener(e -> this.setPainter());
 	}
 	
 	private void send() {
@@ -120,5 +130,9 @@ public class ClientView {
 	private void updateChat() {
 		txtChat.append(model.updateChat());
 		txtChat.setCaretPosition(txtChat.getDocument().getLength());
+	}
+	
+	private void setPainter() {
+		paintArea.setPainter();
 	}
 }

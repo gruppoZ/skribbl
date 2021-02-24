@@ -19,16 +19,20 @@ public class Protocol implements Runnable{
 	}
 	
 	private static ArrayList<Protocol> clientList = new ArrayList<Protocol>();
+	//private static ArrayList<Protocol> fakeClientList = new ArrayList<Protocol>();
 	
 	private PrintWriter out;
 	private Socket clientSocket;
 	private String clientName;
+	//TODO: per ora active è inutile
 	private boolean active;
+	private boolean painter;
 	
 	public Protocol(Socket clientSocket, String clientName) {
 		this.clientSocket = clientSocket;
 		this.clientName = clientName;
 		this.active = true;
+		this.painter = false;
 		clientList.add(this);
 	}
 	
@@ -107,6 +111,28 @@ public class Protocol implements Runnable{
 		} else
 			sendMsg(this, "Buongiorno, il tuo nome e': " + clientName + "\nNon ci sono altri utenti connessi...");
 	}
+	
+	private void turn() {
+		//creazione fake lista
+		
+		// while(clientList.isEmpty()){
+			//estrarre un numero casuale da 0 a clientList - 1
+			
+			//ci salviamo chi è uscito dall'estrazione
+			
+			//client.setPainter()
+			
+			//parte il timer
+			
+			//finisce il timer
+			
+			//client.setPainter()
+			
+			//clientList.remove(client)
+		//}
+	}
+	
+	
 	
 
 }
