@@ -11,75 +11,41 @@ import javax.swing.event.ChangeEvent;
 
 import it.unibs.pajc.core.BaseModel;
 
+
 public class ClientModel extends BaseModel{
-	private String serverName = "localhost";
-	private int port = 1234;
-	private Socket server;
-	private PrintWriter out;
-//	private BufferedReader in;
-	private String response;
+	ControllerComunicator comunicator;
 	
 	public ClientModel() {
-		try {
-			this.server = new Socket(serverName, port);
-			this.out = new PrintWriter(server.getOutputStream(), true);
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		//TODO:chiuderemo out, in e socket con un metodo apposito
-		
-		//start di un thread per il listener
-		new Thread(new Listener()).start();
-		
+		start();	
+	}
+	
+	private void start() {
+		comunicator = new ControllerComunicator();
+		comunicator.start();
+		comunicator.addChangeListener(e -> this.explodeEvent());
+	}
+	
+	
+	
+	public void close() {
+		if(comunicator != null)
+			comunicator.close();
 	}
 	
 	public void sendMsg(String msg) {
 		if(msg.strip().length() > 0)
-			out.println(msg);
+			comunicator.sendMsg(msg);
 	}
 	
-	public String updateChat() {
-		StringBuffer sb = new StringBuffer();
-		sb.append(response);
-		sb.append("\n");
-		
-		return sb.toString();
+	private void explodeEvent() {
+		fireValuesChange(new ChangeEvent(this));
 	}
 	
-	public void close() {
-		if(out != null)
-			out.close();
-//		try {
-//			server.close();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+	public String updateChat() {	
+		return comunicator.updateChat();
 	}
 	
-	private class Listener implements Runnable {
-		@Override
-		public void run() {
-			try(
-					BufferedReader in = new BufferedReader(new InputStreamReader(server.getInputStream()));
-			) {
-				while((response = in.readLine()) != null) {
-					fireValuesChange(new ChangeEvent(this));
-				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} finally {
-				close();
-			}
-		}
-
+	public ControllerComunicator getComunicator() {
+		return this.comunicator;
 	}
-	
-	
-	
 }

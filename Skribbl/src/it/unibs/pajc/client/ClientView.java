@@ -55,6 +55,7 @@ public class ClientView {
 		model = new ClientModel();
 		initialize();
 		
+		//model.getComunicator().addChangeListener(e -> this.updateChat());
 		model.addChangeListener(e -> this.updateChat());
 	}
 
@@ -81,9 +82,7 @@ public class ClientView {
 		txtChat.setWrapStyleWord(true);
 		txtChat.setEditable(false);
 		txtChat.setBounds(224, 11, 177, 163);
-		frame.getContentPane().add(txtChat);
-		
-		
+		frame.getContentPane().add(txtChat);		
 		
 		JScrollPane scrollBar = new JScrollPane(txtChat);
 		scrollBar.setAutoscrolls(true);
@@ -111,6 +110,7 @@ public class ClientView {
 	}
 	
 	private void updateChat() {
+		//txtChat.append(model.getComunicator().updateChat());
 		txtChat.append(model.updateChat());
 		txtChat.setCaretPosition(txtChat.getDocument().getLength());
 	}
