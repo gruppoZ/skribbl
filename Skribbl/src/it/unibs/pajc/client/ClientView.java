@@ -65,7 +65,7 @@ public class ClientView {
 	 */
 	private void initialize() {
 		frame = new JFrame();
-		frame.setBounds(100, 100, 450, 300);
+		frame.setBounds(100, 100, 473, 319);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
@@ -92,6 +92,11 @@ public class ClientView {
 		scrollBar.setBounds(268, 11, 160, 163);
 		frame.getContentPane().add(scrollBar);
 		
+		PaintArea paintArea = new PaintArea();
+		paintArea.setBounds(10, 11, 230, 211);
+		frame.getContentPane().add(paintArea);
+		paintArea.setLayout(null);
+		
 		setNickname();
 		
 		btnSend.addActionListener(e -> this.send());
@@ -116,5 +121,4 @@ public class ClientView {
 		txtChat.append(model.updateChat());
 		txtChat.setCaretPosition(txtChat.getDocument().getLength());
 	}
-	
 }
