@@ -58,7 +58,8 @@ public class Protocol implements Runnable{
 				}
 			}
 			
-			this.welcome();
+			
+			welcome();
 			
 			//protocollo di comunicazione
 			String request;
@@ -70,7 +71,7 @@ public class Protocol implements Runnable{
 				sendMsgToAll(this, response);
 			}
 		} catch (IOException e) {
-			System.out.printf("Errore durante i msg %s ", e);
+			System.out.printf("\nErrore durante i msg %s ", e);
 		} finally {
 			this.close();
 		}
@@ -101,11 +102,15 @@ public class Protocol implements Runnable{
 	}
 	
 	//non worka
-	private void welcome() {
-		if(clientList.size() > 1) {
-			sendMsg(this, "Buongiorno, il tuo nome e': " + clientName);
-		} else
-			sendMsg(this, "Buongiorno, il tuo nome e': " + clientName + "\nNon ci sono altri utenti connessi...");
+	private synchronized void welcome() {
+		String msg = "Buongiorno, il tuo nome e': ".concat(clientName);
+		
+		if(clientList.size() > 1)
+			this.sendMsg(this, msg);
+		if(clientList.size() == 1) {
+			msg += "\nNon ci sono altri utenti connessi...";
+			this.sendMsg(this, msg);
+		}
 	}
 	
 

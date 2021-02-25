@@ -24,14 +24,17 @@ import java.awt.event.ActionEvent;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.DropMode;
+import javax.swing.JEditorPane;
+import java.util.List;
 
 public class ClientView {
 
 	private JFrame frame;
 	private JTextField txtWrite;
-
+	private PaintArea paintArea;
 	private ClientModel model;
 	private JTextArea txtChat;
+	
 	/**
 	 * Launch the application.
 	 */
@@ -64,35 +67,44 @@ public class ClientView {
 	 */
 	private void initialize() {
 		frame = new JFrame();
-		frame.setBounds(100, 100, 450, 300);
+		frame.setBounds(100, 100, 700, 550);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
 		JButton btnSend = new JButton("Send");
-		btnSend.setBounds(335, 227, 89, 23);
+		btnSend.setBounds(585, 477, 89, 23);
 		frame.getContentPane().add(btnSend);
 		
 		txtWrite = new JTextField();
-		txtWrite.setBounds(235, 228, 86, 20);
+		txtWrite.setBounds(396, 477, 177, 21);
 		frame.getContentPane().add(txtWrite);
 		txtWrite.setColumns(10);
 		
 		txtChat = new JTextArea();
+		txtChat.setEditable(false);
 		txtChat.setLineWrap(true);
 		txtChat.setWrapStyleWord(true);
-		txtChat.setEditable(false);
-		txtChat.setBounds(224, 11, 177, 163);
+		txtChat.setBounds(110, 0, 177, 163);
 		frame.getContentPane().add(txtChat);		
 		
 		JScrollPane scrollBar = new JScrollPane(txtChat);
 		scrollBar.setAutoscrolls(true);
-		scrollBar.setBounds(268, 11, 160, 163);
+		scrollBar.setBounds(396, 11, 278, 449);
 		frame.getContentPane().add(scrollBar);
+		
+		paintArea = new PaintArea();
+		paintArea.setBounds(10, 76, 376, 424);
+		frame.getContentPane().add(paintArea);
+		
+		PnlStrumenti pnlStrumenti = new PnlStrumenti(model.getStrumenti());
+		pnlStrumenti.setBounds(10, 21, 376, 46);
+		frame.getContentPane().add(pnlStrumenti);
 		
 		setNickname();
 		
+		pnlStrumenti.addActionListener(e -> paintArea.changePaint(e));
 		btnSend.addActionListener(e -> this.send());
-		
+		txtWrite.addActionListener(e -> this.send());
 	}
 	
 	private void send() {
@@ -114,5 +126,4 @@ public class ClientView {
 		txtChat.append(model.updateChat());
 		txtChat.setCaretPosition(txtChat.getDocument().getLength());
 	}
-	
 }
