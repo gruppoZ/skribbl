@@ -9,7 +9,7 @@ import javax.swing.event.*;
 import java.awt.*;
 
 public class PaintArea extends JPanel implements MouseMotionListener {
-	public static final Color LINE_COLOR = Color.RED;
+	public Color lineColor = Color.RED;
 	 
 	// Lines drawn, consists of a List of PolyLine instances
 	private List<PolyLine> lines = new ArrayList<PolyLine>();
@@ -20,27 +20,33 @@ public class PaintArea extends JPanel implements MouseMotionListener {
 	 */
 	public PaintArea() {
 		setForeground(new Color(0, 0, 0));
-		setBackground(new Color(255, 255, 240));
+		setBackground(Color.WHITE);
 	    this.addMouseMotionListener(this);
 	}
 	
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		g2 = (Graphics2D)g;
-		
+		g2.setColor(lineColor);
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2.setStroke(new BasicStroke((float)2));
 		
-		g2.setColor(LINE_COLOR);
+		
         for (PolyLine line: lines) {
+           g2.setColor(line.getColore());
            line.draw(g2);
         }
 		
 	}
 
 	protected void changePaint(ActionEvent e) {
-		System.out.println(e.getActionCommand());
+		System.out.println("ActionCommand: " + e.getActionCommand());
+		System.out.println("Source: " + e.getSource());
 		
+		if(ClientModel.isColor(e.getActionCommand()))
+			lineColor = ClientModel.getColorByName(e.getActionCommand());
+		if(ClientModel.isIcon(e.getActionCommand()) && ClientModel.isRubber(e.getActionCommand()))
+			lineColor = Color.WHITE; //TODO da fare in Generale, per varie ICONE come cestino -> Cancella tutto: lines.clear()
 	}
 	
 	@Override
@@ -53,7 +59,7 @@ public class PaintArea extends JPanel implements MouseMotionListener {
 	@Override
 	public void mouseMoved(MouseEvent e) {
 		// Begin a new line
-        currentLine = new PolyLine();
+        currentLine = new PolyLine(lineColor);
         lines.add(currentLine);
         currentLine.addPoint(e.getX(), e.getY());
 		

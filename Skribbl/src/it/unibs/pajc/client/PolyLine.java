@@ -1,6 +1,7 @@
 package it.unibs.pajc.client;
 
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.*;
 
@@ -10,12 +11,17 @@ import java.util.*;
 public class PolyLine {
    private List<Integer> xList;  // List of x-coord
    private List<Integer> yList;  // List of y-coord
- 
-   public PolyLine() {
+   private Color colore;
+   
+   public PolyLine(Color colore) {
       xList = new ArrayList<Integer>();
       yList = new ArrayList<Integer>();
+      this.colore = colore;
    }
- 
+   
+   public Color getColore() {
+	   return colore;
+   }
    // Add a point to this PolyLine
    public void addPoint(int x, int y) {
       xList.add(x);

@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.Icon;
@@ -54,12 +55,58 @@ public class ClientModel extends BaseModel{
 		return this.comunicator;
 	}
 	
+
+	public static Color getColorByName(String colore) {
+	    try {
+	        return (Color)Color.class.getField(colore.toUpperCase()).get(null);
+	    } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
+	        e.printStackTrace();
+	        return null;
+	    }
+	}
+	
+	
+	private static String[] colori = {
+			"RED", "WHITE", "GREEN", "BLACK", "ORANGE", "PINK"
+	};	
+	
+	private static final String RUBBER = "src/img/rubber.gif";
+	private static String[] icone = {
+			RUBBER
+	};
+	
+	public static boolean isRubber(String icona) {
+		return RUBBER.equalsIgnoreCase(icona);
+	}
+	
+	public static boolean isColor(String name) {
+		boolean found = false;
+		for (String colore : colori) {
+			if(colore.equalsIgnoreCase(name))
+				return found = true;
+		}	
+		return found;
+	}
+	
+	public static boolean isIcon(String icon) {
+		boolean found = false;
+		for (String icone : icone) {
+			if(icone.equalsIgnoreCase(icon))
+				return found = true;
+		}	
+		return found;
+	}
+	
 	public List getStrumenti() {
-		Icon gomma = new ImageIcon("src/img/5.gif");
 		List<Object> strumenti = new ArrayList<Object>();
-		strumenti.add(Color.RED);
-		strumenti.add(Color.BLACK);
-		strumenti.add(gomma);
+		
+		for (String colore : colori) {
+			strumenti.add(colore);
+		}	
+		for (String icone : icone) {
+			strumenti.add(new ImageIcon(icone));
+		}	
+		
 		return strumenti;
 	}
 }
