@@ -15,13 +15,15 @@ public class PaintArea extends JPanel implements MouseMotionListener {
 	private List<PolyLine> lines = new ArrayList<PolyLine>();
     private PolyLine currentLine;  // the current line (for capturing)
     private Graphics2D g2;
+    private ClientModel model;
 	/**
 	 * Create the panel.
 	 */
-	public PaintArea() {
+	public PaintArea(ClientModel model) {
 		setForeground(new Color(0, 0, 0));
 		setBackground(Color.WHITE);
 	    this.addMouseMotionListener(this);
+	    this.model = model;
 	}
 	
 	protected void paintComponent(Graphics g) {
@@ -43,10 +45,15 @@ public class PaintArea extends JPanel implements MouseMotionListener {
 		System.out.println("ActionCommand: " + e.getActionCommand());
 		System.out.println("Source: " + e.getSource());
 		
-		if(ClientModel.isColor(e.getActionCommand()))
+		if(model.isColor(e.getActionCommand()))
 			lineColor = ClientModel.getColorByName(e.getActionCommand());
-		if(ClientModel.isIcon(e.getActionCommand()) && ClientModel.isRubber(e.getActionCommand()))
-			lineColor = Color.WHITE; //TODO da fare in Generale, per varie ICONE come cestino -> Cancella tutto: lines.clear()
+		if(model.isIcon(e.getActionCommand()) && model.isRubber(e.getActionCommand()))
+			lineColor = Color.WHITE; 
+		if(model.isIcon(e.getActionCommand()) && model.isTrash(e.getActionCommand())) {
+			lines.clear();
+			repaint();
+		}
+			
 	}
 	
 	@Override

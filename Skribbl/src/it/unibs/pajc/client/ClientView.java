@@ -92,7 +92,7 @@ public class ClientView {
 		scrollBar.setBounds(396, 11, 278, 449);
 		frame.getContentPane().add(scrollBar);
 		
-		paintArea = new PaintArea();
+		paintArea = new PaintArea(model);
 		paintArea.setBounds(10, 76, 376, 424);
 		frame.getContentPane().add(paintArea);
 		

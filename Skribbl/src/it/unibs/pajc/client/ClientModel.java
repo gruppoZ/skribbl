@@ -67,19 +67,23 @@ public class ClientModel extends BaseModel{
 	
 	
 	private static String[] colori = {
-			"RED", "WHITE", "GREEN", "BLACK", "ORANGE", "PINK"
+			"RED", "GREEN", "BLACK", "ORANGE", "PINK"
 	};	
 	
 	private static final String RUBBER = "src/img/rubber.gif";
+	private static final String TRASH = "src/img/trash.png";
 	private static String[] icone = {
-			RUBBER
+			RUBBER, TRASH
 	};
 	
-	public static boolean isRubber(String icona) {
+	public boolean isRubber(String icona) {
 		return RUBBER.equalsIgnoreCase(icona);
 	}
+	public boolean isTrash(String icona) {
+		return TRASH.equalsIgnoreCase(icona);
+	}
 	
-	public static boolean isColor(String name) {
+	public boolean isColor(String name) {
 		boolean found = false;
 		for (String colore : colori) {
 			if(colore.equalsIgnoreCase(name))
@@ -88,7 +92,7 @@ public class ClientModel extends BaseModel{
 		return found;
 	}
 	
-	public static boolean isIcon(String icon) {
+	public boolean isIcon(String icon) {
 		boolean found = false;
 		for (String icone : icone) {
 			if(icone.equalsIgnoreCase(icon))
