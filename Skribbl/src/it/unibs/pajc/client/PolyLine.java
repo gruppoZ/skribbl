@@ -3,12 +3,15 @@ package it.unibs.pajc.client;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.io.Serializable;
 import java.util.*;
 
 /*
  * The PolyLine class model a line made up of many points
  */
-public class PolyLine {
+public class PolyLine implements Serializable {
+   private static final long serialVersionUID = 1L;
+   
    private List<Integer> xList;  // List of x-coord
    private List<Integer> yList;  // List of y-coord
    private Color colore;

@@ -35,19 +35,40 @@ public class ClientModel extends BaseModel{
 	
 	public void close() {
 		if(comunicator != null)
-			comunicator.close();
+			try {
+				comunicator.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 	}
 	
-	public void sendMsg(String msg) {
-		if(msg.strip().length() > 0)
+	public void sendMsg(Object msg) {
+		try {
+		if(msg.getClass().equals(String.class)) {
+			String result = (String) msg;
+			if((result.strip().length() > 0)) {
+				comunicator.sendMsg(result);
+			}
+		} else
 			comunicator.sendMsg(msg);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
-	
-//	private void explodeEvent() {
-//		fireValuesChange(new ChangeEvent(this));
+//	public synchronized void sendPaint(List<PolyLine> lines) {
+//		try {
+//			for (PolyLine polyLine : lines) {
+//				comunicator.sendMsg(polyLine);
+//			}
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 //	}
+
 	
-	public String updateChat() {	
+	public synchronized Object updateChat() {	
 		return comunicator.updateChat();
 	}
 	

@@ -8,8 +8,8 @@ import javax.swing.*;
 import javax.swing.event.*;
 import java.awt.*;
 
-public class PaintArea extends JPanel implements MouseMotionListener {
-	public Color lineColor = Color.RED;
+public class PaintArea extends JPanel implements MouseMotionListener, MouseListener {
+	public Color lineColor = Color.BLACK;
 	 
 	// Lines drawn, consists of a List of PolyLine instances
 	private List<PolyLine> lines = new ArrayList<PolyLine>();
@@ -23,10 +23,24 @@ public class PaintArea extends JPanel implements MouseMotionListener {
 		setForeground(new Color(0, 0, 0));
 		setBackground(Color.WHITE);
 	    this.addMouseMotionListener(this);
+	    this.addMouseListener(this);
 	    this.model = model;
 	}
 	
-	protected void paintComponent(Graphics g) {
+	protected synchronized List<PolyLine> getLines() {
+		return this.lines;
+	}
+	protected synchronized PolyLine getCurrentLine() {
+		return this.currentLine;
+	}
+	protected synchronized void setLines(PolyLine newLines) {
+		if(newLines != null) {
+			lines.add(newLines);
+			repaint();
+		}
+		
+	}
+	protected synchronized void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		g2 = (Graphics2D)g;
 		g2.setColor(lineColor);
@@ -38,6 +52,7 @@ public class PaintArea extends JPanel implements MouseMotionListener {
            g2.setColor(line.getColore());
            line.draw(g2);
         }
+        
 		
 	}
 
@@ -59,6 +74,7 @@ public class PaintArea extends JPanel implements MouseMotionListener {
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		currentLine.addPoint(e.getX(), e.getY());
+		
         repaint();  // invoke paintComponent()
 		
 	}
@@ -69,7 +85,82 @@ public class PaintArea extends JPanel implements MouseMotionListener {
         currentLine = new PolyLine(lineColor);
         lines.add(currentLine);
         currentLine.addPoint(e.getX(), e.getY());
-		
 	}
+	
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		fireValuesChange(new ChangeEvent(this));	
+	}
+	
+	private ArrayList<ActionListener> listenerList = new ArrayList<ActionListener>();
+	
+	public void addActionListener(ActionListener l) {
+		listenerList.add(l);
+	}
+	
+	public void removeActionListener(ActionListener l) {
+		listenerList.remove(l);
+	}
+	
+	public void fireActionListener(ActionEvent e) {
+		/**
+		 * non gli passo e ma gli passo un evento che che voglio io
+		 * per nascondere i bottoni all'esterno
+		 * Sto: Isolando il mio sistema
+		 */
+		ActionEvent myEvent = new ActionEvent(this, 
+				ActionEvent.ACTION_PERFORMED,
+				e.getActionCommand(),
+				e.getWhen(),
+				e.getModifiers()//se quando premo con il mouse ho anche schiacciato ctrl questo è un modifiers
+		);
+		
+		
+		for (ActionListener actionListener : listenerList) {
+			actionListener.actionPerformed(myEvent);
+		}
+	}
+
+		protected EventListenerList listenerList2 = new EventListenerList();
+		
+		public void addChangeListener(ChangeListener l) {
+			listenerList2.add(ChangeListener.class ,l);
+		}
+		
+		public void removeChangeListener(ChangeListener l) {
+			listenerList2.remove(ChangeListener.class, l);
+		}
+		
+		public void fireValuesChange(ChangeEvent e) {
+			
+			for (ChangeListener changeListener : listenerList2.getListeners(ChangeListener.class)) {
+				changeListener.stateChanged(e);
+			}
+		}
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
 
 }

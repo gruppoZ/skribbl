@@ -3,6 +3,8 @@ package it.unibs.pajc.server;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -20,11 +22,13 @@ public class Protocol implements Runnable{
 	
 	private static ArrayList<Protocol> clientList = new ArrayList<Protocol>();
 	
-	private PrintWriter out;
+	//private PrintWriter out;
+	private ObjectOutputStream out;
 	private Socket clientSocket;
 	private String clientName;
 	private boolean active;
-	
+	private Object request;;
+	private ObjectInputStream in;
 	public Protocol(Socket clientSocket, String clientName) {
 		this.clientSocket = clientSocket;
 		this.clientName = clientName;
@@ -34,7 +38,12 @@ public class Protocol implements Runnable{
 	
 	public void close() {
 		if(out != null)
-			out.close();
+			try {
+				out.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		
 		clientList.remove(this);
 		
@@ -43,15 +52,19 @@ public class Protocol implements Runnable{
 
 	@Override
 	public void run() {
-		try(
-				BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-		) {
-			out = new PrintWriter(clientSocket.getOutputStream(), true);
+//		try(
+//				//BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+//				
+//		)
+		try {
+			this.in = new ObjectInputStream(clientSocket.getInputStream());
+			//out = new PrintWriter(clientSocket.getOutputStream(), true);
+			out = new ObjectOutputStream(clientSocket.getOutputStream());
 			System.out.printf("\nClient connesso: %s [%d] - Name: %s\n",
 					clientSocket.getInetAddress(), clientSocket.getPort(),clientName);
 			
 //			sendMsg(this, "Inserisci il tuo nome: ");
-			String clientNameRequest = in.readLine();
+			String clientNameRequest = (String) in.readObject();
 			synchronized (clientNameRequest) {
 				if(getClientByName(clientNameRequest) == null) {
 					clientName = clientNameRequest;
@@ -62,15 +75,19 @@ public class Protocol implements Runnable{
 			welcome();
 			
 			//protocollo di comunicazione
-			String request;
-			while(((request = in.readLine()) != null) && active) {
-				System.out.printf("\nRichiesta ricevuta: %s [%s]", request, clientName);
+			
+			//while(((request = in.readObject()) != null) && active) {
+			while((request = in.readObject()) != null) {
+				if(request != null) {
+					System.out.printf("\nRichiesta ricevuta: %s [%s]", request, clientName);
+					
+					Object response = request;
+					//TODO: analizzare parola e vedere se giusta
+					sendMsgToAll(this, response);
+				}
 				
-				String response = request;
-				//TODO: analizzare parola e vedere se giusta
-				sendMsgToAll(this, response);
 			}
-		} catch (IOException e) {
+		} catch (IOException | ClassNotFoundException e) {
 			System.out.printf("\nErrore durante i msg %s ", e);
 		} finally {
 			this.close();
@@ -78,7 +95,7 @@ public class Protocol implements Runnable{
 		
 		
 	}
-	
+
 	public Protocol getClientByName(String clientName) {
 		for (Protocol p : clientList) {
 			if(p.clientName.equals(clientName))
@@ -92,12 +109,20 @@ public class Protocol implements Runnable{
 //			dest.sendMsg(sender, msg + "***");
 //	}
 	
-	private void sendMsg(Protocol sender, String msg) {
-		this.out.printf("[%s]: %s\r\n", sender.clientName, msg);
-		this.out.flush();
+	private void sendMsg(Protocol sender, Object msg) {
+		if(msg instanceof String)
+			msg = "[" + sender.clientName + "]: " + msg + "\r\n";
+		try {
+			this.out.writeObject(msg);
+			this.out.flush();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 	
-	private void sendMsgToAll(Protocol sender, String msg) {
+	private void sendMsgToAll(Protocol sender, Object msg) {
 		clientList.forEach((p) -> p.sendMsg(sender, msg));
 	}
 	

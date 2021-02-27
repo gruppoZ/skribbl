@@ -102,8 +102,11 @@ public class ClientView {
 		
 		setNickname();
 		
+		//paintArea.addActionListener(e -> model.sendPaint(paintArea.getLines()));
+		//paintArea.addChangeListener(e -> model.sendPaint(paintArea.getLines()));
+		paintArea.addChangeListener(e -> model.sendMsg(paintArea.getCurrentLine()));
 		pnlStrumenti.addActionListener(e -> paintArea.changePaint(e));
-		btnSend.addActionListener(e -> this.send());
+		btnSend.addActionListener(e -> this.send()); 
 		txtWrite.addActionListener(e -> this.send());
 	}
 	
@@ -112,6 +115,7 @@ public class ClientView {
 		txtWrite.setText("");
 	}
 	
+	//Nel caso aggiungo un bottono "CHIUDI/ESCI"
 	private void close() {
 		model.close();
 	}
@@ -121,9 +125,20 @@ public class ClientView {
 		model.sendMsg(nickname);
 	}
 	
-	private void updateChat() {
+	private synchronized void updateChat() {
 		//txtChat.append(model.getComunicator().updateChat());
-		txtChat.append(model.updateChat());
-		txtChat.setCaretPosition(txtChat.getDocument().getLength());
+		Object result = model.updateChat();
+		if(result != null && (result.getClass().equals(String.class))) {
+			System.out.println("Result: " + result.getClass() + ".  ---- String: " + String.class);
+			String msg = String.valueOf(result);
+			System.out.println("length: " + msg.length());
+			txtChat.append(msg);
+			txtChat.setCaretPosition(txtChat.getDocument().getLength());
+		}
+
+		if(result != null && (result.getClass().equals(PolyLine.class))) {
+			System.out.println("Result: " + result.getClass() + ".  ---- Polyline: " + PolyLine.class);
+			paintArea.setLines((PolyLine) result);
+		}
 	}
 }
