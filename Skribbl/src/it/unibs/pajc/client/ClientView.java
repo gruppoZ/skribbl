@@ -26,14 +26,25 @@ import javax.swing.JScrollPane;
 import javax.swing.DropMode;
 import javax.swing.JEditorPane;
 import java.util.List;
+import java.awt.Color;
+import java.awt.Font;
+import javax.swing.UIManager;
+import javax.swing.JLabel;
+import javax.swing.SwingConstants;
 
 public class ClientView {
 
 	private JFrame frame;
 	private JTextField txtWrite;
 	private PaintArea paintArea;
+	private PnlStrumenti pnlStrumenti;
 	private ClientModel model;
 	private JTextArea txtChat;
+	private PnlTimer pnlTimer;
+	private JButton btnStartGame;
+	private JTextField txtRounds;
+	private JTextField txtPainter;
+	private String namePlayer;
 	
 	/**
 	 * Launch the application.
@@ -58,8 +69,7 @@ public class ClientView {
 		model = new ClientModel();
 		initialize();
 		
-		//model.getComunicator().addChangeListener(e -> this.updateChat());
-		model.addChangeListener(e -> this.updateChat());
+		model.addChangeListener(e -> this.updateView());
 	}
 
 	/**
@@ -67,16 +77,17 @@ public class ClientView {
 	 */
 	private void initialize() {
 		frame = new JFrame();
-		frame.setBounds(100, 100, 700, 550);
+		frame.getContentPane().setEnabled(false);
+		frame.setBounds(100, 100, 1023, 694);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
 		JButton btnSend = new JButton("Send");
-		btnSend.setBounds(585, 477, 89, 23);
+		btnSend.setBounds(894, 569, 89, 23);
 		frame.getContentPane().add(btnSend);
 		
 		txtWrite = new JTextField();
-		txtWrite.setBounds(396, 477, 177, 21);
+		txtWrite.setBounds(707, 570, 177, 21);
 		frame.getContentPane().add(txtWrite);
 		txtWrite.setColumns(10);
 		
@@ -89,56 +100,144 @@ public class ClientView {
 		
 		JScrollPane scrollBar = new JScrollPane(txtChat);
 		scrollBar.setAutoscrolls(true);
-		scrollBar.setBounds(396, 11, 278, 449);
+		scrollBar.setBounds(705, 17, 278, 541);
 		frame.getContentPane().add(scrollBar);
 		
 		paintArea = new PaintArea(model);
-		paintArea.setBounds(10, 76, 376, 424);
+		paintArea.setBounds(10, 76, 447, 457);
 		frame.getContentPane().add(paintArea);
 		
-		PnlStrumenti pnlStrumenti = new PnlStrumenti(model.getStrumenti());
-		pnlStrumenti.setBounds(10, 21, 376, 46);
+		pnlStrumenti = new PnlStrumenti(model.getStrumenti());
+		pnlStrumenti.setBounds(10, 21, 447, 44);
 		frame.getContentPane().add(pnlStrumenti);
+		
+		pnlTimer = new PnlTimer();
+		pnlTimer.setBounds(520, 21, 121, 44);
+		frame.getContentPane().add(pnlTimer);
+		
+		btnStartGame = new JButton("Start!");
+		btnStartGame.setBorderPainted(false);
+		btnStartGame.setForeground(new Color(0, 0, 0));
+		btnStartGame.setBorder(UIManager.getBorder("Button.border"));
+		
+		btnStartGame.setFont(new Font("Tempus Sans ITC", Font.BOLD | Font.ITALIC, 14));
+		btnStartGame.setBackground(new Color(153, 255, 153));
+		btnStartGame.setBounds(894, 621, 89, 23);
+		frame.getContentPane().add(btnStartGame);
+		
+		JLabel lblRounds = new JLabel("Rounds");
+		lblRounds.setHorizontalAlignment(SwingConstants.CENTER);
+		lblRounds.setBounds(551, 130, 46, 14);
+		frame.getContentPane().add(lblRounds);
+		
+		txtRounds = new JTextField();
+		txtRounds.setHorizontalAlignment(SwingConstants.CENTER);
+		txtRounds.setBackground(Color.WHITE);
+		txtRounds.setEditable(false);
+		txtRounds.setBounds(534, 150, 86, 20);
+		frame.getContentPane().add(txtRounds);
+		txtRounds.setColumns(10);
+		
+		txtRounds.setText("/");
+		
+		txtPainter = new JTextField();
+		txtPainter.setHorizontalAlignment(SwingConstants.CENTER);
+		txtPainter.setEditable(false);
+		txtPainter.setColumns(10);
+		txtPainter.setBackground(Color.WHITE);
+		txtPainter.setBounds(486, 247, 187, 23);
+		frame.getContentPane().add(txtPainter);
 		
 		setNickname();
 		
-		//paintArea.addActionListener(e -> model.sendPaint(paintArea.getLines()));
-		//paintArea.addChangeListener(e -> model.sendPaint(paintArea.getLines()));
 		paintArea.addChangeListener(e -> model.sendMsg(paintArea.getCurrentLine()));
 		pnlStrumenti.addActionListener(e -> paintArea.changePaint(e));
 		btnSend.addActionListener(e -> this.send()); 
 		txtWrite.addActionListener(e -> this.send());
+		btnStartGame.addActionListener(e -> model.startGame());
 	}
 	
+	protected PaintArea getPaintArea() {
+		return this.paintArea;
+	}
+	
+	/**
+	 * Richiamato dal fireEvent di txtWrite o del btnSend. Invia quindi il messaggio al server mediante l'uso del model
+	 */
 	private void send() {
 		model.sendMsg(txtWrite.getText());
 		txtWrite.setText("");
 	}
 	
-	//Nel caso aggiungo un bottono "CHIUDI/ESCI"
+	//TODO Nel caso aggiungo un bottono "CHIUDI/ESCI"
 	private void close() {
 		model.close();
 	}
 
+	/**
+	 * Inizializza il Nome del Player, comunicandolo al server mediante l'uso del Model
+	 */
 	private void setNickname() {
 		String nickname = JOptionPane.showInputDialog(frame,"What is your name?", null);
-		model.sendMsg(nickname);
+		namePlayer = nickname;
+		txtPainter.setText(nickname);
+		model.sendNickName(nickname);
 	}
 	
-	private synchronized void updateChat() {
-		//txtChat.append(model.getComunicator().updateChat());
+	/**
+	 * Richiamata nel caso di un fireEvent nel Model
+	 * <p>Verifica i messaggi ricevuti dal server attraverso la ControllerCommand, e decide se aggiornare la chat, il paintArea o delegare
+	 * le attività al ControllerCommand </p>
+	 */
+	private synchronized void updateView() {
 		Object result = model.updateChat();
+		ProcessCommand command;
 		if(result != null && (result.getClass().equals(String.class))) {
 			System.out.println("Result: " + result.getClass() + ".  ---- String: " + String.class);
 			String msg = String.valueOf(result);
-			System.out.println("length: " + msg.length());
-			txtChat.append(msg);
-			txtChat.setCaretPosition(txtChat.getDocument().getLength());
+			
+			command = new ProcessCommand();
+			if(!command.isCommand(msg)) {
+				System.out.println("length: " + msg.length());
+				//txtChat.append(command.getMsgChat(msg));  
+				txtChat.append(msg);
+				txtChat.setCaretPosition(txtChat.getDocument().getLength());
+			} else
+				command.process(this, msg);
 		}
 
 		if(result != null && (result.getClass().equals(PolyLine.class))) {
 			System.out.println("Result: " + result.getClass() + ".  ---- Polyline: " + PolyLine.class);
 			paintArea.setLines((PolyLine) result);
 		}
+	}
+	
+	/**
+	 * Resetta e Inizia il TImer
+	 */
+	protected void startTimer() {
+		pnlTimer.startTimer();
+		//TODO fare una migliore grafica
+	
+		if(paintArea.getIsPainter()) {
+			pnlStrumenti.setVisible(true);
+			txtPainter.setText(namePlayer + ": Sei il painter");
+			txtPainter.setBackground(Color.GREEN);
+		} else {
+			pnlStrumenti.setVisible(false);
+			txtPainter.setText(namePlayer + ": Non sei il painter");
+			txtPainter.setBackground(Color.RED);
+		}
+	}
+	
+	/**
+	 * Ferma il timer
+	 */
+	protected void stopTimer() {
+		pnlTimer.stopTimer();
+	}
+	
+	protected void setRounds(String rounds) {
+		txtRounds.setText(rounds);
 	}
 }

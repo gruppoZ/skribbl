@@ -20,7 +20,7 @@ public class PnlStrumenti extends PnlBase {
 		updateOperators(strumenti);
 	}
 	
-	public void updateOperators(List<Object> strumenti) {
+	protected void updateOperators(List<Object> strumenti) {
 		this.removeAll();
 		for(int i = 0; i < strumenti.size(); i++) {
 			if(strumenti.get(i) instanceof String)
@@ -29,11 +29,11 @@ public class PnlStrumenti extends PnlBase {
 				addButtonIcon((Icon) strumenti.get(i));
 		}
 		
-		this.revalidate();//forza la ridistribuzione dei componenti all'interno del container
+		this.revalidate(); //forza la ridistribuzione dei componenti all'interno del container
 		this.repaint();
 	}
 	
-	public void addButtonColor(String colore) {
+	protected void addButtonColor(String colore) {
 		JButton btn = new JButton(); 
 		btn.setPreferredSize(new Dimension(30, 30));
 		btn.setBackground(ClientModel.getColorByName(colore));
@@ -42,7 +42,8 @@ public class PnlStrumenti extends PnlBase {
 		this.add(btn);
 		btn.addActionListener(e -> fireActionListener(e));
 	}
-	public void addButtonIcon(Icon icon) {
+	
+	protected void addButtonIcon(Icon icon) {
 		JButton btn = new JButton(icon);
 		btn.setPreferredSize(new Dimension(30, 30));
 		btn.setBackground(Color.WHITE);

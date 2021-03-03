@@ -1,16 +1,8 @@
 package it.unibs.pajc.server;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import it.unibs.pajc.server.ProcessMessage;
+import java.io.*;
+import java.net.*;
+import java.util.*;
 import it.unibs.pajc.server.Protocol;
 
 public class Protocol implements Runnable{
@@ -18,22 +10,30 @@ public class Protocol implements Runnable{
 	
 	static {
 		commandMap = new HashMap<String, ProcessMessage>();
+		commandMap.put("@", new ProcessCommand());
 	}
 	
 	private static ArrayList<Protocol> clientList = new ArrayList<Protocol>();
 	
-	//private PrintWriter out;
 	private ObjectOutputStream out;
 	private Socket clientSocket;
 	private String clientName;
 	private boolean active;
 	private Object request;;
 	private ObjectInputStream in;
+	
 	public Protocol(Socket clientSocket, String clientName) {
 		this.clientSocket = clientSocket;
 		this.clientName = clientName;
 		this.active = true;
 		clientList.add(this);
+	}
+	
+	protected String getClientName() {
+		return this.clientName;
+	}
+	protected synchronized Protocol getProtocol() {
+		return this;
 	}
 	
 	public void close() {
@@ -49,51 +49,19 @@ public class Protocol implements Runnable{
 		
 		sendMsgToAll(this, " ha abbandonato la conversazione");
 	}
-
+	protected synchronized void exit() {
+		this.active = false;
+	}
+	protected synchronized void active() {
+		this.active = true;
+	}
 	@Override
-	public void run() {
-//		try(
-//				//BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-//				
-//		)
-		try {
-			this.in = new ObjectInputStream(clientSocket.getInputStream());
-			//out = new PrintWriter(clientSocket.getOutputStream(), true);
-			out = new ObjectOutputStream(clientSocket.getOutputStream());
-			System.out.printf("\nClient connesso: %s [%d] - Name: %s\n",
-					clientSocket.getInetAddress(), clientSocket.getPort(),clientName);
-			
-//			sendMsg(this, "Inserisci il tuo nome: ");
-			String clientNameRequest = (String) in.readObject();
-			synchronized (clientNameRequest) {
-				if(getClientByName(clientNameRequest) == null) {
-					clientName = clientNameRequest;
-				}
-			}
-			
-			
-			welcome();
-			
-			//protocollo di comunicazione
-			
-			//while(((request = in.readObject()) != null) && active) {
-			while((request = in.readObject()) != null) {
-				if(request != null) {
-					System.out.printf("\nRichiesta ricevuta: %s [%s]", request, clientName);
-					
-					Object response = request;
-					//TODO: analizzare parola e vedere se giusta
-					sendMsgToAll(this, response);
-				}
-				
-			}
-		} catch (IOException | ClassNotFoundException e) {
-			System.out.printf("\nErrore durante i msg %s ", e);
-		} finally {
-			this.close();
-		}
+	public void run() {		
+		Thread writer = new Thread(new Writer());
+		writer.start();
 		
-		
+		System.out.printf("\nClient connesso: %s [%d] - Name: %s\n",
+				clientSocket.getInetAddress(), clientSocket.getPort(),clientName);
 	}
 
 	public Protocol getClientByName(String clientName) {
@@ -109,7 +77,12 @@ public class Protocol implements Runnable{
 //			dest.sendMsg(sender, msg + "***");
 //	}
 	
-	private void sendMsg(Protocol sender, Object msg) {
+	/**
+	 * Invia un messaggio con "mittente" il client
+	 * @param sender
+	 * @param msg
+	 */
+	protected void sendMsg(Protocol sender, Object msg) {
 		if(msg instanceof String)
 			msg = "[" + sender.clientName + "]: " + msg + "\r\n";
 		try {
@@ -118,12 +91,39 @@ public class Protocol implements Runnable{
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		
+		}	
 	}
 	
-	private void sendMsgToAll(Protocol sender, Object msg) {
+	/**
+	 * Invia un messaggio senza specificare il mittente
+	 * @param sender
+	 * @param msg
+	 */
+	protected void sendMsg(Object msg) {
+		try {
+			this.out.writeObject(msg);
+			this.out.flush();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Invia un messaggio a tutti, specificando il mittente
+	 * @param sender
+	 * @param msg
+	 */
+	protected void sendMsgToAll(Protocol sender, Object msg) {
 		clientList.forEach((p) -> p.sendMsg(sender, msg));
+	}
+	
+	/**
+	 * Invia un messaggio a tutti senza specificare il mittente
+	 * @param msg
+	 */
+	protected void sendMsgToAll(Object msg) {
+		clientList.forEach((p) -> p.sendMsg(msg));
 	}
 	
 	//non worka
@@ -138,5 +138,78 @@ public class Protocol implements Runnable{
 		}
 	}
 	
+	protected synchronized void startGame() {
+		new Thread(new Match(clientList)).start();
+	}
+	
+	private class Listener implements Runnable {
+
+		public void run() {
+			try{
+				Protocol protocol = getProtocol();
+				
+				in = new ObjectInputStream(clientSocket.getInputStream());
+				
+				String clientNameRequest = (String) in.readObject();
+				synchronized (clientNameRequest) {
+					if(getClientByName(clientNameRequest) == null) {
+						clientName = clientNameRequest;
+					}
+				}
+				
+				welcome();
+				
+				Object response;
+				
+				while((request = in.readObject()) != null) {
+					System.out.printf("\nRichiesta ricevuta: %s [%s]", request, clientName);
+					
+					if(request.getClass().equals(String.class)) {
+						String messageType = String.valueOf(request).substring(0,1);
+						ProcessMessage processor = commandMap.get(messageType);
+						
+						if(processor != null) {
+							processor.process(protocol, String.valueOf(request).substring(1));
+						}
+						if(active) {
+							response = request;
+							sendMsgToAll(protocol, response);
+						}
+							
+					} else {
+						response = request;
+						//TODO: analizzare parola e vedere se giusta
+						sendMsgToAll(protocol, response);
+					}
+				
+				}
+				
+			} catch (IOException | ClassNotFoundException e) {
+				System.out.printf("Errore: %s", e);
+			} finally {
+				close();
+			}
+
+		}
+	}
+	
+	
+	private class Writer implements Runnable {	
+		@Override
+		public void run() {
+			try {
+				out = new ObjectOutputStream(clientSocket.getOutputStream());
+				out.flush();
+			
+			//start di un thread per il listener
+			Listener listener = new Listener();
+			new Thread(listener).start();
+			
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
 
 }

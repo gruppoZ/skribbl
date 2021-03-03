@@ -19,65 +19,113 @@ import it.unibs.pajc.core.BaseModel;
 
 
 public class ClientModel extends BaseModel{
-	ControllerComunicator comunicator;
+	private ControllerComunicator comunicator;
 	
 	public ClientModel() {
 		start();	
 	}
 	
+	/**
+	 * Inizializza il Controller comunicator, stabliendo una connessione con il SERVER
+	 */
 	private void start() {
 		comunicator = new ControllerComunicator();
 		comunicator.start();
 		comunicator.addChangeListener(e -> fireValuesChange(new ChangeEvent(this)));
 	}
 	
-	
-	
-	public void close() {
+	/**
+	 * chiude il Socket, chiude quindi la comunicazione con il SERVER
+	 */
+	protected void close() {
 		if(comunicator != null)
 			try {
 				comunicator.close();
 			} catch (IOException e) {
+				System.out.println("CLIENT - Errore nella chiusura del Comunicator. \n ");
 				e.printStackTrace();
 			}
 	}
 	
-	public void sendMsg(Object msg) {
+	/**
+	 * Permette di inviare un messaggio/Oggetto
+	 * Nel caso di String viene controllato se è un COMANDO utilizzando il ProcessCommand
+	 * @param msg
+	 */
+	protected void sendMsg(Object msg) {
+		ProcessCommand command = new ProcessCommand();
 		try {
 		if(msg.getClass().equals(String.class)) {
 			String result = (String) msg;
 			if((result.strip().length() > 0)) {
-				comunicator.sendMsg(result);
+				if(command.isCommand(result))
+					comunicator.sendMsg("@" + result);
+				else
+					comunicator.sendMsg(result);
 			}
 		} else
 			comunicator.sendMsg(msg);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			System.out.println("CLIENT - Errore nell'invio del Messaggio");
 			e.printStackTrace();
 		}
 	}
-//	public synchronized void sendPaint(List<PolyLine> lines) {
-//		try {
-//			for (PolyLine polyLine : lines) {
-//				comunicator.sendMsg(polyLine);
-//			}
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//	}
-
 	
-	public synchronized Object updateChat() {	
-		return comunicator.updateChat();
+	/**
+	 * Permette all PaintArea di inviare il comando "Cancella tutte le Linee" agli altri Client
+	 * dopo che si è premuto il bottone Cestino
+	 */
+	protected void sendTrashcan() {
+		try {
+			comunicator.sendMsg("@trashcan"); //TODO provare ad usare ProcessCommand
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
-	public ControllerComunicator getComunicator() {
-		return this.comunicator;
+	/**
+	 * Permette di inviare il NickName, scelto all'apertura dell'applicazione
+	 * Utilizzato da ClientView
+	 * @param msg
+	 */
+	protected void sendNickName(String msg) {
+		try {
+			if((msg.strip().length() > 0)) {
+				comunicator.sendMsg(msg);
+			}
+		} catch (IOException e) {
+			System.out.println("CLIENT - errore invio NICKNAME. ");
+			e.printStackTrace();
+		}
 	}
 	
+	/**
+	 * Restituisce eventuali messaggi (oggetti) ricevuti dal SERVER
+	 * @return
+	 */
+	protected synchronized Object updateChat() {	
+		Object response = comunicator.updateChat();
+		
+		if(response instanceof String) {
+			StringBuffer sb = new StringBuffer();
+			sb.append(String.valueOf(response));
+			
+			return sb.toString();
+		}
+		
+		return response;
+	}
+	
+	protected void startGame() {
+		sendMsg("@startgame");
+	}
 
-	public static Color getColorByName(String colore) {
+	/**
+	 * Permette di ottenere un Oggetto di tipo Color in base al nome del colore espresso come Stringa passata come parametro
+	 * @param colore
+	 * @return
+	 */
+	protected static Color getColorByName(String colore) {
 	    try {
 	        return (Color)Color.class.getField(colore.toUpperCase()).get(null);
 	    } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
@@ -92,19 +140,50 @@ public class ClientModel extends BaseModel{
 	};	
 	
 	private static final String RUBBER = "src/img/rubber.gif";
-	private static final String TRASH = "src/img/trash.png";
+	private static final String TRASHCAN = "src/img/trash.png";
+	private static final String DIMENSION1 = "src/img/circle12.png";
+	private static final String DIMENSION2 = "src/img/circle20.png";
+	private static final String DIMENSION3 = "src/img/circle26.png";
 	private static String[] icone = {
-			RUBBER, TRASH
+			RUBBER, TRASHCAN, DIMENSION1, DIMENSION2, DIMENSION3
 	};
 	
-	public boolean isRubber(String icona) {
+	/**
+	 * Metodo utilizzato da PaintArea per verificare se si è premuti sul bottone Gomma
+	 * @param icona
+	 * @return
+	 */
+	protected boolean isRubber(String icona) {
 		return RUBBER.equalsIgnoreCase(icona);
 	}
-	public boolean isTrash(String icona) {
-		return TRASH.equalsIgnoreCase(icona);
+	
+	/**
+	 * Metodo utilizzato da PaintArea per verificare se si è premuti sul bottone Cestino
+	 * @param icona
+	 * @return
+	 */
+	protected boolean isTrash(String icona) {
+		return TRASHCAN.equalsIgnoreCase(icona);
 	}
 	
-	public boolean isColor(String name) {
+	protected boolean isDimension1(String icona) {
+		return DIMENSION1.equalsIgnoreCase(icona);
+	}
+	
+	protected boolean isDimension2(String icona) {
+		return DIMENSION2.equalsIgnoreCase(icona);
+	}
+	
+	protected boolean isDimension3(String icona) {
+		return DIMENSION3.equalsIgnoreCase(icona);
+	}
+	
+	/**
+	 * Metodo utilizzato da PaintArea per verificare se si è premuti su un Bottone con un COLORE
+	 * @param name
+	 * @return
+	 */
+	protected boolean isColor(String name) {
 		boolean found = false;
 		for (String colore : colori) {
 			if(colore.equalsIgnoreCase(name))
@@ -113,7 +192,12 @@ public class ClientModel extends BaseModel{
 		return found;
 	}
 	
-	public boolean isIcon(String icon) {
+	/**
+	 * Metodo utilizzato da PaintArea per verificare se si è premuti su un Bottone con un'ICONA
+	 * @param icon
+	 * @return
+	 */
+	protected boolean isIcon(String icon) {
 		boolean found = false;
 		for (String icone : icone) {
 			if(icone.equalsIgnoreCase(icon))
@@ -122,7 +206,12 @@ public class ClientModel extends BaseModel{
 		return found;
 	}
 	
-	public List getStrumenti() {
+	/**
+	 * Metodo utilizzato da PaintArea, permette di ottenere la lista degli Oggetti per poter costruire visivamente
+	 * il pannello degli Strumenti da Disegno
+	 * @return
+	 */
+	protected List<Object> getStrumenti() {
 		List<Object> strumenti = new ArrayList<Object>();
 		
 		for (String colore : colori) {
