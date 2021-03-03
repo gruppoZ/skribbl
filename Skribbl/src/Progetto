@@ -44,16 +44,23 @@ Cosa devo mandare al Server?
 		
 
 =======
-		-
-
-		
 Lavagna uguale per tutti modificabile solo da uno
 >>>>>>> branch 'master' of https://github.com/gruppoZ/skribbl.git
 
 
+FASE DI GIOCO:
 
-
-
+ogni client ha un bottone "start game"
+	
+vale la pena creare una classe partita?
+variabili di partita:
+	-lista di parole
+	-lista di client
+	-classifica
+	-start game
+		for per i turni dove crei fake lista
+			for per i client dove ciclo la fake lista
+				protocol.sendMsg("sono il disegnatore")
 
 
 
