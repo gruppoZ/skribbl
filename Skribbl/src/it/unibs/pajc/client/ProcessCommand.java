@@ -1,5 +1,7 @@
 package it.unibs.pajc.client;
 
+import java.awt.Color;
+
 import javax.swing.JPanel;
 
 public class ProcessCommand {
@@ -10,7 +12,11 @@ public class ProcessCommand {
 	//private static final String START_GAME = "startgame";  NON serve ?
 	private static final String CHANGE_PAINTER = "changepainter";
 	private static final String ROUND = "round";
-	private static final String[] command = {TRASHCAN, START_TIMER, STOPTIMER, CHANGE_PAINTER, ROUND};
+	private static final String WORDS = "words";
+	private static final String SELECTED_WORD = "selectedword";
+	private static final String NO_WORDS = "nowords";
+	private static final String[] command = {TRASHCAN, START_TIMER, STOPTIMER, CHANGE_PAINTER, 
+			ROUND, WORDS, SELECTED_WORD, NO_WORDS};
 	
 	
 	public void process(String msg) {
@@ -31,14 +37,38 @@ public class ProcessCommand {
 		if(msg.startsWith(CHANGE_PAINTER)) {
 			view.getPaintArea().setIsPainter();
 			view.getPaintArea().cleanPaint();
-			view.getPaintArea().useDefaultSizeStroke();;
+			view.getPaintArea().useDefaultSizeStroke();
+			
+			if(view.getPaintArea().getIsPainter()) {
+				view.getPnlStrumenti().setVisible(true);
+				view.getPnlWords().setVisible(true);
+				view.getTxtPainter().setText(view.getNamePlayer() + ": Sei il painter");
+				view.getTxtPainter().setBackground(Color.GREEN);
+			} else {
+				view.getPnlStrumenti().setVisible(false);
+				view.getPnlWords().setVisible(false);
+				view.getTxtPainter().setText(view.getNamePlayer() + ": Non sei il painter");
+				view.getTxtPainter().setBackground(Color.RED);
+			}
+			
 		}
 		if(msg.startsWith(ROUND)) {
 			view.setRounds(msg.replaceAll(ROUND, ""));		
 		}
+		if(msg.startsWith(WORDS)) {
+			msg = msg.substring(msg.indexOf(":")+1);
+			String[] words = msg.split(";");
+			view.getPnlWords().setWords(words);
+		}
+		if(msg.startsWith(NO_WORDS)) {
+			view.getPnlWords().cancelBtn();
+		}
 			
 	}
 	
+	protected String getCommandSelectedWord(String word) {
+		return "@"+SELECTED_WORD+":"+word;
+	}
 	
 	protected boolean isCommand(String msg) {
 		msg = getCommandFromString(msg);

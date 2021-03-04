@@ -23,6 +23,8 @@ public class Match implements Runnable {
 		
 		private static final int ROUNDS = 3;
 
+		private String selectedWord = null;
+		
 		private ArrayList<Protocol> clientList;
 		private int currentRound;
 		/**
@@ -47,13 +49,24 @@ public class Match implements Runnable {
 
 		private void startMatch() {
 			//send oggetto hashmap dove i punti saranno 0
+			clientList.get(0).sendMsgToAll("@changepainter");//da correggere
 			for (int i = 0; i < ROUNDS; i++) {
 				currentRound = i + 1; //i miei round saranno 1 - 2 - 3
 				startRound();
 			}
 		}
 		
+		protected void setSelectedWord(String word) {
+			this.selectedWord = word;
+		}
+		protected String getSelectedWord() {
+			return this.selectedWord;
+		}
+		
 		private void startRound() {
+			
+			String words = "@words:gatto;cane;capra";
+			
 			//creazione fake lista
 			ArrayList<Protocol> copyList = (ArrayList<Protocol>) clientList.clone();
 			
@@ -67,25 +80,32 @@ public class Match implements Runnable {
 			});
 			
 			while(!copyList.isEmpty()) {
+				
 				int indexPainter = (int) (Math.random() * copyList.size());
 				Protocol painter = copyList.get(indexPainter);
 				painter.sendMsgToAll(painter.getClientName() + " e' il disegnatore!\nSta ancora scegliendo la parola...\n");
 				painter.sendMsgToAll(painter, "@round" + currentRound + "/" + ROUNDS);
 				
+				painter.sendMsg("@changepainter");
+				painter.sendMsg(painter, words);
 				//DA SPOSTARE
-//				painter.sendLine(clientScoreBoard);
+//					painter.sendLine(clientScoreBoard);
 				//DA SPOSTARE
 				
 				//painter deve scegliere la parola
-				painter.sendMsg("@changepainter");
 				
+				do {
+					selectedWord = getSelectedWord();
+				} while(selectedWord == null);
+			
+				painter.sendMsgToAll(painter.getClientName() + " e' il disegnatore!\nHa scelto, si Gioca!\n");
 				//start turn
 				painter.sendMsgToAll("@start_timer");
 				this.startTimer();
 				
 				//timer
 				while(timer.isRunning()) {
-//					System.out.println("Sto runnando");
+//						System.out.println("Sto runnando");
 					//verificare quando uno indovina le parole
 				}
 
@@ -93,9 +113,12 @@ public class Match implements Runnable {
 					painter.sendMsgToAll("@stoptimer");
 					painter.sendMsg("@trashcan"); //painter.clearAll(); //pulire il paint
 					painter.sendMsg("@changepainter");
+					painter.sendMsg("@nowords");
 					//facendo il remove dalla copyList questo client non può più diventare un painter
 					copyList.remove(painter);
 				}
+				
+				selectedWord = null;
 				
 			}
 		}

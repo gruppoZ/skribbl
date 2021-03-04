@@ -18,10 +18,11 @@ public class PolyLine implements Serializable {
    private Color colore;
    private float strokeSize;
    
-   public PolyLine(Color colore) {
+   public PolyLine(Color colore, float strokeSize) {
       xList = new ArrayList<Integer>();
       yList = new ArrayList<Integer>();
       this.colore = colore;
+      this.strokeSize = strokeSize;
    }
    
    protected float getStrokeSize() {

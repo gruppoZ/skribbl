@@ -59,7 +59,7 @@ public class ClientModel extends BaseModel{
 			String result = (String) msg;
 			if((result.strip().length() > 0)) {
 				if(command.isCommand(result))
-					comunicator.sendMsg("@" + result);
+					comunicator.sendMsg(result);
 				else
 					comunicator.sendMsg(result);
 			}
@@ -120,6 +120,12 @@ public class ClientModel extends BaseModel{
 		sendMsg("@startgame");
 	}
 
+	protected void sendSelectedWord(String word) {
+		ProcessCommand command = new ProcessCommand();
+		String result = command.getCommandSelectedWord(word);
+		this.sendMsg(result);
+	}
+	
 	/**
 	 * Permette di ottenere un Oggetto di tipo Color in base al nome del colore espresso come Stringa passata come parametro
 	 * @param colore

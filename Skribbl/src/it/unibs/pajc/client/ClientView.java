@@ -38,6 +38,7 @@ public class ClientView {
 	private JTextField txtWrite;
 	private PaintArea paintArea;
 	private PnlStrumenti pnlStrumenti;
+	private PnlWords pnlWords;
 	private ClientModel model;
 	private JTextArea txtChat;
 	private PnlTimer pnlTimer;
@@ -45,7 +46,7 @@ public class ClientView {
 	private JTextField txtRounds;
 	private JTextField txtPainter;
 	private String namePlayer;
-	
+	private ProcessCommand command = new ProcessCommand();
 	/**
 	 * Launch the application.
 	 */
@@ -112,7 +113,7 @@ public class ClientView {
 		frame.getContentPane().add(pnlStrumenti);
 		
 		pnlTimer = new PnlTimer();
-		pnlTimer.setBounds(520, 21, 121, 44);
+		pnlTimer.setBounds(520, 21, 108, 44);
 		frame.getContentPane().add(pnlTimer);
 		
 		btnStartGame = new JButton("Start!");
@@ -148,19 +149,35 @@ public class ClientView {
 		txtPainter.setBounds(486, 247, 187, 23);
 		frame.getContentPane().add(txtPainter);
 		
+		pnlWords = new PnlWords();
+		pnlWords.setBounds(10, 569, 447, 44);
+		frame.getContentPane().add(pnlWords);
+		
 		setNickname();
 		
 		paintArea.addChangeListener(e -> model.sendMsg(paintArea.getCurrentLine()));
 		pnlStrumenti.addActionListener(e -> paintArea.changePaint(e));
 		btnSend.addActionListener(e -> this.send()); 
 		txtWrite.addActionListener(e -> this.send());
-		btnStartGame.addActionListener(e -> model.startGame());
+		btnStartGame.addActionListener(e -> this.startGame());
+		pnlWords.addActionListener(e -> model.sendSelectedWord(e.getActionCommand()));
 	}
 	
 	protected PaintArea getPaintArea() {
 		return this.paintArea;
 	}
-	
+	protected PnlWords getPnlWords() {
+		return this.pnlWords;
+	}
+	protected PnlStrumenti getPnlStrumenti() {
+		return this.pnlStrumenti;
+	}
+	protected JTextField getTxtPainter() {
+		return this.txtPainter;
+	}
+	protected String getNamePlayer() {
+		return this.namePlayer;
+	}
 	/**
 	 * Richiamato dal fireEvent di txtWrite o del btnSend. Invia quindi il messaggio al server mediante l'uso del model
 	 */
@@ -191,12 +208,11 @@ public class ClientView {
 	 */
 	private synchronized void updateView() {
 		Object result = model.updateChat();
-		ProcessCommand command;
+		
 		if(result != null && (result.getClass().equals(String.class))) {
 			System.out.println("Result: " + result.getClass() + ".  ---- String: " + String.class);
 			String msg = String.valueOf(result);
 			
-			command = new ProcessCommand();
 			if(!command.isCommand(msg)) {
 				System.out.println("length: " + msg.length());
 				//txtChat.append(command.getMsgChat(msg));  
@@ -212,6 +228,13 @@ public class ClientView {
 		}
 	}
 	
+	private void startGame() {
+		//paintArea.setIsPainter();
+		paintArea.cleanPaint();
+		model.sendTrashcan();
+		model.startGame();
+	}
+	
 	/**
 	 * Resetta e Inizia il TImer
 	 */
@@ -219,15 +242,6 @@ public class ClientView {
 		pnlTimer.startTimer();
 		//TODO fare una migliore grafica
 	
-		if(paintArea.getIsPainter()) {
-			pnlStrumenti.setVisible(true);
-			txtPainter.setText(namePlayer + ": Sei il painter");
-			txtPainter.setBackground(Color.GREEN);
-		} else {
-			pnlStrumenti.setVisible(false);
-			txtPainter.setText(namePlayer + ": Non sei il painter");
-			txtPainter.setBackground(Color.RED);
-		}
 	}
 	
 	/**

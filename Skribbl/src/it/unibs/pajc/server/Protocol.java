@@ -21,6 +21,9 @@ public class Protocol implements Runnable{
 	private boolean active;
 	private Object request;;
 	private ObjectInputStream in;
+	private boolean inGame = false;
+	private Thread matchThread;
+	private static Match match;
 	
 	public Protocol(Socket clientSocket, String clientName) {
 		this.clientSocket = clientSocket;
@@ -138,12 +141,32 @@ public class Protocol implements Runnable{
 		}
 	}
 	
+	protected boolean checkInGame() {
+		if(matchThread != null) {
+			try {
+				if(matchThread.isAlive())
+					inGame = true;
+			} catch(Exception e) {
+				inGame = false;
+			}
+
+		} else
+			inGame = false;
+		
+		return inGame;
+	}
+	
 	protected synchronized void startGame() {
-		new Thread(new Match(clientList)).start();
+		match = new Match(clientList);
+		matchThread = new Thread(match);
+		matchThread.start();
+	}
+	
+	protected static Match getMatch() {
+		return match;
 	}
 	
 	private class Listener implements Runnable {
-
 		public void run() {
 			try{
 				Protocol protocol = getProtocol();
@@ -168,13 +191,16 @@ public class Protocol implements Runnable{
 						String messageType = String.valueOf(request).substring(0,1);
 						ProcessMessage processor = commandMap.get(messageType);
 						
-						if(processor != null) {
+						if(processor == null) {
+							if(active) {
+								response = request;
+								sendMsgToAll(protocol, response);
+							}
+						} else {
 							processor.process(protocol, String.valueOf(request).substring(1));
 						}
-						if(active) {
-							response = request;
-							sendMsgToAll(protocol, response);
-						}
+						
+						
 							
 					} else {
 						response = request;
@@ -185,7 +211,7 @@ public class Protocol implements Runnable{
 				}
 				
 			} catch (IOException | ClassNotFoundException e) {
-				System.out.printf("Errore: %s", e);
+				System.out.printf("\nErrore: %s", e);
 			} finally {
 				close();
 			}
