@@ -162,8 +162,11 @@ public class ClientModel extends BaseModel{
 	
 	private static final String RUBBER = "src/img/rubber.gif";
 	private static final String TRASHCAN = "src/img/trashcan.png";
+	private static final String DIMENSION1 = "src/img/circle12.png";
+	private static final String DIMENSION2 = "src/img/circle20.png";
+	private static final String DIMENSION3 = "src/img/circle26.png";
 	private static String[] icone = {
-			RUBBER, TRASHCAN
+			RUBBER, TRASHCAN, DIMENSION1, DIMENSION2, DIMENSION3
 	};
 	
 	public boolean isRubber(String icona) {
@@ -171,6 +174,18 @@ public class ClientModel extends BaseModel{
 	}
 	public boolean isTrash(String icona) {
 		return TRASHCAN.equalsIgnoreCase(icona);
+	}
+	
+	protected boolean isDimension1(String icona) {
+		return DIMENSION1.equalsIgnoreCase(icona);
+	}
+	
+	protected boolean isDimension2(String icona) {
+		return DIMENSION2.equalsIgnoreCase(icona);
+	}
+	
+	protected boolean isDimension3(String icona) {
+		return DIMENSION3.equalsIgnoreCase(icona);
 	}
 	
 	public boolean isColor(String name) {

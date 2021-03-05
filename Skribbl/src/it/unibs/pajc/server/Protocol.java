@@ -17,6 +17,7 @@ import it.unibs.pajc.whiteboard.WhiteBoardLine;
 
 public class Protocol implements Runnable{
 
+	//TODO: controllare che non ci siano conflitti all'interno di match
 	private static Match match;
 	
 	private WhiteBoard whiteBoard;
@@ -55,20 +56,21 @@ public class Protocol implements Runnable{
 	}
 	
 	public void close() {
-		if(out != null)
-			out.close();
-		
+		if(os != null) {
+			try {
+				match.removePlayer(this);
+				os.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		clientList.remove(this);
-		//TODO: match.remove(player)
-		
 		sendMsgToAll(this, " ha abbandonato la conversazione");
 	}
 
 	@Override
 	public void run() {
-//		try(
-////				BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-//		) 
 		try{
 			is = new ObjectInputStream(clientSocket.getInputStream());
             os = new ObjectOutputStream(clientSocket.getOutputStream());
@@ -87,6 +89,9 @@ public class Protocol implements Runnable{
 			
 			this.welcome();
 			
+			if(isMatchStarted())
+				match.addPlayer(this);
+			
 			String request;
 			
 			while((obj = is.readObject()) != null) {
@@ -100,7 +105,7 @@ public class Protocol implements Runnable{
 					} else {
 						String response = request;
 						sendMsgToAll(this, response);
-						if(match != null) {
+						if(isMatchStarted()) {
 							System.out.println("Sono nel protocol");
 							System.out.println(Thread.currentThread().getName());
 							//TODO: controllare bene sto synchronized
@@ -118,16 +123,6 @@ public class Protocol implements Runnable{
 					this.addLine(line);
 				}
 			}
-			//protocollo di comunicazione
-			
-//			while(((request = in.readLine()) != null) && active) {
-//				System.out.printf("\nRichiesta ricevuta: %s [%s]", request, clientName);
-//				
-//				String response = request;
-//				//TODO: analizzare parola e vedere se giusta
-//				sendMsgToAll(this, response);
-//			}
-			
 			
 		} catch (IOException e) {
 			System.out.printf("Errore durante i msg %s ", e);
@@ -161,6 +156,10 @@ public class Protocol implements Runnable{
 	
 	public String getClientName() {
 		return clientName;
+	}
+	
+	private boolean isMatchStarted() {
+		return match != null ? true : false;
 	}
 	
 	/*

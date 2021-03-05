@@ -33,9 +33,12 @@ public class PnlPaintArea extends JPanel implements MouseListener, MouseMotionLi
     private WhiteBoardLine currentLine;  // the current line (for capturing)
     private Graphics2D g2;
     
+    //TODO: vedere bene dove inizializzare gli att
     private Color lineColor = Color.BLACK;
-    private float strokeSize = 2;
-    private BasicStroke lineStroke = new BasicStroke(strokeSize);
+//    private float strokeSize = 2;
+    
+    private static final float DEFAULT_SIZESTROKE = 2;
+    private float sizeStroke = DEFAULT_SIZESTROKE;
     
     private boolean painter = false;
     
@@ -62,6 +65,10 @@ public class PnlPaintArea extends JPanel implements MouseListener, MouseMotionLi
 //	public void setModel(ClientModel model) {
 //		this.model = model;
 //	}
+	
+	protected void useDefaultSizeStroke() {
+		sizeStroke = DEFAULT_SIZESTROKE;
+	}
 
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -71,6 +78,7 @@ public class PnlPaintArea extends JPanel implements MouseListener, MouseMotionLi
 		//set color and size 
 //		g2.setStroke(lineStroke);
 		
+		//TODO: vedere se va senza syncrho
 		synchronized (lines) {
 			for (WhiteBoardLine line: lines) {
 				g2.setColor(line.getColor());
@@ -88,7 +96,7 @@ public class PnlPaintArea extends JPanel implements MouseListener, MouseMotionLi
 	@Override
 	public void mouseMoved(MouseEvent e) {
 		if (painter) {
-	        currentLine = new WhiteBoardLine(lineColor, strokeSize);
+	        currentLine = new WhiteBoardLine(lineColor, sizeStroke);
 	        lines.add(currentLine);
 	        currentLine.addPoint(e.getX(), e.getY());
 		}
@@ -145,18 +153,22 @@ public class PnlPaintArea extends JPanel implements MouseListener, MouseMotionLi
 	
 	protected void changePaint(ActionEvent e) {
 		
-		if(model.isColor(e.getActionCommand())) {
+		if(model.isColor(e.getActionCommand()))
 			lineColor = ClientModel.getColorByName(e.getActionCommand());
-			strokeSize = 2;
-//			lineStroke = new BasicStroke((float)2);
-		}
 			
-		if(model.isIcon(e.getActionCommand()) && model.isRubber(e.getActionCommand())) {
+		if(model.isIcon(e.getActionCommand()) && model.isRubber(e.getActionCommand()))
 			lineColor = Color.WHITE;
-			strokeSize = 7;
 			//TODO: fare un draw oval sul mouse quando hai la gomma
-		}
-			 
+		
+		if(model.isIcon(e.getActionCommand()) && model.isDimension1(e.getActionCommand()))
+			sizeStroke = 2;
+		
+		if(model.isIcon(e.getActionCommand()) && model.isDimension2(e.getActionCommand()))
+			sizeStroke = 4;
+		
+		if(model.isIcon(e.getActionCommand()) && model.isDimension3(e.getActionCommand()))
+			sizeStroke = 6;
+		
 		if(model.isIcon(e.getActionCommand()) && model.isTrash(e.getActionCommand())) {
 			model.sendMsg("!deleteall");
 			clearAll();
