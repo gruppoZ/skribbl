@@ -50,7 +50,7 @@ public class Player{
 	}
 
 	public boolean equals(Protocol protocol) {
-		return this.client.equals(protocol);
+		return this.client.getClientName().equals(protocol.getClientName());
 	}
 	
 	

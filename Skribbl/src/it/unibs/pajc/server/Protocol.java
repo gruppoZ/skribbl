@@ -109,11 +109,12 @@ public class Protocol extends BaseModel implements Runnable{
 						processor.process(this, request.substring(1));
 					} else {
 						String response = request;
-						sendMsgToAll(this, response);
+//						sendMsgToAll(this, response);
 						if(isMatchStarted()) {
 							//TODO: controllare bene il synchronized
 							fireValuesChange(new ChangeEvent(response));
-							
+						} else {
+							sendMsgToAll(this, response);
 						}
 							
 					}

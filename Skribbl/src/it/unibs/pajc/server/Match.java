@@ -35,7 +35,7 @@ public class Match implements Runnable {
 	private int currentRound;
 	private String selectedWord;
 	private boolean turnEnded;
-	
+	private ArrayList<Protocol> copyList;
 	private Protocol painter;
 	
 	/**
@@ -47,6 +47,7 @@ public class Match implements Runnable {
 		this.playerList = new ArrayList<Player>();
 		this.selectedWord = null;
 		this.turnEnded = false;
+		
 		protocol.addChangeListener(e -> this.checkWord(String.valueOf(e.getSource())));
 	}
 	
@@ -90,7 +91,7 @@ public class Match implements Runnable {
 		String words = "?words:gatto;cane;capra";
 		
 		//creazione fake lista
-		ArrayList<Protocol> copyList = (ArrayList<Protocol>) clientList.clone();
+		copyList = (ArrayList<Protocol>) clientList.clone();
 		
 		//inizializzazione timer
 		timer = new Timer(DELAY, e -> {
@@ -102,7 +103,6 @@ public class Match implements Runnable {
 		});
 		
 		while(!copyList.isEmpty()) {
-			selectedWord = null;
 			
 			int indexPainter = (int) (Math.random() * copyList.size());
 			painter = copyList.get(indexPainter);
@@ -132,22 +132,36 @@ public class Match implements Runnable {
 			 */
 			while(timer.isRunning() && !turnEnded) {
 				turnEnded = true;
+				
 				for (Player player : playerList) {
 					if(!player.equals(painter))
 						turnEnded = turnEnded && player.hasGuessed();
 				}
+//				playerList.forEach((player) -> {
+//					if(!player.equals(painter))
+//						turnEnded = turnEnded && player.hasGuessed();
+//				});
 				
 			}
 
 			if(!timer.isRunning()) {
-				painter.sendMsgToAll("!stoptimer");
-				painter.clearAll();
-				painter.sendMsg("!changepainter"); //TODO: cambiare in changepainterstatus
-				//facendo il remove dalla copyList questo client non può più diventare un painter
-				copyList.remove(painter);
+				resetTurn();
 			}
 			
 		}
+	}
+	
+	private void resetTurn() {
+		painter.sendMsgToAll("!stoptimer");
+		painter.clearAll();
+		painter.sendMsg("!changepainter"); //TODO: cambiare in changepainterstatus
+		//facendo il remove dalla copyList questo client non può più diventare un painter
+		copyList.remove(painter);
+		selectedWord = null;
+		
+		playerList.forEach((player) -> {
+			player.setGuessed(false);
+		});
 	}
 	
 	protected void startTimer() {
@@ -192,6 +206,8 @@ public class Match implements Runnable {
 					guesser.setGuessed(true);
 					sendScoreBoard(painter);
 					protocol.sendMsgToAll(protocol.getClientName() + " HA INDOVINATO LA PAROLA");
+				} else {
+					protocol.sendMsgToAll(word);
 				}
 			}
 				
