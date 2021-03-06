@@ -86,6 +86,7 @@ public class Match implements Runnable {
 				painter.sendMsgToAll(painter.getClientName() + " e' il disegnatore!\nSta ancora scegliendo la parola...\n");
 				painter.sendMsgToAll(painter, "@round" + currentRound + "/" + ROUNDS);
 				
+				painter.sendMsgToAll("@trashcan");
 				painter.sendMsg("@changepainter");
 				painter.sendMsg(painter, words);
 				//DA SPOSTARE

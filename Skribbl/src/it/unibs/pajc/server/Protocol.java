@@ -190,16 +190,14 @@ public class Protocol implements Runnable{
 					if(request.getClass().equals(String.class)) {
 						String messageType = String.valueOf(request).substring(0,1);
 						ProcessMessage processor = commandMap.get(messageType);
+
+//							if(active) { //Utile se uso un comando di tipo: disattiva/attiva Client
+//								response = request;
+//								sendMsgToAll(protocol, response);
+//							}
 						
-						if(processor == null) {
-							if(active) {
-								response = request;
-								sendMsgToAll(protocol, response);
-							}
-						} else {
+						if(processor != null)
 							processor.process(protocol, String.valueOf(request).substring(1));
-						}
-						
 						
 							
 					} else {
