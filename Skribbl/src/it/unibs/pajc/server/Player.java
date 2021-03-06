@@ -4,6 +4,7 @@ public class Player{
 	private Protocol client;
 	private int score;
 	private boolean painter;
+	private boolean guessed;
 	/**
 	 * @param client
 	 * @param score
@@ -13,10 +14,19 @@ public class Player{
 		this.client = client;
 		this.score = 0;
 		this.painter = false;
+		this.guessed = false;
 	}
 
 	public Protocol getProtocol() {
 		return client;
+	}
+
+	public boolean hasGuessed() {
+		return guessed;
+	}
+
+	public void setGuessed(boolean guessed) {
+		this.guessed = guessed;
 	}
 
 	public int getScore() {
@@ -30,16 +40,19 @@ public class Player{
 	public boolean isPainter() {
 		return painter;
 	}
+	
+	public void updateScore(int points) {
+		this.score += points;
+	}
+	
+	public String getName() {
+		return this.client.getClientName();
+	}
 
-//	@Override
-//	public int compareTo(Player p) {
-//		if(this.score > p.getScore())
-//			return 1;
-//		if(this.score == p.getScore() && this.client.getClientName().equals(p.getProtocol().getClientName()))
-//			return 0;
-//		return -1;
-//	}
-
+	public boolean equals(Protocol protocol) {
+		return this.client.equals(protocol);
+	}
+	
 	
 	
 	

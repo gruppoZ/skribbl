@@ -10,12 +10,16 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+
+import javax.swing.event.ChangeEvent;
+
+import it.unibs.pajc.core.BaseModel;
 import it.unibs.pajc.server.ProcessMessage;
 import it.unibs.pajc.server.Protocol;
 import it.unibs.pajc.whiteboard.WhiteBoard;
 import it.unibs.pajc.whiteboard.WhiteBoardLine;
 
-public class Protocol implements Runnable{
+public class Protocol extends BaseModel implements Runnable{
 
 	//TODO: controllare che non ci siano conflitti all'interno di match
 	private static Match match;
@@ -27,6 +31,7 @@ public class Protocol implements Runnable{
 	static {
 		commandMap = new HashMap<String, ProcessMessage>();
 		commandMap.put("!", new ProcessCommand());
+		commandMap.put("?", new ProcessWord());
 	}
 	
 	private static ArrayList<Protocol> clientList = new ArrayList<Protocol>();
@@ -106,12 +111,8 @@ public class Protocol implements Runnable{
 						String response = request;
 						sendMsgToAll(this, response);
 						if(isMatchStarted()) {
-							System.out.println("Sono nel protocol");
-							System.out.println(Thread.currentThread().getName());
-							//TODO: controllare bene sto synchronized
-							synchronized (this) { 
-								match.temp(response);
-							}
+							//TODO: controllare bene il synchronized
+							fireValuesChange(new ChangeEvent(response));
 							
 						}
 							
@@ -235,9 +236,17 @@ public class Protocol implements Runnable{
 	
 	public void startMatch() {
 		//TODO: gestire meglio il thread
-		match = new Match(clientList);
+		match = new Match(this, clientList);
 		Thread threadMatch = new Thread(match);
 		threadMatch.start();
+	}
+//	
+//	public Match getMatch() {
+//		return match;
+//	}
+	
+	public void setSelectedWord(String word) {
+		match.setSelectedWord(word);
 	}
 	
 	public void stopTimer() {

@@ -11,6 +11,8 @@ public class ProcessCommandClient implements ProcessMessageClient{
 			view.stopTimer();	
 		if(msg.startsWith("changepainter"))
 			view.setPainter();	
+		if(msg.startsWith("hidewords"))
+			view.hidePnlWords();	
 		
 	}
 	

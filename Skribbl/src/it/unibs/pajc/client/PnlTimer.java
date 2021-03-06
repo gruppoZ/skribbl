@@ -38,7 +38,7 @@ public class PnlTimer extends JPanel {
 	}
 	
 	protected void startTimer() {
-		seconds = 10;
+		seconds = 20;
 		timer.start();
 	}
 	

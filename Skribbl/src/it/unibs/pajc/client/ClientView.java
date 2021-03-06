@@ -33,6 +33,8 @@ public class ClientView {
 	private PnlPaintArea paintArea;
 	private PnlTimer pnlTimer;
 	private PnlStrumenti pnlStrumenti;
+	private PnlWords pnlWords;
+	
 	private JTextPane txtCurrentRound;
 	private JTextPane txtSeparetor;
 	private JTextPane txtTotRound;
@@ -141,6 +143,10 @@ public class ClientView {
 		txtPainter.setBounds(594, 246, 97, 20);
 		frame.getContentPane().add(txtPainter);
 		
+		pnlWords = new PnlWords();
+		pnlWords.setBounds(120, 627, 428, 45);
+		frame.getContentPane().add(pnlWords);
+		
 		
 		pnlTimer.addChangeListener(e -> this.stopTimer());
 		
@@ -154,6 +160,7 @@ public class ClientView {
 		btnPainter.addActionListener(e -> this.setPainter());
 		btnStartGame.addActionListener(e -> this.startGame());
 		pnlStrumenti.addActionListener(e -> paintArea.changePaint(e));
+		pnlWords.addActionListener(e -> this.sendSelectedWord(e.getActionCommand()));
 	}
 	
 	private void send() {
@@ -233,5 +240,17 @@ public class ClientView {
 	protected void setRound(String currentRound, String totRound) {
 		txtCurrentRound.setText(currentRound);
 		txtTotRound.setText(totRound);
+	}
+	
+	protected void sendSelectedWord(String word) {
+		model.sendMsg("?" + word);
+	}
+	
+	protected void setWords(String[] words) {
+		pnlWords.setWords(words);
+	}
+	
+	protected void hidePnlWords() {
+		pnlWords.cancelBtn();
 	}
 }

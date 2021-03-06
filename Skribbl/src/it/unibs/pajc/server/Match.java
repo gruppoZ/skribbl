@@ -15,20 +15,12 @@ import java.util.TreeSet;
 
 import javax.swing.event.ChangeEvent;
 
-public class Match implements Runnable{
+import it.unibs.pajc.core.BaseModel;
+
+public class Match implements Runnable {
 
 	//creiamo dalla clientList un insieme di player che avranno:
 	// Protocol + punteggio + painter
-	
-	/**
-	 * TreeMap<Player, Integer>
-	 * Player	Punti
-	 * cl1		100
-	 * cl2		300
-	 */
-	
-	//TODO: no treemap si sortedmap
-	private HashMap<Player, Integer> playerScoreBoard;
 	private ArrayList<Player> playerList;
 	
 	//timer
@@ -38,22 +30,30 @@ public class Match implements Runnable{
 	
 	private static final int ROUNDS = 3;
 
+	private Protocol protocol;
 	private ArrayList<Protocol> clientList;
 	private int currentRound;
+	private String selectedWord;
+	private boolean turnEnded;
+	
+	private Protocol painter;
+	
 	/**
 	 * @param clientList
 	 */
-	public Match(ArrayList<Protocol> clientList) {
+	public Match(Protocol protocol, ArrayList<Protocol> clientList) {
+		this.protocol = protocol;
 		this.clientList = clientList;
 		this.playerList = new ArrayList<Player>();
-		this.playerScoreBoard = new HashMap<Player, Integer>();
+		this.selectedWord = null;
+		this.turnEnded = false;
+		protocol.addChangeListener(e -> this.checkWord(String.valueOf(e.getSource())));
 	}
 	
 	@Override
 	public void run() {
 		//inizializzazione liste
 		updatePlayerList();
-		updatePlayerScoreBoard();
 		
 		startMatch();
 	}
@@ -77,13 +77,6 @@ public class Match implements Runnable{
 		}
 		return null;
 	}
-	
-	private void updatePlayerScoreBoard() {
-		playerList.forEach(player -> {
-			System.out.println(playerScoreBoard.containsKey(player));
-			playerScoreBoard.put(player, player.getScore());
-		});
-	}
 
 	private void startMatch() {
 		for (int i = 0; i < ROUNDS; i++) {
@@ -93,6 +86,9 @@ public class Match implements Runnable{
 	}
 	
 	private void startRound() {
+		//Lista di parole momentanea
+		String words = "?words:gatto;cane;capra";
+		
 		//creazione fake lista
 		ArrayList<Protocol> copyList = (ArrayList<Protocol>) clientList.clone();
 		
@@ -106,17 +102,22 @@ public class Match implements Runnable{
 		});
 		
 		while(!copyList.isEmpty()) {
+			selectedWord = null;
+			
 			int indexPainter = (int) (Math.random() * copyList.size());
-			Protocol painter = copyList.get(indexPainter);
+			painter = copyList.get(indexPainter);
+			sendScoreBoard(painter);
 			painter.sendMsgToAll(painter.getClientName() + " e' il disegnatore!\nSta ancora scegliendo la parola...\n");
 			painter.sendMsgToAll("/" + currentRound + "," + ROUNDS);
 			
-			sendScoreBoard(painter);
-			//DA SPOSTARE
-//			painter.sendLine(clientScoreBoard);
-			//DA SPOSTARE
+			painter.sendMsg(words);
+			do {
+				selectedWord = getSelectedWord();
+			} while(selectedWord == null);
 			
-			//painter deve scegliere la parola
+			painter.sendMsg("!hidewords");
+			painter.sendMsgToAll(painter.getClientName() + " ha scelto, si Gioca!\n");
+			
 			painter.sendMsg("!changepainter");
 			
 			//start turn
@@ -124,13 +125,18 @@ public class Match implements Runnable{
 			this.startTimer();
 			
 			//timer
-			while(timer.isRunning()) {
-				playerList.forEach((player) ->{
-					int tem = (int) (Math.random() * 100);
-					player.setScore(tem);
-				});
-				//verificare quando uno indovina le parole
-				//chiameremo il metodo updatePlayerScoreBoard quando qualcuno indovina la parola
+			/**
+			 * all'entrata del while si setta turnEnded a TURE
+			 * se tutti i player hanno indovinato la parola turnEnded = TRUE e esce dal while
+			 * se anche solo un player non ha indovinato turnEnded = FALSE e contnua il while
+			 */
+			while(timer.isRunning() && !turnEnded) {
+				turnEnded = true;
+				for (Player player : playerList) {
+					if(!player.equals(painter))
+						turnEnded = turnEnded && player.hasGuessed();
+				}
+				
 			}
 
 			if(!timer.isRunning()) {
@@ -145,7 +151,7 @@ public class Match implements Runnable{
 	}
 	
 	protected void startTimer() {
-		seconds = 10;
+		seconds = 20;
 		timer.start();
 	}
 	
@@ -155,60 +161,64 @@ public class Match implements Runnable{
 	
 	
 	private void sendScoreBoard(Protocol sender) {
-		
 		sortScoreBoard(playerList);
-//		Map<Player, Integer> sortedScoreBoard = sortScoreBoard(playerScoreBoard);
-		// @nomeCLient:100/nomeCLient2:200
+		
 		StringBuffer sb = new StringBuffer();
 		sb.append("@");
-		
-//		for (Player player : sortedScoreBoard.keySet()) {
-//			sb.append(player.getProtocol().getClientName() + ":" + player.getScore() + "/");
-//		}
 		playerList.forEach((player) ->
 				sb.append(player.getProtocol().getClientName() + ":" + player.getScore() + "/")
 		);
-		
-//		playerScoreBoard.forEach((player, score) -> 
-//			sb.append(player.getProtocol().getClientName() + ":" + player.getScore() + "/")
-//		);
-//		sender.sendMsgToAll(sb.toString());
 		System.out.println(sb.toString());
+//		sender.sendMsgToAll(sb.toString());
 	}
 	
 	private void sortScoreBoard(ArrayList<Player> unsortedScoreBoard) {
 		Collections.sort(unsortedScoreBoard, new ScoreComparator());
-		
 	}
 	
-//	private Map<Player, Integer> sortScoreBoard(Map<Player, Integer> unsortedScoreBoard) {
-//		
-//		ScoreComparator cm = new ScoreComparator(unsortedScoreBoard);
-//		TreeMap<Player, Integer> sortedScoreBoard = new TreeMap<Player, Integer>(cm);
-//		
-//		sortedScoreBoard.putAll(unsortedScoreBoard);
-//		
-//		return sortedScoreBoard;
-//	}
-	
-	public void temp(Object response) {
-		System.out.println("Sono nel match, il msg e': " + (String)response);
-		System.out.println(Thread.currentThread().getName());
+	public void checkWord(String word) {
+		Player guesser = null;
+		if(timer.isRunning()) {
+			//parola indovinata:
+			for (Player player : playerList) {
+				if(player.equals(protocol) && !player.equals(painter)) {
+					guesser = player;
+				}
+			}
+			
+			if(guesser != null && !guesser.hasGuessed()) {
+				if(word.equalsIgnoreCase(selectedWord)) {
+					guesser.updateScore(20);
+					guesser.setGuessed(true);
+					sendScoreBoard(painter);
+					protocol.sendMsgToAll(protocol.getClientName() + " HA INDOVINATO LA PAROLA");
+				}
+			}
+				
+		}
+//		System.out.println("Sono nel match, il msg e': " + word);
+//		System.out.println(Thread.currentThread().getName());
 	}
 	
 	public void removePlayer(Protocol client) {
 		Player player = getPlayerByClient(client);
 		if(player != null) {
 			playerList.remove(player);
-			playerScoreBoard.remove(player);
 			sendScoreBoard(client);
 		}	
 	}
 	
 	public void addPlayer(Protocol client) {
 		updatePlayerList();
-		updatePlayerScoreBoard();
 		sendScoreBoard(client);
+	}
+	
+	protected void setSelectedWord(String word) {
+		this.selectedWord = word;
+	}
+	
+	private String getSelectedWord() {
+		return this.selectedWord;
 	}
 	
 

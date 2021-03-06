@@ -11,7 +11,7 @@ public class ScoreComparator implements Comparator<Player>{
 		if(p1.getScore() > p2.getScore())
 			return 1;
 		else 
-			if(p1.getScore() == p2.getScore() && p1.getProtocol().getClientName().equals(p2.getProtocol().getClientName()))
+			if(p1.getScore() == p2.getScore() && p1.getName().equals(p2.getName()))
 				return 0;
 			else
 				return -1;
