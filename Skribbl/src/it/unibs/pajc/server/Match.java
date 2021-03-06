@@ -2,6 +2,7 @@ package it.unibs.pajc.server;
 
 import java.util.*;
 import javax.swing.Timer;
+import javax.swing.event.ChangeEvent;
 
 public class Match implements Runnable {
 
@@ -27,12 +28,24 @@ public class Match implements Runnable {
 		
 		private ArrayList<Protocol> clientList;
 		private int currentRound;
+		private Protocol protocol;
+		 
 		/**
 		 * @param clientList
 		 */
-		public Match(ArrayList<Protocol> clientList) {
+		public Match(Protocol protocol, ArrayList<Protocol> clientList) {
 			this.clientList = clientList;
 			this.clientScoreBoard = new HashMap<Protocol, Integer>();
+			this.protocol = protocol;
+			
+			protocol.addChangeListener(e -> checkWord(e));
+		}
+		
+		private void checkWord(ChangeEvent e) {
+			if(timer.isRunning() && (this.protocol != this.painter)) {
+				if(selectedWord.equalsIgnoreCase(String.valueOf(e.getSource())))
+					stopRoundForMe();
+			}
 		}
 		
 		@Override
@@ -63,12 +76,19 @@ public class Match implements Runnable {
 			return this.selectedWord;
 		}
 		
+		Protocol painter; 
+		ArrayList<Protocol> copyList;
+		
+		private void stopRoundForMe() { //DA COMPLETARE
+			protocol.sendMsg("HAI INDOVINATO");
+		}
+		
 		private void startRound() {
 			
 			String words = "@words:gatto;cane;capra";
 			
 			//creazione fake lista
-			ArrayList<Protocol> copyList = (ArrayList<Protocol>) clientList.clone();
+			copyList = (ArrayList<Protocol>) clientList.clone();
 			
 			//inizializzazione timer
 			timer = new Timer(DELAY, e -> {
@@ -82,11 +102,10 @@ public class Match implements Runnable {
 			while(!copyList.isEmpty()) {
 				
 				int indexPainter = (int) (Math.random() * copyList.size());
-				Protocol painter = copyList.get(indexPainter);
+				painter = copyList.get(indexPainter);
 				painter.sendMsgToAll(painter.getClientName() + " e' il disegnatore!\nSta ancora scegliendo la parola...\n");
 				painter.sendMsgToAll(painter, "@round" + currentRound + "/" + ROUNDS);
 				
-				painter.sendMsgToAll("@trashcan");
 				painter.sendMsg("@changepainter");
 				painter.sendMsg(painter, words);
 				//DA SPOSTARE
@@ -107,7 +126,7 @@ public class Match implements Runnable {
 				//timer
 				while(timer.isRunning()) {
 //						System.out.println("Sto runnando");
-					//verificare quando uno indovina le parole
+					//verificare quando uno indovina le parol
 				}
 
 				if(!timer.isRunning()) {

@@ -3,9 +3,13 @@ package it.unibs.pajc.server;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+
+import javax.swing.event.ChangeEvent;
+
+import it.unibs.pajc.core.BaseModel;
 import it.unibs.pajc.server.Protocol;
 
-public class Protocol implements Runnable{
+public class Protocol extends BaseModel implements Runnable{
 	private static HashMap<String, ProcessMessage> commandMap;
 	
 	static {
@@ -157,7 +161,7 @@ public class Protocol implements Runnable{
 	}
 	
 	protected synchronized void startGame() {
-		match = new Match(clientList);
+		match = new Match(this, clientList);
 		matchThread = new Thread(match);
 		matchThread.start();
 	}
@@ -190,14 +194,21 @@ public class Protocol implements Runnable{
 					if(request.getClass().equals(String.class)) {
 						String messageType = String.valueOf(request).substring(0,1);
 						ProcessMessage processor = commandMap.get(messageType);
-
-//							if(active) { //Utile se uso un comando di tipo: disattiva/attiva Client
-//								response = request;
-//								sendMsgToAll(protocol, response);
-//							}
 						
-						if(processor != null)
+						if(processor == null) {
+							if(active) {
+								response = request;
+								sendMsgToAll(protocol, response);
+							}
+							if(checkInGame()) {
+								System.out.println("\nSIAMO in  GIOCO");
+								fireValuesChange(new ChangeEvent(request));
+							}
+								
+						} else {
 							processor.process(protocol, String.valueOf(request).substring(1));
+						}
+						
 						
 							
 					} else {
