@@ -113,6 +113,10 @@ public class Protocol extends BaseModel implements Runnable{
 						if(isMatchStarted()) {
 							//TODO: controllare bene il synchronized
 							fireValuesChange(new ChangeEvent(response));
+//							synchronized (this) {
+//								match.checkWord(response);
+//							}
+							
 						} else {
 							sendMsgToAll(this, response);
 						}
@@ -167,7 +171,7 @@ public class Protocol extends BaseModel implements Runnable{
 	/*
 	 * metodo per mandare msg normalmente
 	 */
-	private void sendMsg(Protocol sender, String msg) {
+	protected void sendMsg(Protocol sender, String msg) {
 		try {
 			String output = String.format("[%s]: %s\n",sender.clientName, msg);
 
@@ -196,7 +200,7 @@ public class Protocol extends BaseModel implements Runnable{
 	/*
 	 * metodo per mandare msg normalmente
 	 */
-	private void sendMsgToAll(Protocol sender, String msg) {
+	protected void sendMsgToAll(Protocol sender, String msg) {
 		clientList.forEach((p) -> p.sendMsg(sender, msg));
 	}
 	/*
@@ -237,7 +241,7 @@ public class Protocol extends BaseModel implements Runnable{
 	
 	public void startMatch() {
 		//TODO: gestire meglio il thread
-		match = new Match(this, clientList);
+		match = new Match(clientList);
 		Thread threadMatch = new Thread(match);
 		threadMatch.start();
 	}

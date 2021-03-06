@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,13 +17,14 @@ import java.util.TreeSet;
 import javax.swing.event.ChangeEvent;
 
 import it.unibs.pajc.core.BaseModel;
+import it.unibs.pajc.whiteboard.WhiteBoardLine;
 
 public class Match implements Runnable {
 
 	//creiamo dalla clientList un insieme di player che avranno:
 	// Protocol + punteggio + painter
-	private ArrayList<Player> playerList;
-	
+//	private ArrayList<Player> playerList;
+	private List<Player> playerList = Collections.synchronizedList(new ArrayList<Player>());
 	//timer
 	private int seconds;
 	private Timer timer;
@@ -30,7 +32,6 @@ public class Match implements Runnable {
 	
 	private static final int ROUNDS = 3;
 
-	private Protocol protocol;
 	private ArrayList<Protocol> clientList;
 	private int currentRound;
 	private String selectedWord;
@@ -41,14 +42,12 @@ public class Match implements Runnable {
 	/**
 	 * @param clientList
 	 */
-	public Match(Protocol protocol, ArrayList<Protocol> clientList) {
-		this.protocol = protocol;
+	public Match(ArrayList<Protocol> clientList) {
 		this.clientList = clientList;
 		this.playerList = new ArrayList<Player>();
 		this.selectedWord = null;
 		this.turnEnded = false;
 		
-		protocol.addChangeListener(e -> this.checkWord(String.valueOf(e.getSource())));
 	}
 	
 	@Override
@@ -66,6 +65,7 @@ public class Match implements Runnable {
 		clientList.forEach(client -> {
 			if(getPlayerByClient(client) == null) {
 				playerList.add(new Player(client));
+				client.addChangeListener(e -> this.checkWord(client, String.valueOf(e.getSource())));
 			}
 		}
 		);
@@ -98,7 +98,7 @@ public class Match implements Runnable {
 			if(seconds > 0) {
 				  seconds -= 1;
 			  }
-			  if(seconds == 0)
+			  if(seconds == 0 || turnEnded)
 				  stopTimer();
 		});
 		
@@ -130,20 +130,11 @@ public class Match implements Runnable {
 			 * se tutti i player hanno indovinato la parola turnEnded = TRUE e esce dal while
 			 * se anche solo un player non ha indovinato turnEnded = FALSE e contnua il while
 			 */
-			while(timer.isRunning() && !turnEnded) {
-				turnEnded = true;
-				
-				for (Player player : playerList) {
-					if(!player.equals(painter))
-						turnEnded = turnEnded && player.hasGuessed();
-				}
-//				playerList.forEach((player) -> {
-//					if(!player.equals(painter))
-//						turnEnded = turnEnded && player.hasGuessed();
-//				});
+			
+			while(timer.isRunning()) {
 				
 			}
-
+			
 			if(!timer.isRunning()) {
 				resetTurn();
 			}
@@ -186,11 +177,11 @@ public class Match implements Runnable {
 //		sender.sendMsgToAll(sb.toString());
 	}
 	
-	private void sortScoreBoard(ArrayList<Player> unsortedScoreBoard) {
+	private void sortScoreBoard(List<Player> unsortedScoreBoard) {
 		Collections.sort(unsortedScoreBoard, new ScoreComparator());
 	}
 	
-	public void checkWord(String word) {
+	public void checkWord(Protocol protocol, String word) {
 		Player guesser = null;
 		if(timer.isRunning()) {
 			//parola indovinata:
@@ -207,8 +198,15 @@ public class Match implements Runnable {
 					sendScoreBoard(painter);
 					protocol.sendMsgToAll(protocol.getClientName() + " HA INDOVINATO LA PAROLA");
 				} else {
-					protocol.sendMsgToAll(word);
+					protocol.sendMsgToAll(protocol, word);
 				}
+			}
+			
+			turnEnded = true;
+			for (Player player : playerList) {
+					if(!player.equals(painter)) {
+						turnEnded = turnEnded && player.hasGuessed();	
+					}		
 			}
 				
 		}
