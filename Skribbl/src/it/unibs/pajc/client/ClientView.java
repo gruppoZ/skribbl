@@ -6,7 +6,11 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextPane;
+import javax.swing.text.AttributeSet;
 import javax.swing.text.DefaultCaret;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
 
 import it.unibs.pajc.core.BaseModel;
 import it.unibs.pajc.whiteboard.WhiteBoardLine;
@@ -21,6 +25,7 @@ import java.util.HashMap;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
+import javax.swing.JTable;
 
 public class ClientView {
 
@@ -39,6 +44,7 @@ public class ClientView {
 	private JTextPane txtSeparetor;
 	private JTextPane txtTotRound;
 	private JTextPane txtPainter;
+	private JTextPane txtScoreBoard;
 	/**
 	 * Launch the application.
 	 */
@@ -48,6 +54,7 @@ public class ClientView {
 				try {
 					ClientView window = new ClientView();
 					window.frame.setVisible(true);
+					window.frame.setLocationRelativeTo(null);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -104,10 +111,6 @@ public class ClientView {
 		frame.getContentPane().add(paintArea);
 		paintArea.setLayout(null);
 		
-		JButton btnPainter = new JButton("Painter");
-		btnPainter.setBounds(0, 649, 89, 23);
-		frame.getContentPane().add(btnPainter);
-		
 		pnlStrumenti = new PnlStrumenti(model.getStrumenti());
 		pnlStrumenti.setBounds(10, 22, 538, 38);
 		frame.getContentPane().add(pnlStrumenti);
@@ -147,6 +150,12 @@ public class ClientView {
 		pnlWords.setBounds(120, 627, 428, 45);
 		frame.getContentPane().add(pnlWords);
 		
+		txtScoreBoard = new JTextPane();
+		txtScoreBoard.setEditable(false);
+		txtScoreBoard.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		txtScoreBoard.setBounds(594, 314, 134, 302);
+		frame.getContentPane().add(txtScoreBoard);
+		
 		
 		pnlTimer.addChangeListener(e -> this.stopTimer());
 		
@@ -155,9 +164,6 @@ public class ClientView {
 		//send msg
 		btnSend.addActionListener(e -> this.send());
 		txtWrite.addActionListener(e -> this.send());
-		
-		//painter
-		btnPainter.addActionListener(e -> this.setPainter());
 		btnStartGame.addActionListener(e -> this.startGame());
 		pnlStrumenti.addActionListener(e -> paintArea.changePaint(e));
 		pnlWords.addActionListener(e -> this.sendSelectedWord(e.getActionCommand()));
@@ -253,4 +259,29 @@ public class ClientView {
 	protected void hidePnlWords() {
 		pnlWords.cancelBtn();
 	}
+	
+	protected void resetScoreBoard() {
+		txtScoreBoard.setText("");
+	}
+	
+	protected void setScoreBoard(String name, String score, boolean isPainter) {
+		Color c;
+		if(isPainter)
+			c = Color.RED;
+		else
+			c = Color.BLACK;
+		
+		appendToPane(txtScoreBoard, name + ":" + score + "\n", c);
+	}
+	
+	private static void appendToPane(JTextPane tp, String txt, Color clr) {
+        StyleContext sc = StyleContext.getDefaultStyleContext();
+        AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, clr);
+        aset = sc.addAttribute(aset, StyleConstants.FontFamily, "Serif");
+        aset = sc.addAttribute(aset, StyleConstants.Alignment, StyleConstants.ALIGN_JUSTIFIED);
+        int len = tp.getDocument().getLength();
+        tp.setCaretPosition(len);
+        tp.setCharacterAttributes(aset, false);
+        tp.replaceSelection(txt);
+    }
 }

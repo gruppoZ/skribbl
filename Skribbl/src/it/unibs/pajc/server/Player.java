@@ -41,6 +41,10 @@ public class Player{
 		return painter;
 	}
 	
+	public void setPainter(boolean painter) {
+		this.painter = painter;
+	}
+
 	public void updateScore(int points) {
 		this.score += points;
 	}

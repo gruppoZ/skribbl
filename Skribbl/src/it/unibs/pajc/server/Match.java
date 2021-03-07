@@ -24,7 +24,8 @@ public class Match implements Runnable {
 	//creiamo dalla clientList un insieme di player che avranno:
 	// Protocol + punteggio + painter
 //	private ArrayList<Player> playerList;
-	private List<Player> playerList = Collections.synchronizedList(new ArrayList<Player>());
+//	private List<Player> playerList = Collections.synchronizedList(new ArrayList<Player>());
+	private ArrayList<Player> playerList;
 	//timer
 	private int seconds;
 	private Timer timer;
@@ -36,8 +37,10 @@ public class Match implements Runnable {
 	private int currentRound;
 	private String selectedWord;
 	private boolean turnEnded;
-	private ArrayList<Protocol> copyList;
+	private ArrayList<Player> copyList;
+	
 	private Protocol painter;
+	private Player playerPainter;
 	
 	/**
 	 * @param clientList
@@ -91,22 +94,26 @@ public class Match implements Runnable {
 		String words = "?words:gatto;cane;capra";
 		
 		//creazione fake lista
-		copyList = (ArrayList<Protocol>) clientList.clone();
+//		copyList = (ArrayList<Protocol>) clientList.clone();
+		copyList = (ArrayList<Player>) playerList.clone();
 		
-		//inizializzazione timer
 		timer = new Timer(DELAY, e -> {
-			if(seconds > 0) {
-				  seconds -= 1;
-			  }
-			  if(seconds == 0 || turnEnded)
-				  stopTimer();
+			
+			if(seconds > 0)
+				seconds -= 1;
+
+			if(seconds == 0 || turnEnded)
+				stopTimer();
 		});
 		
 		while(!copyList.isEmpty()) {
 			
 			int indexPainter = (int) (Math.random() * copyList.size());
-			painter = copyList.get(indexPainter);
+			playerPainter = copyList.get(indexPainter);
+			painter = playerPainter.getProtocol();
+			playerPainter.setPainter(true);
 			sendScoreBoard(painter);
+			
 			painter.sendMsgToAll(painter.getClientName() + " e' il disegnatore!\nSta ancora scegliendo la parola...\n");
 			painter.sendMsgToAll("/" + currentRound + "," + ROUNDS);
 			
@@ -119,18 +126,12 @@ public class Match implements Runnable {
 			painter.sendMsgToAll(painter.getClientName() + " ha scelto, si Gioca!\n");
 			
 			painter.sendMsg("!changepainter");
-			
 			//start turn
 			painter.sendMsgToAll("!starttimer");
 			this.startTimer();
 			
 			//timer
-			/**
-			 * all'entrata del while si setta turnEnded a TURE
-			 * se tutti i player hanno indovinato la parola turnEnded = TRUE e esce dal while
-			 * se anche solo un player non ha indovinato turnEnded = FALSE e contnua il while
-			 */
-			
+			//aspetta che il timer finisca e "freeza" il turno
 			while(timer.isRunning()) {
 				
 			}
@@ -146,9 +147,11 @@ public class Match implements Runnable {
 		painter.sendMsgToAll("!stoptimer");
 		painter.clearAll();
 		painter.sendMsg("!changepainter"); //TODO: cambiare in changepainterstatus
+		playerPainter.setPainter(false);
 		//facendo il remove dalla copyList questo client non può più diventare un painter
-		copyList.remove(painter);
+		copyList.remove(playerPainter);
 		selectedWord = null;
+		turnEnded = false;
 		
 		playerList.forEach((player) -> {
 			player.setGuessed(false);
@@ -170,11 +173,15 @@ public class Match implements Runnable {
 		
 		StringBuffer sb = new StringBuffer();
 		sb.append("@");
-		playerList.forEach((player) ->
-				sb.append(player.getProtocol().getClientName() + ":" + player.getScore() + "/")
-		);
+		playerList.forEach((player) -> {
+			if(player.isPainter())
+				sb.append("^^^" + player.getProtocol().getClientName() + ":" + player.getScore() + "/");
+			else
+				sb.append(player.getProtocol().getClientName() + ":" + player.getScore() + "/");
+		});
 		System.out.println(sb.toString());
-//		sender.sendMsgToAll(sb.toString());
+		sender.sendMsgToAll(sb.toString());
+		//@nome:punteggio/nome2:punteggio2/
 	}
 	
 	private void sortScoreBoard(List<Player> unsortedScoreBoard) {
@@ -202,6 +209,11 @@ public class Match implements Runnable {
 				}
 			}
 			
+			/**
+			 * all'entrata del while si setta turnEnded a TURE
+			 * se tutti i player hanno indovinato la parola turnEnded = TRUE e esce dal while
+			 * se anche solo un player non ha indovinato turnEnded = FALSE e contnua il while
+			 */
 			turnEnded = true;
 			for (Player player : playerList) {
 					if(!player.equals(painter)) {

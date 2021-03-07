@@ -30,6 +30,7 @@ public class ClientModel extends BaseModel{
 		commandMap.put("!", new ProcessCommandClient());
 		commandMap.put("/", new ProcessRound());
 		commandMap.put("?", new ProcessWords());
+		commandMap.put("@", new ProcessScoreBoard());
 	}
 	
 	private String serverName = "localhost";

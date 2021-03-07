@@ -85,6 +85,7 @@ public class Protocol extends BaseModel implements Runnable{
 					clientSocket.getInetAddress(), clientSocket.getPort(),clientName);
 			
 //			sendMsg(this, "Inserisci il tuo nome: ");
+			//TODO: fare controlli sul nome: no ?!@ o attenti alla lunghezza
 			String clientNameRequest = (String) is.readObject();
 			synchronized (clientNameRequest) {
 				if(getClientByName(clientNameRequest) == null) {
