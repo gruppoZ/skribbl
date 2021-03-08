@@ -43,6 +43,9 @@ public class PnlTimer extends JPanel {
 	}
 	
 	protected void stopTimer() {
+		//prima setta i secondi a 0 e lo stampa poi ferma il timer
+		seconds = 0;
+		lblTimer.setText(""+seconds);
 		timer.stop();
 	}
 	
