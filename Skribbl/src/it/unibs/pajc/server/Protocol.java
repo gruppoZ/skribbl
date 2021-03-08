@@ -71,7 +71,7 @@ public class Protocol extends BaseModel implements Runnable{
 			}
 		}
 		clientList.remove(this);
-		sendMsgToAll(this, " ha abbandonato la conversazione");
+		sendMsgToAll("%left|" + this.clientName + " ha abbandonato la conversazione");
 	}
 
 	@Override
@@ -94,7 +94,7 @@ public class Protocol extends BaseModel implements Runnable{
 			}
 			
 			this.welcome();
-			
+			sendMsgToAll("%join|" + this.clientName + " è entrato in partita");
 			if(isMatchStarted())
 				match.addPlayer(this);
 			

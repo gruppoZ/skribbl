@@ -123,7 +123,7 @@ public class Match implements Runnable {
 			playerPainter.setPainter(true);
 			sendScoreBoard(painter);
 			
-			painter.sendMsgToAll(painter.getClientName() + " e' il disegnatore!\nSta ancora scegliendo la parola...\n");
+			painter.sendMsgToAll("%waiting|" + painter.getClientName() + " e' il disegnatore!\nSta ancora scegliendo la parola...");
 			painter.sendMsgToAll("/" + currentRound + "," + ROUNDS);
 			
 			painter.sendMsg(words);
@@ -132,7 +132,7 @@ public class Match implements Runnable {
 			} while(selectedWord == null);
 			
 			painter.sendMsg("!hidewords");
-			painter.sendMsgToAll(painter.getClientName() + " ha scelto, si Gioca!\n");
+			painter.sendMsgToAll("%waiting|" + painter.getClientName() + " ha scelto, si Gioca!");
 			
 			painter.sendMsg("!changepainter");
 			//start turn
@@ -229,7 +229,7 @@ public class Match implements Runnable {
 						playerPainter.updateScore(COEFF_PAINTER_MIN);
 					
 					sendScoreBoard(painter);
-					protocol.sendMsgToAll(protocol.getClientName() + " HA INDOVINATO LA PAROLA");
+					protocol.sendMsgToAll("%guessed|" +protocol.getClientName() + " HA INDOVINATO LA PAROLA");
 				} else {
 					protocol.sendMsgToAll(protocol, word);
 				}
@@ -273,15 +273,15 @@ public class Match implements Runnable {
 		return this.selectedWord;
 	}
 	
+	
 	private String getWordsToGuess() {
 		int[] indexes = new int[3];
 		
-		for(int i = 0; i < indexes.length; i++) {
+		for(int i = 0; i<indexes.length; i++) {
 			indexes[i] = random.nextInt(LIST_WORDS.length);
-			if(i > 0) {
-				do {
+			for(int j = 0; j < i; j++) {
+				while(indexes[i] == indexes[j])
 					indexes[i] = random.nextInt(LIST_WORDS.length);
-				}while(indexes[i] == indexes[i-1]);//TODO: da controllare che una parola gi� uscita non debba riuscire in queste tre
 			}
 		}
 		

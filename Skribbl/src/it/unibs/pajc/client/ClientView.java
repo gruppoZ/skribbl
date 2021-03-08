@@ -27,6 +27,7 @@ import java.awt.event.ActionEvent;
 import java.awt.Font;
 import javax.swing.JTable;
 import javax.swing.JList;
+import javax.swing.JScrollBar;
 
 public class ClientView {
 
@@ -34,7 +35,6 @@ public class ClientView {
 	private JTextField txtWrite;
 
 	private ClientModel model;
-	private JTextArea txtChat;
 	//TODO: cambiare paintArea in pnlPaintArea
 	private PnlPaintArea paintArea;
 	private PnlTimer pnlTimer;
@@ -46,6 +46,8 @@ public class ClientView {
 	private JTextPane txtTotRound;
 	private JTextPane txtPainter;
 	private JTextPane txtScoreBoard;
+	private JTextPane txtChat;
+	private JScrollPane scrollPane;
 	/**
 	 * Launch the application.
 	 */
@@ -91,20 +93,6 @@ public class ClientView {
 		txtWrite.setBounds(782, 578, 143, 23);
 		frame.getContentPane().add(txtWrite);
 		txtWrite.setColumns(10);
-		
-		txtChat = new JTextArea();
-		txtChat.setLineWrap(true);
-		txtChat.setWrapStyleWord(true);
-		txtChat.setEditable(false);
-		txtChat.setBounds(224, 11, 177, 163);
-		frame.getContentPane().add(txtChat);
-		
-		
-		
-		JScrollPane scrollBar = new JScrollPane(txtChat);
-		scrollBar.setAutoscrolls(true);
-		scrollBar.setBounds(799, 11, 222, 373);
-		frame.getContentPane().add(scrollBar);
 //		JScrollPane scrollBar = new JScrollPane(txtChat);
 //		scrollBar.setAutoscrolls(true);
 //		scrollBar.setBounds(799, 11, 222, 373);
@@ -161,6 +149,15 @@ public class ClientView {
 		txtScoreBoard.setBounds(594, 314, 134, 302);
 		frame.getContentPane().add(txtScoreBoard);
 		
+		txtChat = new JTextPane();
+		txtChat.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		txtChat.setBounds(822, 22, 217, 545);
+		frame.getContentPane().add(txtChat);
+		
+		scrollPane = new JScrollPane(txtChat);
+		scrollPane.setBounds(782, 33, 242, 521);
+		frame.getContentPane().add(scrollPane);
+		
 		
 		pnlTimer.addChangeListener(e -> this.stopTimer());
 		
@@ -197,8 +194,10 @@ public class ClientView {
 			if(processor != null) {
 				processor.process(this, response.toString().substring(1));
 			} else {
-				txtChat.append(response.toString());
-				txtChat.setCaretPosition(txtChat.getDocument().getLength());
+//				txtChat.append(response.toString());
+//				txtChat.setCaretPosition(txtChat.getDocument().getLength());
+				
+				appendToPane(txtChat, response.toString(), Color.BLACK);
 			}
 			
 		}
@@ -278,6 +277,10 @@ public class ClientView {
 		
 		appendToPane(txtScoreBoard, name + ":" + score + "\n", c);
 		
+	}
+	
+	protected void setTxtChat(String msg, Color c) {
+		appendToPane(txtChat, msg, c);
 	}
 	
 	private static void appendToPane(JTextPane tp, String txt, Color clr) {
