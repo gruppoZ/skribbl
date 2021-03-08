@@ -4,7 +4,7 @@ public class ProcessWords implements ProcessMessageClient{
 
 	@Override
 	public void process(ClientView view, String msg) {
-		msg = msg.substring(msg.indexOf(":")+1);
+		msg = msg.substring(msg.indexOf(":") + 1);
 		String[] words = msg.split(";");
 		view.setWords(words);
 		

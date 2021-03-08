@@ -26,6 +26,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
 import javax.swing.JTable;
+import javax.swing.JList;
 
 public class ClientView {
 
@@ -104,6 +105,10 @@ public class ClientView {
 		scrollBar.setAutoscrolls(true);
 		scrollBar.setBounds(799, 11, 222, 373);
 		frame.getContentPane().add(scrollBar);
+//		JScrollPane scrollBar = new JScrollPane(txtChat);
+//		scrollBar.setAutoscrolls(true);
+//		scrollBar.setBounds(799, 11, 222, 373);
+//		frame.getContentPane().add(scrollBar);
 		
 		//TODO: controllare se giusto o no passare model in paintarea
 		paintArea = new PnlPaintArea(model);
@@ -272,9 +277,11 @@ public class ClientView {
 			c = Color.BLACK;
 		
 		appendToPane(txtScoreBoard, name + ":" + score + "\n", c);
+		
 	}
 	
 	private static void appendToPane(JTextPane tp, String txt, Color clr) {
+		tp.setEditable(true);
         StyleContext sc = StyleContext.getDefaultStyleContext();
         AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, clr);
         aset = sc.addAttribute(aset, StyleConstants.FontFamily, "Serif");
@@ -283,5 +290,6 @@ public class ClientView {
         tp.setCaretPosition(len);
         tp.setCharacterAttributes(aset, false);
         tp.replaceSelection(txt);
+        tp.setEditable(false);
     }
 }

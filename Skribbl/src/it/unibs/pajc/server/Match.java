@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import javax.swing.Timer;
@@ -25,6 +26,10 @@ public class Match implements Runnable {
 	// Protocol + punteggio + painter
 //	private ArrayList<Player> playerList;
 //	private List<Player> playerList = Collections.synchronizedList(new ArrayList<Player>());
+	
+	private static final String[] LIST_WORDS= {"gatto", "cane", "capra", "fiore", "muro", "viso", "collo", "naso", "mano", "dito",
+			"ruota", "casa", "porta", "vaso"};
+	private Random random;
 	private ArrayList<Player> playerList;
 	//timer
 	private int seconds;
@@ -50,7 +55,7 @@ public class Match implements Runnable {
 		this.playerList = new ArrayList<Player>();
 		this.selectedWord = null;
 		this.turnEnded = false;
-		
+		this.random = new Random();
 	}
 	
 	@Override
@@ -89,10 +94,7 @@ public class Match implements Runnable {
 		}
 	}
 	
-	private void startRound() {
-		//Lista di parole momentanea
-		String words = "?words:gatto;cane;capra";
-		
+	private void startRound() {	
 		//creazione fake lista
 //		copyList = (ArrayList<Protocol>) clientList.clone();
 		copyList = (ArrayList<Player>) playerList.clone();
@@ -107,8 +109,9 @@ public class Match implements Runnable {
 		});
 		
 		while(!copyList.isEmpty()) {
-			
-			int indexPainter = (int) (Math.random() * copyList.size());
+			String words = getWordsToGuess();
+			int indexPainter = random.nextInt(copyList.size());
+//			int indexPainter = (int) (Math.random() * copyList.size());
 			playerPainter = copyList.get(indexPainter);
 			painter = playerPainter.getProtocol();
 			playerPainter.setPainter(true);
@@ -184,8 +187,9 @@ public class Match implements Runnable {
 		//@nome:punteggio/nome2:punteggio2/
 	}
 	
-	private void sortScoreBoard(List<Player> unsortedScoreBoard) {
+	private void sortScoreBoard(ArrayList<Player> unsortedScoreBoard) {
 		Collections.sort(unsortedScoreBoard, new ScoreComparator());
+		Collections.reverse(unsortedScoreBoard);
 	}
 	
 	public void checkWord(Protocol protocol, String word) {
@@ -198,9 +202,17 @@ public class Match implements Runnable {
 				}
 			}
 			
+			/**
+			 * guesser si fa qu
+			 * 
+			 * fine di ogni turno facciamo un metodo
+			 * contatore che viene incrementato qua
+			 * in base al contatore 
+			 */
 			if(guesser != null && !guesser.hasGuessed()) {
 				if(word.equalsIgnoreCase(selectedWord)) {
 					guesser.updateScore(20);
+					playerPainter.updateScore(5);
 					guesser.setGuessed(true);
 					sendScoreBoard(painter);
 					protocol.sendMsgToAll(protocol.getClientName() + " HA INDOVINATO LA PAROLA");
@@ -245,6 +257,26 @@ public class Match implements Runnable {
 	
 	private String getSelectedWord() {
 		return this.selectedWord;
+	}
+	
+	private String getWordsToGuess() {
+		int[] indexes = new int[3];
+		
+		for(int i = 0; i < indexes.length; i++) {
+			indexes[i] = random.nextInt(LIST_WORDS.length);
+			if(i > 0) {
+				do {
+					indexes[i] = random.nextInt(LIST_WORDS.length);
+				}while(indexes[i] == indexes[i-1]);//TODO: da controllare che una parola già uscita non debba riuscire in queste tre
+			}
+		}
+		
+		StringBuffer result = new StringBuffer();
+		result.append("?word:");
+		for (int i : indexes) {
+			result.append(LIST_WORDS[i]+";");
+		}
+		return result.toString();
 	}
 	
 
