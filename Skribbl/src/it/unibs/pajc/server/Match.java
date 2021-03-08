@@ -22,6 +22,7 @@ import it.unibs.pajc.whiteboard.WhiteBoardLine;
 
 public class Match implements Runnable {
 
+	
 	//creiamo dalla clientList un insieme di player che avranno:
 	// Protocol + punteggio + painter
 //	private ArrayList<Player> playerList;
@@ -32,12 +33,16 @@ public class Match implements Runnable {
 	private Random random;
 	private ArrayList<Player> playerList;
 	//timer
+
 	private int seconds;
 	private Timer timer;
 	private static final int DELAY = 1000; //millisecondi
-	
+	private static final int COEFF_GUESS = 5;
+	private static final int COEFF_PAINTER_MIN = 5;
+	private static final int COEFF_PAINTER_MAX = 15;
 	private static final int ROUNDS = 3;
 
+	private int playersWhoGuessed;
 	private ArrayList<Protocol> clientList;
 	private int currentRound;
 	private String selectedWord;
@@ -56,6 +61,7 @@ public class Match implements Runnable {
 		this.selectedWord = null;
 		this.turnEnded = false;
 		this.random = new Random();
+		this.playersWhoGuessed = 0;
 	}
 	
 	@Override
@@ -67,7 +73,7 @@ public class Match implements Runnable {
 	}
 	
 	/**
-	 * check se il client è gia presente nella playerList se non lo è lo aggiungo
+	 * check se il client ï¿½ gia presente nella playerList se non lo ï¿½ lo aggiungo
 	 */
 	private void updatePlayerList() {
 		clientList.forEach(client -> {
@@ -151,7 +157,7 @@ public class Match implements Runnable {
 		painter.clearAll();
 		painter.sendMsg("!changepainter"); //TODO: cambiare in changepainterstatus
 		playerPainter.setPainter(false);
-		//facendo il remove dalla copyList questo client non può più diventare un painter
+		//facendo il remove dalla copyList questo client non puï¿½ piï¿½ diventare un painter
 		copyList.remove(playerPainter);
 		selectedWord = null;
 		turnEnded = false;
@@ -159,6 +165,7 @@ public class Match implements Runnable {
 		playerList.forEach((player) -> {
 			player.setGuessed(false);
 		});
+		playersWhoGuessed = 0;
 	}
 	
 	protected void startTimer() {
@@ -203,7 +210,7 @@ public class Match implements Runnable {
 			}
 			
 			/**
-			 * guesser si fa qu
+			 * guesser si fa qua
 			 * 
 			 * fine di ogni turno facciamo un metodo
 			 * contatore che viene incrementato qua
@@ -211,9 +218,16 @@ public class Match implements Runnable {
 			 */
 			if(guesser != null && !guesser.hasGuessed()) {
 				if(word.equalsIgnoreCase(selectedWord)) {
-					guesser.updateScore(20);
-					playerPainter.updateScore(5);
+					
+					guesser.updateScore(seconds * COEFF_GUESS);
+					playersWhoGuessed++;
 					guesser.setGuessed(true);
+					
+					if(playersWhoGuessed <= (playerList.size() - 1)/2) 
+						playerPainter.updateScore(COEFF_PAINTER_MAX);
+					else
+						playerPainter.updateScore(COEFF_PAINTER_MIN);
+					
 					sendScoreBoard(painter);
 					protocol.sendMsgToAll(protocol.getClientName() + " HA INDOVINATO LA PAROLA");
 				} else {
@@ -267,7 +281,7 @@ public class Match implements Runnable {
 			if(i > 0) {
 				do {
 					indexes[i] = random.nextInt(LIST_WORDS.length);
-				}while(indexes[i] == indexes[i-1]);//TODO: da controllare che una parola già uscita non debba riuscire in queste tre
+				}while(indexes[i] == indexes[i-1]);//TODO: da controllare che una parola giï¿½ uscita non debba riuscire in queste tre
 			}
 		}
 		
