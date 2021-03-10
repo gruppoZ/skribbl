@@ -196,7 +196,6 @@ public class ClientView {
 			} else {
 //				txtChat.append(response.toString());
 //				txtChat.setCaretPosition(txtChat.getDocument().getLength());
-				
 				appendToPane(txtChat, response.toString(), Color.BLACK);
 			}
 			
@@ -208,8 +207,8 @@ public class ClientView {
 		
 	}
 	
-	public void startTimer() {
-		pnlTimer.startTimer();
+	public void startTimer(String seconds) {
+		pnlTimer.startTimer(Integer.valueOf(seconds));
 		
 		if(paintArea.isPainter()) {
 			pnlStrumenti.setVisible(true);

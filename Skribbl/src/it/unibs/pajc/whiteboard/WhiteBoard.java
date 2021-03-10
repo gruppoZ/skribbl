@@ -7,24 +7,26 @@ import it.unibs.pajc.server.Protocol;
 
 public class WhiteBoard {
 	
-	private LinkedList<WhiteBoardLine> lines;
-	private ArrayList<Protocol> clientList;
+	private ArrayList<WhiteBoardLine> lines;
 	
-	public WhiteBoard(ArrayList<Protocol> clientList) {
-		this.lines = new LinkedList<WhiteBoardLine>();
-		this.clientList = clientList;
+	public WhiteBoard() {
+		this.lines = new ArrayList<WhiteBoardLine>();
 	}
 	
 	//togliere synchronized
 	public synchronized void add(WhiteBoardLine line, Protocol protocol) { //add a line to the whiteboard
 		lines.add(line);
-		for(Protocol p: clientList) {
-			p.sendLine(line);
-		}
+		protocol.sendMsgToAll(line);
 	}
 	
 	public void clearAll() {
 		lines.clear();
 	}
+
+	public ArrayList<WhiteBoardLine> getLines() {
+		return lines;
+	}
+	
+	
 	
 }

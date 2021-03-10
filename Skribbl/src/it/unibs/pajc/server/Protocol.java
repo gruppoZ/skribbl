@@ -24,7 +24,7 @@ public class Protocol extends BaseModel implements Runnable{
 	//TODO: controllare che non ci siano conflitti all'interno di match
 	private static Match match;
 	
-	private WhiteBoard whiteBoard;
+	private static WhiteBoard whiteBoard = new WhiteBoard();;
 	
 	private static HashMap<String, ProcessMessage> commandMap;
 	
@@ -56,8 +56,6 @@ public class Protocol extends BaseModel implements Runnable{
 		this.painter = false;
 		this.isStopped = false;
 		clientList.add(this);
-		
-		whiteBoard = new WhiteBoard(clientList);
 	}
 	
 	public void close() {
@@ -80,23 +78,10 @@ public class Protocol extends BaseModel implements Runnable{
 			is = new ObjectInputStream(clientSocket.getInputStream());
             os = new ObjectOutputStream(clientSocket.getOutputStream());
             
-//			out = new PrintWriter(clientSocket.getOutputStream(), true);
 			System.out.printf("\nClient connesso: %s [%d] - Name: %s\n",
 					clientSocket.getInetAddress(), clientSocket.getPort(),clientName);
 			
-//			sendMsg(this, "Inserisci il tuo nome: ");
-			//TODO: fare controlli sul nome: no ?!@ o attenti alla lunghezza
-			String clientNameRequest = (String) is.readObject();
-			synchronized (clientNameRequest) {
-				if(getClientByName(clientNameRequest) == null) {
-					clientName = clientNameRequest;
-				}
-			}
-			
-			this.welcome();
-			sendMsgToAll("%join|" + this.clientName + " è entrato in partita");
-			if(isMatchStarted())
-				match.addPlayer(this);
+			this.initialize();	
 			
 			String request;
 			
@@ -161,6 +146,38 @@ public class Protocol extends BaseModel implements Runnable{
 //		this.out.flush();
 //	}
 	
+	private void initialize() {
+		//TODO: fare controlli sul nome: no ?!@ o attenti alla lunghezza
+		String clientNameRequest;
+		try {
+			clientNameRequest = (String) is.readObject();
+			synchronized (clientNameRequest) {
+				if(getClientByName(clientNameRequest) == null) {
+					clientName = clientNameRequest;
+				}
+			}
+			
+			this.welcome();
+			sendMsgToAll("%join|" + this.clientName + " è entrato in partita");
+			
+			if(isMatchStarted()) {
+				match.addPlayer(this);
+				
+				ArrayList<WhiteBoardLine> lines = whiteBoard.getLines();
+				if(lines != null) {
+					lines.forEach((line) ->
+						this.sendMsg(line)
+					);
+				}
+			}
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	public String getClientName() {
 		return clientName;
 	}
@@ -188,7 +205,7 @@ public class Protocol extends BaseModel implements Runnable{
 	/*
 	 * metodo per mandare msg "speciali"
 	 */
-	protected void sendMsg(String msg) {
+	protected void sendMsg(Object msg) {
 		try {
 			this.os.writeObject(msg);
 			this.os.flush();
@@ -207,7 +224,7 @@ public class Protocol extends BaseModel implements Runnable{
 	/*
 	 * metodo per mandare msg "speciali"
 	 */
-	protected void sendMsgToAll(String msg) {
+	public void sendMsgToAll(Object msg) {
 		clientList.forEach((p) -> p.sendMsg(msg));
 	}
 	
@@ -226,14 +243,14 @@ public class Protocol extends BaseModel implements Runnable{
 	}
 	
 	//prima era WhiteBoardLine line
-	public void sendLine(Object obj) {
-		try {
-			os.writeObject(obj);
-			os.flush();
-		} catch (IOException e) {
-			System.err.println("Error writing shape to client");
-		}
-	}
+//	public void sendLine(Object obj) {
+//		try {
+//			os.writeObject(obj);
+//			os.flush();
+//		} catch (IOException e) {
+//			System.err.println("Error writing shape to client");
+//		}
+//	}
 	
 	public void clearAll() {
 		whiteBoard.clearAll();
@@ -242,6 +259,7 @@ public class Protocol extends BaseModel implements Runnable{
 	
 	public void startMatch() {
 		//TODO: gestire meglio il thread
+		//TODO: gestire il fatto che più client possano schiacciare il bottone
 		match = new Match(clientList);
 		Thread threadMatch = new Thread(match);
 		threadMatch.start();

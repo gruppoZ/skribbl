@@ -5,8 +5,13 @@ public class ProcessCommandClient implements ProcessMessageClient{
 	public void process(ClientView view, String msg) {
 		if(msg.startsWith("deleteall"))
 			view.clearAll();
-		if(msg.startsWith("starttimer"))
-			view.startTimer();
+		
+		if(msg.startsWith("starttimer")) {
+			int columIndex = msg.indexOf(",");
+			String seconds = msg.substring(columIndex + 1);
+			view.startTimer(seconds);
+		}
+			
 		if(msg.startsWith("stoptimer"))
 			view.stopTimer();	
 		if(msg.startsWith("changepainter"))

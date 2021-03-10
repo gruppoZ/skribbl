@@ -14,6 +14,7 @@ import javax.swing.Timer;
 import java.util.TimerTask;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.event.ChangeEvent;
 
@@ -73,7 +74,7 @@ public class Match implements Runnable {
 	}
 	
 	/**
-	 * check se il client � gia presente nella playerList se non lo � lo aggiungo
+	 * check se il client e' gia presente nella playerList se non lo e' lo aggiungo
 	 */
 	private void updatePlayerList() {
 		clientList.forEach(client -> {
@@ -81,8 +82,7 @@ public class Match implements Runnable {
 				playerList.add(new Player(client));
 				client.addChangeListener(e -> this.checkWord(client, String.valueOf(e.getSource())));
 			}
-		}
-		);
+		});
 	}
 	
 	private Player getPlayerByClient(Protocol client) {
@@ -136,8 +136,8 @@ public class Match implements Runnable {
 			
 			painter.sendMsg("!changepainter");
 			//start turn
-			painter.sendMsgToAll("!starttimer");
 			this.startTimer();
+			painter.sendMsgToAll("!starttimer," + seconds);
 			
 			//timer
 			//aspetta che il timer finisca e "freeza" il turno
@@ -189,7 +189,15 @@ public class Match implements Runnable {
 			else
 				sb.append(player.getProtocol().getClientName() + ":" + player.getScore() + "/");
 		});
-		System.out.println(sb.toString());
+//		System.out.println(sb.toString());
+//		System.out.println(sender.getClientName());
+		//TODO: se un player entra a partita iniziata non riceve la scoreboard
+		try {
+			TimeUnit.SECONDS.sleep(1);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		sender.sendMsgToAll(sb.toString());
 		//@nome:punteggio/nome2:punteggio2/
 	}
@@ -263,6 +271,7 @@ public class Match implements Runnable {
 	public void addPlayer(Protocol client) {
 		updatePlayerList();
 		sendScoreBoard(client);
+		client.sendMsg("!starttimer," + seconds);
 	}
 	
 	protected void setSelectedWord(String word) {
