@@ -4,9 +4,9 @@ public class ProcessRound implements ProcessMessageClient{
 
 	@Override
 	public void process(ClientView view, String msg) {
-		int columIndex = msg.indexOf(",");
-		String currentRound = msg.substring(0, columIndex);
-		String totRound = msg.substring(columIndex + 1);
+		int index = msg.indexOf(",");
+		String currentRound = msg.substring(0, index);
+		String totRound = msg.substring(index + 1);
 		
 		view.setRound(currentRound, totRound);
 	}

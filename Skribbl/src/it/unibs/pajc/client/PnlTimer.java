@@ -38,6 +38,7 @@ public class PnlTimer extends JPanel {
 	}
 	
 	protected void startTimer(int second) {
+		//TODO: arriva sempre 1 secondo in ritardo, colpa del passaggi che deve fare
 		seconds = second;
 		timer.start();
 	}

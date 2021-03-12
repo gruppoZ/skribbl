@@ -65,7 +65,8 @@ public class Protocol extends BaseModel implements Runnable{
 				os.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println("sono nel protocol");
+//				e.printStackTrace();
 			}
 		}
 		clientList.remove(this);
@@ -119,7 +120,6 @@ public class Protocol extends BaseModel implements Runnable{
 		} catch (IOException e) {
 			System.out.printf("Errore durante i msg %s ", e);
 		} catch (ClassNotFoundException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		} finally {
 			this.close();
@@ -164,7 +164,7 @@ public class Protocol extends BaseModel implements Runnable{
 				match.addPlayer(this);
 				
 				ArrayList<WhiteBoardLine> lines = whiteBoard.getLines();
-				if(lines != null) {
+				if(!lines.isEmpty()) {
 					lines.forEach((line) ->
 						this.sendMsg(line)
 					);
@@ -263,6 +263,8 @@ public class Protocol extends BaseModel implements Runnable{
 		match = new Match(clientList);
 		Thread threadMatch = new Thread(match);
 		threadMatch.start();
+		
+		sendMsgToAll("!matchstarted");
 	}
 //	
 //	public Match getMatch() {

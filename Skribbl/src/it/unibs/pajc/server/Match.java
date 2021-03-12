@@ -2,6 +2,10 @@ package it.unibs.pajc.server;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,6 +35,7 @@ public class Match implements Runnable {
 	
 	private static final String[] LIST_WORDS= {"gatto", "cane", "capra", "fiore", "muro", "viso", "collo", "naso", "mano", "dito",
 			"ruota", "casa", "porta", "vaso"};
+	private static ArrayList<String> words;
 	private Random random;
 	private ArrayList<Player> playerList;
 	//timer
@@ -63,6 +68,9 @@ public class Match implements Runnable {
 		this.turnEnded = false;
 		this.random = new Random();
 		this.playersWhoGuessed = 0;
+		
+		words = new ArrayList<>();
+        readFile();
 	}
 	
 	@Override
@@ -71,6 +79,29 @@ public class Match implements Runnable {
 		updatePlayerList();
 		
 		startMatch();
+		
+		for (Protocol protocol : clientList) {
+			if(protocol != null)
+				protocol.sendMsgToAll("!matchfinished");
+			break;
+		}
+	}
+	
+	private void readFile() {
+		File fileName = new File("src/it/unibs/pajc/server/WORDS.dat");
+
+        try(
+                BufferedReader in = new BufferedReader(new FileReader(fileName))
+            ) {
+
+            String line;
+            while((line = in.readLine()) != null) {
+                words.add(line);
+            }
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
 	}
 	
 	/**
@@ -193,7 +224,7 @@ public class Match implements Runnable {
 //		System.out.println(sender.getClientName());
 		//TODO: se un player entra a partita iniziata non riceve la scoreboard
 		try {
-			TimeUnit.SECONDS.sleep(1);
+			TimeUnit.MILLISECONDS.sleep(100);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -271,6 +302,7 @@ public class Match implements Runnable {
 	public void addPlayer(Protocol client) {
 		updatePlayerList();
 		sendScoreBoard(client);
+		client.sendMsg("/" + currentRound + "," + ROUNDS);
 		client.sendMsg("!starttimer," + seconds);
 	}
 	
@@ -287,17 +319,17 @@ public class Match implements Runnable {
 		int[] indexes = new int[3];
 		
 		for(int i = 0; i<indexes.length; i++) {
-			indexes[i] = random.nextInt(LIST_WORDS.length);
+			indexes[i] = random.nextInt(words.size());
 			for(int j = 0; j < i; j++) {
 				while(indexes[i] == indexes[j])
-					indexes[i] = random.nextInt(LIST_WORDS.length);
+					indexes[i] = random.nextInt(words.size());
 			}
 		}
 		
 		StringBuffer result = new StringBuffer();
 		result.append("?word:");
 		for (int i : indexes) {
-			result.append(LIST_WORDS[i]+";");
+			result.append(words.get(i) + ";");
 		}
 		return result.toString();
 	}

@@ -177,8 +177,11 @@ public class PnlPaintArea extends JPanel implements MouseListener, MouseMotionLi
 	}
 	
 	public void clearAll() {
-		lines.clear();
-		repaint();
+		if(!lines.isEmpty()) {
+			lines.clear();
+			repaint();
+		}
+		
 	}
 	
 	

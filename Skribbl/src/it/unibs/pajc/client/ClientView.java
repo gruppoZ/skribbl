@@ -48,6 +48,8 @@ public class ClientView {
 	private JTextPane txtScoreBoard;
 	private JTextPane txtChat;
 	private JScrollPane scrollPane;
+	
+	private JButton btnStartGame;
 	/**
 	 * Launch the application.
 	 */
@@ -59,7 +61,8 @@ public class ClientView {
 					window.frame.setVisible(true);
 					window.frame.setLocationRelativeTo(null);
 				} catch (Exception e) {
-					e.printStackTrace();
+//					e.printStackTrace();
+					System.out.println("client view run");
 				}
 			}
 		});
@@ -108,7 +111,7 @@ public class ClientView {
 		pnlStrumenti.setBounds(10, 22, 538, 38);
 		frame.getContentPane().add(pnlStrumenti);
 		
-		JButton btnStartGame = new JButton("Start Game");
+		btnStartGame = new JButton("Start Game");
 		btnStartGame.setBounds(921, 612, 118, 60);
 		frame.getContentPane().add(btnStartGame);
 		
@@ -170,7 +173,6 @@ public class ClientView {
 		pnlStrumenti.addActionListener(e -> paintArea.changePaint(e));
 		pnlWords.addActionListener(e -> this.sendSelectedWord(e.getActionCommand()));
 	}
-	
 	private void send() {
 		model.sendMsg(txtWrite.getText());
 		txtWrite.setText("");
@@ -181,8 +183,20 @@ public class ClientView {
 	}
 
 	private void setNickname() {
-		String nickname = JOptionPane.showInputDialog(frame,"What is your name?", null);
-		model.sendMsg(nickname);
+		String nickname;
+		
+		do {
+			nickname = JOptionPane.showInputDialog(frame,"What is your name?", null);
+			if(nickname == null)
+				this.close();
+			
+		}while(nickname.equals("") || nickname.startsWith("!")); //TODO: regular con spazio piu' caratteri speciali
+		
+		if(nickname != null) {
+			model.setNickname(nickname);
+			model.sendMsg(nickname);
+		}
+		
 	}
 	
 	private void update() {
@@ -246,6 +260,17 @@ public class ClientView {
 		model.sendMsg("!startmatch");
 	}
 	
+	protected void matchStarted() {
+		btnStartGame.setVisible(false);
+	}
+	
+	protected void matchFinished() {
+		this.setRound("0", "0");
+		txtChat.setText("");
+		btnStartGame.setVisible(true);
+		
+	}
+	
 	protected void setRound(String currentRound, String totRound) {
 		txtCurrentRound.setText(currentRound);
 		txtTotRound.setText(totRound);
@@ -267,6 +292,7 @@ public class ClientView {
 		txtScoreBoard.setText("");
 	}
 	
+	
 	protected void setScoreBoard(String name, String score, boolean isPainter) {
 		Color c;
 		if(isPainter)
@@ -274,8 +300,10 @@ public class ClientView {
 		else
 			c = Color.BLACK;
 		
-		appendToPane(txtScoreBoard, name + ":" + score + "\n", c);
+		if(model.getNickname().equals(name))
+			name += " (You)";
 		
+		appendToPane(txtScoreBoard, name + ":" + score + "\n", c);
 	}
 	
 	protected void setTxtChat(String msg, Color c) {

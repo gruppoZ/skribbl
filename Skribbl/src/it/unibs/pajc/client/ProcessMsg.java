@@ -6,9 +6,9 @@ public class ProcessMsg implements ProcessMessageClient{
 
 	@Override
 	public void process(ClientView view, String msg) {
-		int columIndex = msg.indexOf("|");
-		String msgType = msg.substring(0, columIndex);
-		msg = msg.substring(columIndex + 1) + "\n";
+		int index = msg.indexOf("|");
+		String msgType = msg.substring(0, index);
+		msg = msg.substring(index + 1) + "\n";
 		
 		if(msgType.equals("left"))
 			view.setTxtChat(msg, Color.RED);

@@ -7,8 +7,8 @@ public class ProcessCommandClient implements ProcessMessageClient{
 			view.clearAll();
 		
 		if(msg.startsWith("starttimer")) {
-			int columIndex = msg.indexOf(",");
-			String seconds = msg.substring(columIndex + 1);
+			int index = msg.indexOf(",");
+			String seconds = msg.substring(index + 1);
 			view.startTimer(seconds);
 		}
 			
@@ -18,6 +18,10 @@ public class ProcessCommandClient implements ProcessMessageClient{
 			view.setPainter();	
 		if(msg.startsWith("hidewords"))
 			view.hidePnlWords();	
+		if(msg.startsWith("matchstarted"))
+			view.matchStarted();	
+		if(msg.startsWith("matchfinished"))
+			view.matchFinished();	
 		
 	}
 	

@@ -34,6 +34,7 @@ public class ClientModel extends BaseModel{
 		commandMap.put("%", new ProcessMsg());
 	}
 	
+	private String nickname;
 	private String serverName = "localhost";
 	private int port = 1234;
 	private Socket server;
@@ -47,8 +48,6 @@ public class ClientModel extends BaseModel{
 	public ClientModel() {
 		try {
 			this.server = new Socket(serverName, port);
-//			this.out = new PrintWriter(server.getOutputStream(), true);
-			
 			this.os = new ObjectOutputStream(this.server.getOutputStream());
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
@@ -62,6 +61,13 @@ public class ClientModel extends BaseModel{
 		//start di un thread per il listener
 		new Thread(new Listener()).start();
 		
+	}
+	
+	public String getNickname() {
+		return nickname;
+	}
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
 	}
 	
 	public void sendMsg(String msg) {
@@ -106,8 +112,14 @@ public class ClientModel extends BaseModel{
 //	}
 	
 	public void close() {
-		if(out != null)
-			out.close();
+		if(os != null) {
+			try {
+				os.close();
+			} catch (IOException e) {
+				System.out.println("close del clientModel");
+//				e.printStackTrace();
+			}
+		}
 //		try {
 //			server.close();
 //		} catch (IOException e) {
@@ -131,6 +143,7 @@ public class ClientModel extends BaseModel{
 					}
 				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
+					
 					e.printStackTrace();
 				}
 				
@@ -139,7 +152,8 @@ public class ClientModel extends BaseModel{
 //				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println("sono nel listener");
+//				e.printStackTrace();
 			} finally {
 				close();
 			}
