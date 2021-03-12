@@ -11,6 +11,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 
 import javax.swing.ImageIcon;
 import javax.swing.event.ChangeEvent;
@@ -131,10 +132,6 @@ public class ClientModel extends BaseModel{
 	private class Listener implements Runnable {
 		@Override
 		public void run() {
-//			try(
-////					BufferedReader in = new BufferedReader(new InputStreamReader(server.getInputStream()));
-//					
-//			) 
 			try{
  				ObjectInputStream is = new ObjectInputStream(server.getInputStream());
 				try {
@@ -159,6 +156,14 @@ public class ClientModel extends BaseModel{
 			}
 		}
 
+	}
+	
+	public ProcessMessageClient getProcess(String messageType) {
+		return commandMap.get(messageType);
+	}
+	
+	public static Set<String> getKeySet() {
+		return commandMap.keySet();
 	}
 	
 	//gestione pnlStrumenti

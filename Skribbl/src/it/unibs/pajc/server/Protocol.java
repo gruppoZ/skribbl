@@ -7,6 +7,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -59,10 +60,12 @@ public class Protocol extends BaseModel implements Runnable{
 	}
 	
 	public void close() {
+		clientList.remove(this);
 		if(os != null) {
-			sendMsgToAll("%left|" + this.clientName + " ha abbandonato la conversazione");
 			try {
-				match.removePlayer(this);
+				sendMsgToAll("%left|" + this.clientName + " ha abbandonato la conversazione");
+				if(isMatchStarted())
+					match.removePlayer(this);
 				os.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -70,7 +73,7 @@ public class Protocol extends BaseModel implements Runnable{
 //				e.printStackTrace();
 			}
 		}
-		clientList.remove(this);
+		
 		
 	}
 
@@ -118,7 +121,10 @@ public class Protocol extends BaseModel implements Runnable{
 				}
 			}
 			
-		} catch (IOException e) {
+		} catch(SocketException e) {
+			System.out.println("errore socket");
+		}
+		catch (IOException e) {
 			System.out.printf("Errore durante i msg %s ", e);
 		} catch (ClassNotFoundException e1) {
 			e1.printStackTrace();

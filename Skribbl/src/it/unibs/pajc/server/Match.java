@@ -224,7 +224,7 @@ public class Match implements Runnable {
 //		System.out.println(sender.getClientName());
 		//TODO: se un player entra a partita iniziata non riceve la scoreboard
 		try {
-			TimeUnit.MILLISECONDS.sleep(100);
+			TimeUnit.MILLISECONDS.sleep(1000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -301,9 +301,10 @@ public class Match implements Runnable {
 	
 	public void addPlayer(Protocol client) {
 		updatePlayerList();
-		sendScoreBoard(client);
+		
 		client.sendMsg("/" + currentRound + "," + ROUNDS);
 		client.sendMsg("!starttimer," + seconds);
+		sendScoreBoard(client);
 	}
 	
 	protected void setSelectedWord(String word) {

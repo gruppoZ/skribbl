@@ -1,5 +1,10 @@
 package it.unibs.pajc.client;
 
+import java.io.File;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+
 import java.awt.Color;
 import java.awt.EventQueue;
 
@@ -23,6 +28,8 @@ import javax.swing.DropMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
 import javax.swing.JTable;
@@ -32,7 +39,6 @@ import javax.swing.JScrollBar;
 public class ClientView {
 
 	private JFrame frame;
-	private JTextField txtWrite;
 
 	private ClientModel model;
 	//TODO: cambiare paintArea in pnlPaintArea
@@ -41,6 +47,7 @@ public class ClientView {
 	private PnlStrumenti pnlStrumenti;
 	private PnlWords pnlWords;
 	
+	private JTextField txtWrite;
 	private JTextPane txtCurrentRound;
 	private JTextPane txtSeparetor;
 	private JTextPane txtTotRound;
@@ -50,6 +57,8 @@ public class ClientView {
 	private JScrollPane scrollPane;
 	
 	private JButton btnStartGame;
+	
+	private String nickname;
 	/**
 	 * Launch the application.
 	 */
@@ -60,8 +69,12 @@ public class ClientView {
 					ClientView window = new ClientView();
 					window.frame.setVisible(true);
 					window.frame.setLocationRelativeTo(null);
-				} catch (Exception e) {
-//					e.printStackTrace();
+				} catch (NullPointerException e) {
+					JOptionPane.showMessageDialog(null, "Sei uscito");
+					System.exit(0);
+				}
+				catch (Exception e) {
+	//					e.printStackTrace();
 					System.out.println("client view run");
 				}
 			}
@@ -73,7 +86,10 @@ public class ClientView {
 	 * Controller App Client
 	 */
 	public ClientView() {
+		getNickname();
 		model = new ClientModel();
+		setNickname();
+		
 		initialize();
 		model.addChangeListener(e -> this.update());
 		
@@ -96,10 +112,6 @@ public class ClientView {
 		txtWrite.setBounds(782, 578, 143, 23);
 		frame.getContentPane().add(txtWrite);
 		txtWrite.setColumns(10);
-//		JScrollPane scrollBar = new JScrollPane(txtChat);
-//		scrollBar.setAutoscrolls(true);
-//		scrollBar.setBounds(799, 11, 222, 373);
-//		frame.getContentPane().add(scrollBar);
 		
 		//TODO: controllare se giusto o no passare model in paintarea
 		paintArea = new PnlPaintArea(model);
@@ -160,11 +172,52 @@ public class ClientView {
 		scrollPane = new JScrollPane(txtChat);
 		scrollPane.setBounds(782, 33, 242, 521);
 		frame.getContentPane().add(scrollPane);
-		
+		frame.addWindowListener(new WindowListener() {
+			
+			@Override
+			public void windowOpened(WindowEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void windowIconified(WindowEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void windowDeiconified(WindowEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void windowDeactivated(WindowEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void windowClosing(WindowEvent e) {
+				JOptionPane.showMessageDialog(null, "Sei uscito");
+				
+			}
+			
+			@Override
+			public void windowClosed(WindowEvent e) {
+				JOptionPane.showMessageDialog(null, "Sei uscito");
+				
+			}
+			
+			@Override
+			public void windowActivated(WindowEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		
 		pnlTimer.addChangeListener(e -> this.stopTimer());
-		
-		setNickname();
 		
 		//send msg
 		btnSend.addActionListener(e -> this.send());
@@ -182,32 +235,47 @@ public class ClientView {
 		model.close();
 	}
 
-	private void setNickname() {
-		String nickname;
-		
-		model.commandMap.keySet().forEach((key) -> {
-			System.out.println(key);
+	private void getNickname() {
+		StringBuffer regexNickname = new StringBuffer();
+		regexNickname.append("(?u)^[");
+		ClientModel.getKeySet().forEach((key) -> {
+			regexNickname.append(key);
 		});
+		regexNickname.append("].*");
+		
 		do {
 			nickname = JOptionPane.showInputDialog(frame,"What is your name?", null);
 			if(nickname == null)
 				this.close();
 			
-		}while(nickname.equals("") || nickname.matches("(?u)^[!?/%@].*")); //TODO: regular con spazio piu' caratteri speciali
-		
-		if(nickname != null) {
-			model.setNickname(nickname);
-			model.sendMsg(nickname);
-		}
+		}while(nickname.trim().equals("") || nickname.matches(regexNickname.toString()));
+			
+			//TODO: se metti il suono non va  il welcome
+//			try {
+//				String soundName = "src/sounds/win.wav";    
+//				AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(soundName).getAbsoluteFile());
+//				Clip clip = AudioSystem.getClip();
+//				clip.open(audioInputStream);
+//				clip.start();
+//			} catch(Exception e) { 
+//				e.printStackTrace();
+//			}
+//		}
 		
 	}
 	
+	private void setNickname() {
+		if(nickname != null) {
+			model.setNickname(nickname.trim());
+			model.sendMsg(nickname);
+		}
+	}
 	private void update() {
 		Object response = model.update();
 		
 		if((response.getClass().equals(String.class)) && (response != null)) {
 			String messageType = response.toString().substring(0,1);
-			ProcessMessageClient processor = model.commandMap.get(messageType);
+			ProcessMessageClient processor = model.getProcess(messageType);
 			if(processor != null) {
 				processor.process(this, response.toString().substring(1));
 			} else {
@@ -314,6 +382,9 @@ public class ClientView {
 	}
 	
 	private static void appendToPane(JTextPane tp, String txt, Color clr) {
+		System.out.println(txt);
+		if(tp == null)
+			System.out.println("tp è null");
 		tp.setEditable(true);
         StyleContext sc = StyleContext.getDefaultStyleContext();
         AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, clr);
