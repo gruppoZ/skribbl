@@ -60,6 +60,7 @@ public class Protocol extends BaseModel implements Runnable{
 	
 	public void close() {
 		if(os != null) {
+			sendMsgToAll("%left|" + this.clientName + " ha abbandonato la conversazione");
 			try {
 				match.removePlayer(this);
 				os.close();
@@ -70,7 +71,7 @@ public class Protocol extends BaseModel implements Runnable{
 			}
 		}
 		clientList.remove(this);
-		sendMsgToAll("%left|" + this.clientName + " ha abbandonato la conversazione");
+		
 	}
 
 	@Override

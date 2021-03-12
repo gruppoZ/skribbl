@@ -185,12 +185,15 @@ public class ClientView {
 	private void setNickname() {
 		String nickname;
 		
+		model.commandMap.keySet().forEach((key) -> {
+			System.out.println(key);
+		});
 		do {
 			nickname = JOptionPane.showInputDialog(frame,"What is your name?", null);
 			if(nickname == null)
 				this.close();
 			
-		}while(nickname.equals("") || nickname.startsWith("!")); //TODO: regular con spazio piu' caratteri speciali
+		}while(nickname.equals("") || nickname.matches("(?u)^[!?/%@].*")); //TODO: regular con spazio piu' caratteri speciali
 		
 		if(nickname != null) {
 			model.setNickname(nickname);
