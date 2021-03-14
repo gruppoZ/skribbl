@@ -172,12 +172,11 @@ public class ClientView {
 		scrollPane = new JScrollPane(txtChat);
 		scrollPane.setBounds(782, 33, 242, 521);
 		frame.getContentPane().add(scrollPane);
+		
 		frame.addWindowListener(new WindowListener() {
 			
 			@Override
 			public void windowOpened(WindowEvent e) {
-				// TODO Auto-generated method stub
-				
 			}
 			
 			@Override
@@ -201,12 +200,10 @@ public class ClientView {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				JOptionPane.showMessageDialog(null, "Sei uscito");
-				
 			}
 			
 			@Override
 			public void windowClosed(WindowEvent e) {
-				JOptionPane.showMessageDialog(null, "Sei uscito");
 				
 			}
 			

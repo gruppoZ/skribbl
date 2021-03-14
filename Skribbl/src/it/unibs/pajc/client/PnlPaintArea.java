@@ -79,17 +79,26 @@ public class PnlPaintArea extends JPanel implements MouseListener, MouseMotionLi
 //		g2.setStroke(lineStroke);
 		
 		//TODO: vedere se va senza syncrho
-		synchronized (lines) {
-			for (WhiteBoardLine line: lines) {
-				g2.setColor(line.getColor());
-				g2.setStroke(new BasicStroke(line.getStrokeSize()));
-				line.draw(g2);
-			}
-		}
+//		synchronized (lines) {
+//			for (WhiteBoardLine line: lines) {
+//				g2.setColor(line.getColor());
+//				g2.setStroke(new BasicStroke(line.getStrokeSize()));
+//				line.draw(g2);
+//			}
+//		}
+		getLines().forEach((line) -> {
+			g2.setColor(line.getColor());
+			g2.setStroke(new BasicStroke(line.getStrokeSize()));
+			line.draw(g2);
+		});
 		
 		
 	}
 
+	private synchronized List<WhiteBoardLine> getLines() {
+		return this.lines;
+	}
+	
 	/**
 	 * quando il mouse si muove creo la line e gli aggiungo il primo punto della linea disegnata
 	 */
@@ -97,7 +106,7 @@ public class PnlPaintArea extends JPanel implements MouseListener, MouseMotionLi
 	public void mouseMoved(MouseEvent e) {
 		if (painter) {
 	        currentLine = new WhiteBoardLine(lineColor, sizeStroke);
-	        lines.add(currentLine);
+	        getLines().add(currentLine);
 	        currentLine.addPoint(e.getX(), e.getY());
 		}
 	}
@@ -146,7 +155,7 @@ public class PnlPaintArea extends JPanel implements MouseListener, MouseMotionLi
 
 	public void updateWhiteBoard(WhiteBoardLine line) {
 		if(line != null) {
-			lines.add(line);
+			getLines().add(line);
 			repaint();
 		}	
 	}
@@ -177,8 +186,8 @@ public class PnlPaintArea extends JPanel implements MouseListener, MouseMotionLi
 	}
 	
 	public void clearAll() {
-		if(!lines.isEmpty()) {
-			lines.clear();
+		if(getLines() != null && !getLines().isEmpty()) {
+			getLines().clear();
 			repaint();
 		}
 		
