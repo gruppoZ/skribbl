@@ -301,7 +301,6 @@ public class Match implements Runnable {
 	
 	public void addPlayer(Protocol client) {
 		updatePlayerList();
-		
 		client.sendMsg("/" + currentRound + "," + ROUNDS);
 		client.sendMsg("!starttimer," + seconds);
 		sendScoreBoard(client);

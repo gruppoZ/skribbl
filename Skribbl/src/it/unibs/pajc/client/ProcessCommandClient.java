@@ -21,7 +21,9 @@ public class ProcessCommandClient implements ProcessMessageClient{
 		if(msg.startsWith("matchstarted"))
 			view.matchStarted();	
 		if(msg.startsWith("matchfinished"))
-			view.matchFinished();	
+			view.matchFinished();
+		if(msg.startsWith("matchalreadyon"))
+			view.matchAlreadyOn();
 		
 	}
 	

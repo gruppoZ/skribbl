@@ -11,6 +11,7 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.event.ChangeEvent;
 
@@ -64,7 +65,7 @@ public class Protocol extends BaseModel implements Runnable{
 		if(os != null) {
 			try {
 				sendMsgToAll("%left|" + this.clientName + " ha abbandonato la conversazione");
-				if(isMatchStarted())
+				if(hasMatchStarted())
 					match.removePlayer(this);
 				os.close();
 			} catch (IOException e) {
@@ -101,7 +102,7 @@ public class Protocol extends BaseModel implements Runnable{
 					} else {
 						String response = request;
 //						sendMsgToAll(this, response);
-						if(isMatchStarted()) {
+						if(hasMatchStarted()) {
 							//TODO: controllare bene il synchronized
 							fireValuesChange(new ChangeEvent(response));
 //							synchronized (this) {
@@ -167,7 +168,14 @@ public class Protocol extends BaseModel implements Runnable{
 			this.welcome();
 			sendMsgToAll("%join|" + this.clientName + " è entrato in partita");
 			
-			if(isMatchStarted()) {
+			if(hasMatchStarted()) {
+				try {
+					TimeUnit.MILLISECONDS.sleep(1000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				this.sendMsg("!matchalreadyon");
 				match.addPlayer(this);
 				
 				ArrayList<WhiteBoardLine> lines = whiteBoard.getLines();
@@ -189,7 +197,7 @@ public class Protocol extends BaseModel implements Runnable{
 		return clientName;
 	}
 	
-	private boolean isMatchStarted() {
+	private boolean hasMatchStarted() {
 		return match != null ? true : false;
 	}
 	

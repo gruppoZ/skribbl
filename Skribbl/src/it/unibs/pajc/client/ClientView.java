@@ -11,6 +11,7 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextPane;
+import javax.swing.SwingConstants;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.DefaultCaret;
 import javax.swing.text.SimpleAttributeSet;
@@ -39,8 +40,13 @@ import javax.swing.JScrollBar;
 public class ClientView {
 
 	private JFrame frame;
+	private JFrame frameLobby;
 
 	private ClientModel model;
+	
+	//LOBBY
+	private JTextPane txtClientList;
+	
 	//TODO: cambiare paintArea in pnlPaintArea
 	private PnlPaintArea paintArea;
 	private PnlTimer pnlTimer;
@@ -48,9 +54,7 @@ public class ClientView {
 	private PnlWords pnlWords;
 	
 	private JTextField txtWrite;
-	private JTextPane txtCurrentRound;
-	private JTextPane txtSeparetor;
-	private JTextPane txtTotRound;
+	private JTextField txtRound;
 	private JTextPane txtPainter;
 	private JTextPane txtScoreBoard;
 	private JTextPane txtChat;
@@ -67,8 +71,9 @@ public class ClientView {
 			public void run() {
 				try {
 					ClientView window = new ClientView();
-					window.frame.setVisible(true);
-					window.frame.setLocationRelativeTo(null);
+//					window.frame.setVisible(false);
+					window.frameLobby.setVisible(true);
+					window.frameLobby.setLocationRelativeTo(null);
 				} catch (NullPointerException e) {
 					JOptionPane.showMessageDialog(null, "Sei uscito");
 					System.exit(0);
@@ -90,8 +95,43 @@ public class ClientView {
 		model = new ClientModel();
 		setNickname();
 		
-		initialize();
+		lobby();
+//		initialize();
 		model.addChangeListener(e -> this.update());
+		
+	}
+
+	private void lobby() {
+		
+		//TODO:
+		/**
+		 * lista client lobby
+		 * chat client lobby deve scrivere
+		 * errore quando finisce il turno
+		 * errore welcome
+		 * quando finisce una partita far vedere la classifica
+		 */
+		frameLobby = new JFrame();
+		frameLobby.setBounds(100, 100, 1065, 722);
+		frameLobby.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frameLobby.getContentPane().setLayout(null);
+		
+		txtClientList = new JTextPane();
+		txtClientList.setEditable(false);
+		txtClientList.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		txtClientList.setBounds(594, 314, 134, 302);
+		frameLobby.getContentPane().add(txtClientList);
+		
+		JButton btnStartGameLobby = new JButton("Start Game");
+		btnStartGameLobby.setBounds(921, 612, 118, 60);
+		frameLobby.getContentPane().add(btnStartGameLobby);
+		
+		txtChat = new JTextPane();
+		txtChat.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		txtChat.setBounds(822, 22, 217, 545);
+		frameLobby.getContentPane().add(txtChat);
+		
+		btnStartGameLobby.addActionListener(e -> this.startGameFromLobby());
 		
 	}
 
@@ -99,10 +139,14 @@ public class ClientView {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		frameLobby.setVisible(false);
+		
 		frame = new JFrame();
 		frame.setBounds(100, 100, 1065, 722);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
+		frame.setVisible(true);
+		frame.setLocationRelativeTo(null);
 		
 		JButton btnSend = new JButton("Send");
 		btnSend.setBounds(935, 578, 89, 23);
@@ -132,22 +176,14 @@ public class ClientView {
 		pnlTimer.setBackground(Color.WHITE);
 		frame.getContentPane().add(pnlTimer);
 		
-		txtCurrentRound = new JTextPane();
-		txtCurrentRound.setEditable(false);
-		txtCurrentRound.setBounds(594, 159, 32, 31);
-		frame.getContentPane().add(txtCurrentRound);
-		
-		txtSeparetor = new JTextPane();
-		txtSeparetor.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		txtSeparetor.setEditable(false);
-		txtSeparetor.setText("/");
-		txtSeparetor.setBounds(636, 159, 13, 23);
-		frame.getContentPane().add(txtSeparetor);
-		
-		txtTotRound = new JTextPane();
-		txtTotRound.setEditable(false);
-		txtTotRound.setBounds(659, 159, 32, 31);
-		frame.getContentPane().add(txtTotRound);
+		txtRound = new JTextField();
+        txtRound.setBackground(Color.WHITE);
+        txtRound.setHorizontalAlignment(SwingConstants.CENTER);
+        txtRound.setFont(new Font("Stencil", Font.ITALIC, 12));
+        txtRound.setEditable(false);
+        txtRound.setBounds(607, 161, 107, 31);
+        frame.getContentPane().add(txtRound);
+        txtRound.setText("/");
 		
 		txtPainter = new JTextPane();
 		txtPainter.setEditable(false);
@@ -223,6 +259,7 @@ public class ClientView {
 		pnlStrumenti.addActionListener(e -> paintArea.changePaint(e));
 		pnlWords.addActionListener(e -> this.sendSelectedWord(e.getActionCommand()));
 	}
+	
 	private void send() {
 		model.sendMsg(txtWrite.getText());
 		txtWrite.setText("");
@@ -328,7 +365,14 @@ public class ClientView {
 		model.sendMsg("!startmatch");
 	}
 	
+	private void startGameFromLobby() {
+		initialize();
+		this.startGame();
+	}
+	
 	protected void matchStarted() {
+		if(frameLobby.isVisible())
+			initialize();
 		btnStartGame.setVisible(false);
 	}
 	
@@ -340,8 +384,7 @@ public class ClientView {
 	}
 	
 	protected void setRound(String currentRound, String totRound) {
-		txtCurrentRound.setText(currentRound);
-		txtTotRound.setText(totRound);
+		txtRound.setText(currentRound + "/" + totRound);
 	}
 	
 	protected void sendSelectedWord(String word) {
@@ -376,6 +419,15 @@ public class ClientView {
 	
 	protected void setTxtChat(String msg, Color c) {
 		appendToPane(txtChat, msg, c);
+	}
+	
+	protected void updateClientList(String name, Color c) {
+		appendToPane(txtClientList, name, c);
+	}
+	
+	protected void matchAlreadyOn() {
+		initialize();
+		matchStarted();
 	}
 	
 	private static void appendToPane(JTextPane tp, String txt, Color clr) {
