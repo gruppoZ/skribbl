@@ -12,10 +12,8 @@ public class ProcessMsg implements ProcessMessageClient{
 		
 		if(msgType.equals("left"))
 			view.setTxtChat(msg, Color.RED);
-		if(msgType.equals("join")) {
+		if(msgType.equals("join"))
 			view.setTxtChat(msg, Color.GREEN);
-			view.updateClientList(msgType, Color.BLACK);
-		}
 		if(msgType.equals("guessed"))
 			view.setTxtChat(msg, Color.GREEN);
 		if(msgType.equals("waiting"))

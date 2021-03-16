@@ -127,12 +127,27 @@ public class ClientView {
 		frameLobby.getContentPane().add(btnStartGameLobby);
 		
 		txtChat = new JTextPane();
+		txtChat.setEditable(false);
 		txtChat.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		txtChat.setBounds(822, 22, 217, 545);
 		frameLobby.getContentPane().add(txtChat);
 		
-		btnStartGameLobby.addActionListener(e -> this.startGameFromLobby());
+		scrollPane = new JScrollPane(txtChat);
+		scrollPane.setBounds(782, 33, 242, 521);
+		frameLobby.getContentPane().add(scrollPane);
 		
+		txtWrite = new JTextField();
+		txtWrite.setBounds(782, 578, 143, 23);
+		frameLobby.getContentPane().add(txtWrite);
+		txtWrite.setColumns(10);
+		
+		JButton btnSend = new JButton("Send");//è creato due volte forse si potrebbe dichiarare solo da una parte
+		btnSend.setBounds(935, 578, 89, 23);
+		frameLobby.getContentPane().add(btnSend);
+		
+		txtWrite.addActionListener(e -> this.send());
+		btnStartGameLobby.addActionListener(e -> this.startGameFromLobby());
+		btnSend.addActionListener(e -> this.send());
 	}
 
 	/**
@@ -147,6 +162,7 @@ public class ClientView {
 		frame.getContentPane().setLayout(null);
 		frame.setVisible(true);
 		frame.setLocationRelativeTo(null);
+		frame.setResizable(false);
 		
 		JButton btnSend = new JButton("Send");
 		btnSend.setBounds(935, 578, 89, 23);
@@ -403,7 +419,9 @@ public class ClientView {
 		txtScoreBoard.setText("");
 	}
 	
-	
+	protected void resetClientList() {
+		txtClientList.setText("");
+	}
 	protected void setScoreBoard(String name, String score, boolean isPainter) {
 		Color c;
 		if(isPainter)
@@ -421,8 +439,10 @@ public class ClientView {
 		appendToPane(txtChat, msg, c);
 	}
 	
-	protected void updateClientList(String name, Color c) {
-		appendToPane(txtClientList, name, c);
+	protected void updateClientList(String name) {
+		if(model.getNickname().equals(name))
+			name += " (You)";
+		appendToPane(txtClientList, name + "\n", Color.BLACK);
 	}
 	
 	protected void matchAlreadyOn() {

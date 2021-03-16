@@ -33,6 +33,7 @@ public class ClientModel extends BaseModel{
 		commandMap.put("?", new ProcessWords());
 		commandMap.put("@", new ProcessScoreBoard());
 		commandMap.put("%", new ProcessMsg());
+		commandMap.put("+", new ProcessClientList());
 	}
 	
 	private String nickname;

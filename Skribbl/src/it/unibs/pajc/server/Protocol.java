@@ -62,6 +62,8 @@ public class Protocol extends BaseModel implements Runnable{
 	
 	public void close() {
 		clientList.remove(this);
+		sendClientList();
+		
 		if(os != null) {
 			try {
 				sendMsgToAll("%left|" + this.clientName + " ha abbandonato la conversazione");
@@ -70,7 +72,7 @@ public class Protocol extends BaseModel implements Runnable{
 				os.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				System.out.println("sono nel protocol");
+				System.err.println("sono nel protocol");
 //				e.printStackTrace();
 			}
 		}
@@ -155,13 +157,6 @@ public class Protocol extends BaseModel implements Runnable{
 //	}
 	
 	private void initialize() {
-		try {
-			TimeUnit.MILLISECONDS.sleep(1000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
 		String clientNameRequest;
 		try {
 			clientNameRequest = (String) is.readObject();
@@ -173,6 +168,8 @@ public class Protocol extends BaseModel implements Runnable{
 			
 			this.welcome();
 			sendMsgToAll("%join|" + this.clientName + " è entrato in partita");
+			
+			this.sendClientList();
 			
 			if(hasMatchStarted()) {
 				this.sendMsg("!matchalreadyon");
@@ -195,6 +192,18 @@ public class Protocol extends BaseModel implements Runnable{
 			e.printStackTrace();
 		}
 	}
+	
+	private void sendClientList() {
+		//ogni volta che un client entra invio a tutti la client list
+		StringBuffer list = new StringBuffer();
+		list.append("+");
+		clientList.forEach((client) -> {
+			list.append(client.getClientName() + "/");
+		});
+		sendMsgToAll(list.toString());
+	}
+	
+	//che senso ha getClientName (?) --> solo getName()
 	public String getClientName() {
 		return clientName;
 	}
@@ -299,6 +308,7 @@ public class Protocol extends BaseModel implements Runnable{
 	public boolean isStopped() {
 		return isStopped;
 	}
+	
 	
 	
 }
