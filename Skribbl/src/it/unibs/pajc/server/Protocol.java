@@ -286,11 +286,17 @@ public class Protocol extends BaseModel implements Runnable{
 	public void startMatch() {
 		//TODO: gestire meglio il thread
 		//TODO: gestire il fatto che più client possano schiacciare il bottone
-		match = new Match(clientList);
-		Thread threadMatch = new Thread(match);
-		threadMatch.start();
 		
-		sendMsgToAll("!matchstarted");
+		//controlla che ci siano almeno 2 giocatori
+		if(clientList.size() > 1) {
+			match = new Match(clientList);
+			Thread threadMatch = new Thread(match);
+			threadMatch.start();
+			sendMsgToAll("!matchstarted");
+		} else {
+			sendMsgToAll("!matchcancelled");
+		}
+		
 	}
 //	
 //	public Match getMatch() {

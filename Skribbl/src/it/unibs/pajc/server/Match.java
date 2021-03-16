@@ -223,12 +223,12 @@ public class Match implements Runnable {
 //		System.out.println(sb.toString());
 //		System.out.println(sender.getClientName());
 		//TODO: se un player entra a partita iniziata non riceve la scoreboard
-		try {
-			TimeUnit.MILLISECONDS.sleep(1000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			TimeUnit.MILLISECONDS.sleep(1000);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		sender.sendMsgToAll(sb.toString());
 		//@nome:punteggio/nome2:punteggio2/
 	}

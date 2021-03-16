@@ -146,7 +146,7 @@ public class ClientView {
 		frameLobby.getContentPane().add(btnSend);
 		
 		txtWrite.addActionListener(e -> this.send());
-		btnStartGameLobby.addActionListener(e -> this.startGameFromLobby());
+		btnStartGameLobby.addActionListener(e -> this.startGame());
 		btnSend.addActionListener(e -> this.send());
 	}
 
@@ -381,15 +381,14 @@ public class ClientView {
 		model.sendMsg("!startmatch");
 	}
 	
-	private void startGameFromLobby() {
-		initialize();
-		this.startGame();
-	}
-	
 	protected void matchStarted() {
 		if(frameLobby.isVisible())
 			initialize();
 		btnStartGame.setVisible(false);
+	}
+	
+	protected void matchCancelled() {
+		JOptionPane.showMessageDialog(null, "Sei da solo");
 	}
 	
 	protected void matchFinished() {
@@ -451,7 +450,6 @@ public class ClientView {
 	}
 	
 	private static void appendToPane(JTextPane tp, String txt, Color clr) {
-		System.out.println(txt);
 		if(tp == null)
 			System.out.println("tp è null");
 		tp.setEditable(true);
