@@ -155,7 +155,13 @@ public class Protocol extends BaseModel implements Runnable{
 //	}
 	
 	private void initialize() {
-		//TODO: fare controlli sul nome: no ?!@ o attenti alla lunghezza
+		try {
+			TimeUnit.MILLISECONDS.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		String clientNameRequest;
 		try {
 			clientNameRequest = (String) is.readObject();
@@ -163,18 +169,12 @@ public class Protocol extends BaseModel implements Runnable{
 				if(getClientByName(clientNameRequest) == null) {
 					clientName = clientNameRequest;
 				}
-			}
+			}	
 			
 			this.welcome();
 			sendMsgToAll("%join|" + this.clientName + " è entrato in partita");
 			
 			if(hasMatchStarted()) {
-				try {
-					TimeUnit.MILLISECONDS.sleep(1000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 				this.sendMsg("!matchalreadyon");
 				match.addPlayer(this);
 				
@@ -190,6 +190,8 @@ public class Protocol extends BaseModel implements Runnable{
 			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
