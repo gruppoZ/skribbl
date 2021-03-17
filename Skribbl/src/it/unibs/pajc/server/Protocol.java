@@ -167,6 +167,13 @@ public class Protocol extends BaseModel implements Runnable{
 			}	
 			
 			this.welcome();
+			try {
+				TimeUnit.MILLISECONDS.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.println("Sono in init e devo mandare il join, nCLient " + clientList.size());
 			sendMsgToAll("%join|" + this.clientName + " è entrato in partita");
 			
 			this.sendClientList();
@@ -218,7 +225,7 @@ public class Protocol extends BaseModel implements Runnable{
 	protected void sendMsg(Protocol sender, String msg) {
 		try {
 			String output = String.format("[%s]: %s\n",sender.clientName, msg);
-
+			
 			this.os.writeObject(output);
 			this.os.flush();
 		} catch (IOException e) {
@@ -257,6 +264,8 @@ public class Protocol extends BaseModel implements Runnable{
 	//non worka
 	private void welcome() {
 		if(clientList.size() > 1) {
+			System.out.println("Sono nel welcome, nCLient " + clientList.size());
+			System.out.println(this.clientName);
 			sendMsg(this, "Buongiorno, il tuo nome e': " + clientName);
 		} else
 			sendMsg(this, "Buongiorno, il tuo nome e': " + clientName + "\nNon ci sono altri utenti connessi...");

@@ -80,9 +80,16 @@ public class Match implements Runnable {
 		
 		startMatch();
 		
+		
 		for (Protocol protocol : clientList) {
-			if(protocol != null)
+			if(protocol != null) {
+				StringBuffer sb = new StringBuffer();
+				sb.append("@");
+				sb.append(generateScoreBoard());
+				protocol.sendMsgToAll(sb.toString());
+				
 				protocol.sendMsgToAll("!matchfinished");
+			}	
 			break;
 		}
 	}
@@ -152,7 +159,7 @@ public class Match implements Runnable {
 			playerPainter = copyList.get(indexPainter);
 			painter = playerPainter.getProtocol();
 			playerPainter.setPainter(true);
-			sendScoreBoard(painter);
+			painter.sendMsgToAll(generateScoreBoard());
 			
 			painter.sendMsgToAll("%waiting|" + painter.getClientName() + " e' il disegnatore!\nSta ancora scegliendo la parola...");
 			painter.sendMsgToAll("/" + currentRound + "," + ROUNDS);
@@ -209,7 +216,7 @@ public class Match implements Runnable {
 	}
 	
 	
-	private void sendScoreBoard(Protocol sender) {
+	private String generateScoreBoard() {
 		sortScoreBoard(playerList);
 		
 		StringBuffer sb = new StringBuffer();
@@ -220,17 +227,8 @@ public class Match implements Runnable {
 			else
 				sb.append(player.getProtocol().getClientName() + ":" + player.getScore() + "/");
 		});
-//		System.out.println(sb.toString());
-//		System.out.println(sender.getClientName());
-		//TODO: se un player entra a partita iniziata non riceve la scoreboard
-//		try {
-//			TimeUnit.MILLISECONDS.sleep(1000);
-//		} catch (InterruptedException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-		sender.sendMsgToAll(sb.toString());
 		//@nome:punteggio/nome2:punteggio2/
+		return sb.toString();
 	}
 	
 	private void sortScoreBoard(ArrayList<Player> unsortedScoreBoard) {
@@ -267,7 +265,7 @@ public class Match implements Runnable {
 					else
 						playerPainter.updateScore(COEFF_PAINTER_MIN);
 					
-					sendScoreBoard(painter);
+					painter.sendMsgToAll(generateScoreBoard());
 					protocol.sendMsgToAll("%guessed|" +protocol.getClientName() + " HA INDOVINATO LA PAROLA");
 				} else {
 					protocol.sendMsgToAll(protocol, word);
@@ -295,7 +293,7 @@ public class Match implements Runnable {
 		Player player = getPlayerByClient(client);
 		if(player != null) {
 			playerList.remove(player);
-			sendScoreBoard(client);
+			client.sendMsgToAll(generateScoreBoard());
 		}	
 	}
 	
@@ -303,12 +301,23 @@ public class Match implements Runnable {
 		updatePlayerList();
 		client.sendMsg("/" + currentRound + "," + ROUNDS);
 		client.sendMsg("!starttimer," + seconds);
-		sendScoreBoard(client);
+		client.sendMsgToAll(generateScoreBoard());
 	}
 	
 	protected void setSelectedWord(String word) {
 		this.selectedWord = word;
+		
+		//Thread.start()
 	}
+	/**
+	 * crea il timer
+	 * ogni x secondi manda hint
+	 * 
+	 * _ _ _ _ A _ 
+	 * for()
+	 *
+	 *sendMsgToAll("") 
+	 */
 	
 	private String getSelectedWord() {
 		return this.selectedWord;

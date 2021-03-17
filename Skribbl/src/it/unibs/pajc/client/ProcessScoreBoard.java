@@ -4,6 +4,9 @@ public class ProcessScoreBoard implements ProcessMessageClient{
 
 	@Override
 	public void process(ClientView view, String msg) {
+		String messageType = msg.substring(0,1);
+		//se @ togli e poi farai il view. diverso
+		
 		view.resetScoreBoard();
 		String[] scoreBoard = msg.split("/");
 		boolean isPainter = false;
