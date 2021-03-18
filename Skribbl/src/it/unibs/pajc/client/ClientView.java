@@ -5,13 +5,16 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.DefaultCaret;
 import javax.swing.text.SimpleAttributeSet;
@@ -59,7 +62,7 @@ public class ClientView {
 	private JTextPane txtScoreBoard;
 	private JTextPane txtChat;
 	private JScrollPane scrollPane;
-	
+	private ScoreboardView scoreboardView;
 	private JButton btnStartGame;
 	
 	private String nickname;
@@ -98,7 +101,12 @@ public class ClientView {
 		lobby();
 //		initialize();
 		model.addChangeListener(e -> this.update());
-		
+	}
+
+	protected void initScoreboardView() {
+		// TODO Auto-generated method stub
+		scoreboardView = new ScoreboardView(nickname);
+		scoreboardView.setVisible(true);
 	}
 
 	private void lobby() {
@@ -141,7 +149,7 @@ public class ClientView {
 		frameLobby.getContentPane().add(txtWrite);
 		txtWrite.setColumns(10);
 		
-		JButton btnSend = new JButton("Send");//è creato due volte forse si potrebbe dichiarare solo da una parte
+		JButton btnSend = new JButton("Send");//ï¿½ creato due volte forse si potrebbe dichiarare solo da una parte
 		btnSend.setBounds(935, 578, 89, 23);
 		frameLobby.getContentPane().add(btnSend);
 		
@@ -384,6 +392,10 @@ public class ClientView {
 	protected void matchStarted() {
 		if(frameLobby.isVisible())
 			initialize();
+		//TODO: rendere invisibile/forzare chiusura di ScoreboardView
+//		if(scoreboardView != null)
+//			scoreboardView.close();
+		
 		btnStartGame.setVisible(false);
 	}
 	
@@ -451,7 +463,7 @@ public class ClientView {
 	
 	private static void appendToPane(JTextPane tp, String txt, Color clr) {
 		if(tp == null)
-			System.out.println("tp è null");
+			System.out.println("tp ï¿½ null");
 		tp.setEditable(true);
         StyleContext sc = StyleContext.getDefaultStyleContext();
         AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, clr);
@@ -463,4 +475,14 @@ public class ClientView {
         tp.replaceSelection(txt);
         tp.setEditable(false);
     }
+
+	protected void popupScoreboard(String name, String score) {
+		//IDEA 1 : Istanza di una finestra che contiene la scoreboard + immagini per i diversi "posti" + grassetto per nome + "HAI VINTO"
+		// ogni volta che viene chiamato questo metodo, popola la HashMap della ScoreboardView, che associa a un "nome" lo "score"
+		scoreboardView.addPlayer(name, score);
+	}
+
+//	public void displayScoreBoard() {
+//		scoreboardView.display();
+//	}
 }
