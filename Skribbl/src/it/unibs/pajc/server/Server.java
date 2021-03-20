@@ -17,12 +17,12 @@ public class Server {
 			int id = 0;
 			while(true) {
 				Socket client = server.accept();
-//				try {
-//					TimeUnit.MILLISECONDS.sleep(500);
-//				} catch (InterruptedException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
+				try {
+					TimeUnit.MILLISECONDS.sleep(500);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				Protocol clientProtocol = new Protocol(client, "CLI#" + id++);
 				Thread clientThread = new Thread(clientProtocol);
 				clientThread.start();

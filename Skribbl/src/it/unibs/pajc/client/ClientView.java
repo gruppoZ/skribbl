@@ -295,7 +295,7 @@ public class ClientView {
 
 	private void getNickname() {
 		StringBuffer regexNickname = new StringBuffer();
-		regexNickname.append("(?u)^[");
+		regexNickname.append("(?s).*[");
 		ClientModel.getKeySet().forEach((key) -> {
 			regexNickname.append(key);
 		});
@@ -306,7 +306,8 @@ public class ClientView {
 			if(nickname == null)
 				this.close();
 			
-		}while(nickname.trim().equals("") || nickname.matches(regexNickname.toString()));
+		}while(nickname.matches(regexNickname.toString()) || nickname.trim().equals(""));
+		// || nickname.trim().equals("")
 			
 			//TODO: se metti il suono non va  il welcome
 //			try {

@@ -32,9 +32,6 @@ public class Match implements Runnable {
 	// Protocol + punteggio + painter
 //	private ArrayList<Player> playerList;
 //	private List<Player> playerList = Collections.synchronizedList(new ArrayList<Player>());
-	
-	private static final String[] LIST_WORDS= {"gatto", "cane", "capra", "fiore", "muro", "viso", "collo", "naso", "mano", "dito",
-			"ruota", "casa", "porta", "vaso"};
 	private static ArrayList<String> words;
 	private Random random;
 	private ArrayList<Player> playerList;
@@ -304,9 +301,13 @@ public class Match implements Runnable {
 		client.sendMsgToAll(generateScoreBoard());
 	}
 	
+	/*
+	 * quando fai il set della parola selezionata la rimuovi dalla lista delle parole per evitare che esca un altra
+	 * volta durante questa partita
+	 */
 	protected void setSelectedWord(String word) {
 		this.selectedWord = word;
-		
+		words.remove(word);
 		//Thread.start()
 	}
 	/**
@@ -338,7 +339,7 @@ public class Match implements Runnable {
 		StringBuffer result = new StringBuffer();
 		result.append("?word:");
 		for (int i : indexes) {
-			result.append(words.get(i) + ";");
+			result.append(words.get(i).trim() + ";");
 		}
 		return result.toString();
 	}
