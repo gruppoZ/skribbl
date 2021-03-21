@@ -18,6 +18,8 @@ import javax.swing.Timer;
 import java.util.TimerTask;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.event.ChangeEvent;
@@ -40,6 +42,7 @@ public class Match implements Runnable {
 	private int seconds;
 	private Timer timer;
 	private static final int DELAY = 1000; //millisecondi
+	private static final int DEFAULT_SECONDS = 20; 
 	private static final int COEFF_GUESS = 5;
 	private static final int COEFF_PAINTER_MIN = 5;
 	private static final int COEFF_PAINTER_MAX = 15;
@@ -128,6 +131,9 @@ public class Match implements Runnable {
 		return null;
 	}
 
+	/**
+	 * Se sono usciti tutti => controllo da server e finisce/reset MATCH
+	 */
 	private void startMatch() {
 		for (int i = 0; i < ROUNDS; i++) {
 			currentRound = i + 1; //i miei round saranno 1 - 2 - 3
@@ -170,8 +176,19 @@ public class Match implements Runnable {
 			painter.sendMsgToAll("%waiting|" + painter.getClientName() + " ha scelto, si Gioca!");
 			
 			painter.sendMsg("!changepainter");
+			
 			//start turn
-			this.startTimer();
+			max_hint = calculateMaxHint(selectedWord);
+			Runnable task = () -> {
+				String result = getHint(selectedWord);
+				if(result != null)
+					painter.sendMsgToAll(result+"\n");
+			};
+			ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+			
+			executor.scheduleAtFixedRate(task, DEFAULT_SECONDS/4, DEFAULT_SECONDS/4, TimeUnit.SECONDS);
+			this.startTimer();		
+			
 			painter.sendMsgToAll("!starttimer," + seconds);
 			
 			//timer
@@ -182,12 +199,67 @@ public class Match implements Runnable {
 			
 			if(!timer.isRunning()) {
 				resetTurn();
+				executor.shutdown();
 			}
 			
 		}
 	}
 	
+	private String tmp_wordHint;
+	private int max_hint;
+	private int tmp_countHint = 0;
+	
+	private String getHint(String word) {
+			
+		int indx;
+		char[] result;
+		
+		if(tmp_countHint >= max_hint)
+			return null;
+		else {
+			
+			if(tmp_wordHint != null)
+				result = tmp_wordHint.toCharArray();		
+			else {
+				result = new char[word.length()];
+				
+				for(int i=0; i<result.length; i++) {
+					result[i] = '-';
+				}
+			}
+				
+			do {
+				indx = random.nextInt(word.length());
+			}while(result[indx] != '-');
+			
+			tmp_countHint++;
+			result[indx] = word.charAt(indx);
+			tmp_wordHint = String.valueOf(result);
+			
+			System.out.println("Parola: " + word);				
+			System.out.println("Hint: " + tmp_wordHint);
+			System.out.println("MAX - HINT: " + max_hint + " --> Current Count HINT: " + tmp_countHint);
+			return tmp_wordHint;
+		}
+		
+	}
+	
+	private int calculateMaxHint(String word) {
+		int max = 1;
+		if(word.length() >= 10)
+			max = 4;
+		if(word.length() > 5 && word.length() <10)
+			max = 3;
+		if(word.length() > 2 && word.length() <= 5)
+			max = 2;
+	
+		
+		return max;
+	}
+	
 	private void resetTurn() {
+		tmp_wordHint = null;
+		tmp_countHint = 0;
 		painter.sendMsgToAll("!stoptimer");
 		painter.clearAll();
 		painter.sendMsg("!changepainter"); //TODO: cambiare in changepainterstatus
@@ -204,7 +276,7 @@ public class Match implements Runnable {
 	}
 	
 	protected void startTimer() {
-		seconds = 20;
+		seconds = DEFAULT_SECONDS;
 		timer.start();
 	}
 	
