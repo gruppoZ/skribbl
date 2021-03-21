@@ -52,18 +52,16 @@ public class ClientView {
 	
 	//TODO: cambiare paintArea in pnlPaintArea
 	private PnlPaintArea paintArea;
-	private PnlTimer pnlTimer;
 	private PnlStrumenti pnlStrumenti;
 	private PnlWords pnlWords;
 	
 	private JTextField txtWrite;
-	private JTextField txtRound;
-	private JTextPane txtPainter;
 	private JTextPane txtScoreBoard;
 	private JTextPane txtChat;
 	private JScrollPane scrollPane;
 	private ScoreboardView scoreboardView;
 	private JButton btnStartGame;
+	private PnlDatiPartita pnlDatiPartita;
 	
 	private String nickname;
 	/**
@@ -99,7 +97,7 @@ public class ClientView {
 		setNickname();
 		
 		lobby();
-//		initialize();
+		//initialize();
 		model.addChangeListener(e -> this.update());
 	}
 
@@ -195,25 +193,6 @@ public class ClientView {
 		btnStartGame.setBounds(921, 612, 118, 60);
 		frame.getContentPane().add(btnStartGame);
 		
-		pnlTimer = new PnlTimer();
-		pnlTimer.setBounds(621, 22, 107, 68);
-		pnlTimer.setBackground(Color.WHITE);
-		frame.getContentPane().add(pnlTimer);
-		
-		txtRound = new JTextField();
-        txtRound.setBackground(Color.WHITE);
-        txtRound.setHorizontalAlignment(SwingConstants.CENTER);
-        txtRound.setFont(new Font("Stencil", Font.ITALIC, 12));
-        txtRound.setEditable(false);
-        txtRound.setBounds(607, 161, 107, 31);
-        frame.getContentPane().add(txtRound);
-        txtRound.setText("/");
-		
-		txtPainter = new JTextPane();
-		txtPainter.setEditable(false);
-		txtPainter.setBounds(594, 246, 97, 20);
-		frame.getContentPane().add(txtPainter);
-		
 		pnlWords = new PnlWords();
 		pnlWords.setBounds(120, 627, 428, 45);
 		frame.getContentPane().add(pnlWords);
@@ -221,7 +200,7 @@ public class ClientView {
 		txtScoreBoard = new JTextPane();
 		txtScoreBoard.setEditable(false);
 		txtScoreBoard.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		txtScoreBoard.setBounds(594, 314, 134, 302);
+		txtScoreBoard.setBounds(558, 257, 211, 301);
 		frame.getContentPane().add(txtScoreBoard);
 		
 		txtChat = new JTextPane();
@@ -232,6 +211,10 @@ public class ClientView {
 		scrollPane = new JScrollPane(txtChat);
 		scrollPane.setBounds(782, 33, 242, 521);
 		frame.getContentPane().add(scrollPane);
+		
+		pnlDatiPartita = new PnlDatiPartita();
+		pnlDatiPartita.setBounds(558, 11, 211, 235);
+		frame.getContentPane().add(pnlDatiPartita);
 		
 		frame.addWindowListener(new WindowListener() {
 			
@@ -274,7 +257,7 @@ public class ClientView {
 			}
 		});
 		
-		pnlTimer.addChangeListener(e -> this.stopTimer());
+		pnlDatiPartita.addChangeListener(e -> this.stopTimer());
 		
 		//send msg
 		btnSend.addActionListener(e -> this.send());
@@ -292,7 +275,7 @@ public class ClientView {
 	private void close() {
 		model.close();
 	}
-
+	
 	private void getNickname() {
 		StringBuffer regexNickname = new StringBuffer();
 		regexNickname.append("(?s).*[");
@@ -352,16 +335,16 @@ public class ClientView {
 	}
 	
 	public void startTimer(String seconds) {
-		pnlTimer.startTimer(Integer.valueOf(seconds));
+		pnlDatiPartita.startTimer(Integer.valueOf(seconds));
 		
 		if(paintArea.isPainter()) {
 			pnlStrumenti.setVisible(true);
-			txtPainter.setText("Sei il painter");
-			txtPainter.setBackground(Color.GREEN);
+			pnlDatiPartita.getTxtPainter().setText("Sei il painter");
+			pnlDatiPartita.getTxtPainter().setBackground(Color.GREEN);
 		} else {
 			pnlStrumenti.setVisible(false);
-			txtPainter.setText("Non sei il painter");
-			txtPainter.setBackground(Color.RED);
+			pnlDatiPartita.getTxtPainter().setText("Non sei il painter");
+			pnlDatiPartita.getTxtPainter().setBackground(Color.RED);
 		}
 		
 	}
@@ -374,7 +357,12 @@ public class ClientView {
 //		if(paintArea.isPainter())
 //			model.sendMsg("!stoptimer");
 		
-		pnlTimer.stopTimer();
+		pnlDatiPartita.stopTimer();
+	}
+	
+	protected void setWordWithHint(String word) {
+		if(!paintArea.isPainter())	
+			pnlDatiPartita.getTxtGuessWord().setText(word);
 	}
 	
 	public void setPainter() {
@@ -391,8 +379,11 @@ public class ClientView {
 	}
 	
 	protected void matchStarted() {
-		if(frameLobby.isVisible())
+		if(frameLobby.isVisible()) {
 			initialize();
+			frame.repaint();
+		}
+			
 		//TODO: rendere invisibile/forzare chiusura di ScoreboardView
 //		if(scoreboardView != null)
 //			scoreboardView.close();
@@ -412,7 +403,8 @@ public class ClientView {
 	}
 	
 	protected void setRound(String currentRound, String totRound) {
-		txtRound.setText(currentRound + "/" + totRound);
+		//txtRound.setText(currentRound + "/" + totRound);
+		pnlDatiPartita.getTxtRound().setText(currentRound + "/" + totRound);
 	}
 	
 	protected void sendSelectedWord(String word) {
@@ -463,8 +455,6 @@ public class ClientView {
 	}
 	
 	private static void appendToPane(JTextPane tp, String txt, Color clr) {
-		if(tp == null)
-			System.out.println("tp � null");
 		tp.setEditable(true);
         StyleContext sc = StyleContext.getDefaultStyleContext();
         AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, clr);
@@ -482,8 +472,4 @@ public class ClientView {
 		// ogni volta che viene chiamato questo metodo, popola la HashMap della ScoreboardView, che associa a un "nome" lo "score"
 		scoreboardView.addPlayer(name, score);
 	}
-
-//	public void displayScoreBoard() {
-//		scoreboardView.display();
-//	}
 }

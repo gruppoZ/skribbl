@@ -30,6 +30,8 @@ import it.unibs.pajc.whiteboard.WhiteBoardLine;
 public class Match implements Runnable {
 
 	
+	private final static String URI_FILE_WORD = "src/it/unibs/pajc/server/WORDS.dat";
+	
 	//creiamo dalla clientList un insieme di player che avranno:
 	// Protocol + punteggio + painter
 //	private ArrayList<Player> playerList;
@@ -95,7 +97,7 @@ public class Match implements Runnable {
 	}
 	
 	private void readFile() {
-		File fileName = new File("src/it/unibs/pajc/server/WORDS.dat");
+		File fileName = new File(URI_FILE_WORD);
 
         try(
                 BufferedReader in = new BufferedReader(new FileReader(fileName))
@@ -141,6 +143,10 @@ public class Match implements Runnable {
 		}
 	}
 	
+	
+	private synchronized Protocol getPainter() {
+		return painter;
+	}
 	private void startRound() {	
 		//creazione fake lista
 //		copyList = (ArrayList<Protocol>) clientList.clone();
@@ -175,14 +181,16 @@ public class Match implements Runnable {
 			painter.sendMsg("!hidewords");
 			painter.sendMsgToAll("%waiting|" + painter.getClientName() + " ha scelto, si Gioca!");
 			
-			painter.sendMsg("!changepainter");
+			painter.sendMsg("!changepainter"); 
 			
 			//start turn
 			max_hint = calculateMaxHint(selectedWord);
+			painter.sendMsgToAll("!hint:"+String.valueOf(getInitWordForHint(selectedWord))+"\n");
+			
 			Runnable task = () -> {
 				String result = getHint(selectedWord);
 				if(result != null)
-					painter.sendMsgToAll(result+"\n");
+					getPainter().sendMsgToAll("!hint:"+result+"\n");
 			};
 			ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 			
@@ -198,6 +206,7 @@ public class Match implements Runnable {
 			}
 			
 			if(!timer.isRunning()) {
+				painter.sendMsgToAll("La parola era " + selectedWord);
 				resetTurn();
 				executor.shutdown();
 			}
@@ -205,13 +214,26 @@ public class Match implements Runnable {
 		}
 	}
 	
-	private String tmp_wordHint;
+	private String tmp_wordHint = null;
 	private int max_hint;
 	private int tmp_countHint = 0;
 	
+	private char[] getInitWordForHint(String word) {
+		char[] result = new char[word.length()];
+		
+		for(int i=0; i<result.length; i++) {
+			result[i] = '_';
+		}
+		
+		result[0] = word.charAt(0);
+		result[result.length-1] = word.charAt(word.length()-1);
+		
+		return result;
+	}
+	
 	private String getHint(String word) {
 			
-		int indx;
+		int index;
 		char[] result;
 		
 		if(tmp_countHint >= max_hint)
@@ -220,20 +242,15 @@ public class Match implements Runnable {
 			
 			if(tmp_wordHint != null)
 				result = tmp_wordHint.toCharArray();		
-			else {
-				result = new char[word.length()];
-				
-				for(int i=0; i<result.length; i++) {
-					result[i] = '-';
-				}
-			}
+			else 
+				result = getInitWordForHint(word);
 				
 			do {
-				indx = random.nextInt(word.length());
-			}while(result[indx] != '-');
+				index = 1 + random.nextInt(word.length()-1);
+			}while(result[index] != '_');
 			
+			result[index] = word.charAt(index);
 			tmp_countHint++;
-			result[indx] = word.charAt(indx);
 			tmp_wordHint = String.valueOf(result);
 			
 			System.out.println("Parola: " + word);				
@@ -246,14 +263,13 @@ public class Match implements Runnable {
 	
 	private int calculateMaxHint(String word) {
 		int max = 1;
-		if(word.length() >= 10)
+		if(word.length() >= 9)
 			max = 4;
-		if(word.length() > 5 && word.length() <10)
+		if(word.length() > 7 && word.length() < 9)
 			max = 3;
-		if(word.length() > 2 && word.length() <= 5)
+		if(word.length() > 5 && word.length() <= 7)
 			max = 2;
 	
-		
 		return max;
 	}
 	

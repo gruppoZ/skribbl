@@ -11,6 +11,19 @@ public class ProcessCommandClient implements ProcessMessageClient{
 			String seconds = msg.substring(index + 1);
 			view.startTimer(seconds);
 		}
+		if(msg.startsWith("hint")) {
+			int index = msg.indexOf(":");
+			String hint = msg.substring(index + 1);
+			
+			char[] result = new char[hint.length()*2];
+			
+			for(int i=0, j=0; i<hint.length()*2 && j<hint.length(); i+=2 , j++) {
+				result[i] = hint.charAt(j);
+				result[i+1] = ' ';
+			}
+			
+			view.setWordWithHint(String.valueOf(result));			
+		}
 			
 		if(msg.startsWith("stoptimer"))
 			view.stopTimer();	
