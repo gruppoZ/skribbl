@@ -185,28 +185,29 @@ public class Match implements Runnable {
 			
 			//start turn
 			max_hint = calculateMaxHint(selectedWord);
-			painter.sendMsgToAll("!hint:"+String.valueOf(getInitWordForHint(selectedWord))+"\n");
+			painter.sendMsgToAll("*"+String.valueOf(getInitWordForHint(selectedWord)));
 			
 			Runnable task = () -> {
 				String result = getHint(selectedWord);
 				if(result != null)
-					getPainter().sendMsgToAll("!hint:"+result+"\n");
+					getPainter().sendMsgToAll("*"+result+"\n");
 			};
 			ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 			
 			executor.scheduleAtFixedRate(task, DEFAULT_SECONDS/4, DEFAULT_SECONDS/4, TimeUnit.SECONDS);
 			this.startTimer();		
 			
-			painter.sendMsgToAll("!starttimer," + seconds);
+			painter.sendMsgToAll("°starttimer," + seconds);
 			
 			//timer
 			//aspetta che il timer finisca e "freeza" il turno
 			while(timer.isRunning()) {
-				
+//				if(clientList.isEmpty())
+//					this.endMatch();
 			}
 			
 			if(!timer.isRunning()) {
-				painter.sendMsgToAll("La parola era " + selectedWord);
+				painter.sendMsgToAll("%system|La parola era " + selectedWord);
 				resetTurn();
 				executor.shutdown();
 			}
@@ -385,7 +386,7 @@ public class Match implements Runnable {
 	public void addPlayer(Protocol client) {
 		updatePlayerList();
 		client.sendMsg("/" + currentRound + "," + ROUNDS);
-		client.sendMsg("!starttimer," + seconds);
+		client.sendMsg("°starttimer," + seconds);
 		client.sendMsgToAll(generateScoreBoard());
 	}
 	

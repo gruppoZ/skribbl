@@ -18,6 +18,8 @@ public class ProcessMsg implements ProcessMessageClient{
 			view.setTxtChat(msg, Color.GREEN);
 		if(msgType.equals("waiting"))
 			view.setTxtChat(msg, Color.LIGHT_GRAY);
+		if(msgType.equals("system"))
+			view.setTxtChat(msg, Color.DARK_GRAY);
 		
 		
 		
