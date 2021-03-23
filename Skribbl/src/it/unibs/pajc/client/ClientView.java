@@ -109,6 +109,8 @@ public class ClientView {
 
 	private void lobby() {
 		
+		if(frame != null)
+			frame.setVisible(false);
 		//TODO:
 		/**
 		 * lista client lobby
@@ -147,10 +149,51 @@ public class ClientView {
 		frameLobby.getContentPane().add(txtWrite);
 		txtWrite.setColumns(10);
 		
-		JButton btnSend = new JButton("Send");//� creato due volte forse si potrebbe dichiarare solo da una parte
+		JButton btnSend = new JButton("Send");//e' creato due volte forse si potrebbe dichiarare solo da una parte
 		btnSend.setBounds(935, 578, 89, 23);
 		frameLobby.getContentPane().add(btnSend);
 		
+		frameLobby.addWindowListener(new WindowListener() {
+			
+			@Override
+			public void windowOpened(WindowEvent e) {
+			}
+			
+			@Override
+			public void windowIconified(WindowEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void windowDeiconified(WindowEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void windowDeactivated(WindowEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void windowClosing(WindowEvent e) {
+				JOptionPane.showMessageDialog(null, "Sei uscito");
+			}
+			
+			@Override
+			public void windowClosed(WindowEvent e) {
+				
+			}
+			
+			@Override
+			public void windowActivated(WindowEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+
 		txtWrite.addActionListener(e -> this.send());
 		btnStartGameLobby.addActionListener(e -> this.startGame());
 		btnSend.addActionListener(e -> this.send());
@@ -265,6 +308,7 @@ public class ClientView {
 		btnStartGame.addActionListener(e -> this.startGame());
 		pnlStrumenti.addActionListener(e -> paintArea.changePaint(e));
 		pnlWords.addActionListener(e -> this.sendSelectedWord(e.getActionCommand()));
+		
 	}
 	
 	private void send() {
@@ -276,7 +320,7 @@ public class ClientView {
 		model.close();
 	}
 	
-	private void getNickname() {
+	protected void getNickname() {
 		StringBuffer regexNickname = new StringBuffer();
 		regexNickname.append("(?s).*[");
 		ClientModel.getKeySet().forEach((key) -> {
@@ -395,11 +439,12 @@ public class ClientView {
 		JOptionPane.showMessageDialog(null, "Sei da solo");
 	}
 	
+	//TODO:quando finisce lo fai tornare nella lobby
 	protected void matchFinished() {
 		this.setRound("0", "0");
 		txtChat.setText("");
 		btnStartGame.setVisible(true);
-		
+		pnlDatiPartita.stopTimer();
 	}
 	
 	protected void setRound(String currentRound, String totRound) {

@@ -143,13 +143,8 @@ public class ClientModel extends BaseModel{
 					}
 				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
-					
 					e.printStackTrace();
 				}
-				
-//				while((response = in.readLine()) != null) {
-//					fireValuesChange(new ChangeEvent(this));
-//				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				System.out.println("sono nel listener");

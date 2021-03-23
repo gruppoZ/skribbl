@@ -11,6 +11,10 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.event.ChangeEvent;
@@ -62,6 +66,13 @@ public class Protocol extends BaseModel implements Runnable{
 	
 	public void close() {
 		clientList.remove(this);
+//		if(clientList.size() <= 1 && hasMatchStarted() && executor != null) {
+//			System.out.println("Sono nello spegnimento del executor");
+//			executor.shutdown();
+////			Protocol designatedProtocol = clientList.get(0);
+////			designatedProtocol.sendMsgToAll("!matchfinished");
+//		}
+		
 		sendClientList();
 		
 		if(os != null) {
@@ -118,10 +129,12 @@ public class Protocol extends BaseModel implements Runnable{
 					}
 					
 					System.out.printf("\nRichiesta ricevuta: %s [%s]", request, clientName);
-				} else {
+				}
+				if(obj.getClass().equals(WhiteBoardLine.class)) {
 					WhiteBoardLine line = (WhiteBoardLine) obj;
 					this.addLine(line);
-				}
+				} else
+					System.out.println(obj);
 			}
 			
 		} catch(SocketException e) {
@@ -167,13 +180,6 @@ public class Protocol extends BaseModel implements Runnable{
 			}	
 			
 			this.welcome();
-			try {
-				TimeUnit.MILLISECONDS.sleep(500);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			System.out.println("Sono in init e devo mandare il join, nCLient " + clientList.size());
 			sendMsgToAll("%join|" + this.clientName + " è entrato in partita");
 			
 			this.sendClientList();
@@ -216,7 +222,14 @@ public class Protocol extends BaseModel implements Runnable{
 	}
 	
 	private boolean hasMatchStarted() {
-		return match != null ? true : false;
+		if(match == null) {
+			return false;
+		} else {
+			if(match.isRunning)
+				return true;
+			else
+				return false;
+		}
 	}
 	
 	/*
@@ -240,8 +253,10 @@ public class Protocol extends BaseModel implements Runnable{
 	 */
 	protected void sendMsg(Object msg) {
 		try {
-			this.os.writeObject(msg);
-			this.os.flush();
+			if(os != null) {
+				this.os.writeObject(msg);
+				this.os.flush();
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -262,10 +277,9 @@ public class Protocol extends BaseModel implements Runnable{
 	}
 	
 	//non worka
+	//probabilmente problema di thread(troppi thread accesi)
 	private void welcome() {
 		if(clientList.size() > 1) {
-			System.out.println("Sono nel welcome, nCLient " + clientList.size());
-			System.out.println(this.clientName);
 			sendMsg(this, "Buongiorno, il tuo nome e': " + clientName);
 		} else
 			sendMsg(this, "Buongiorno, il tuo nome e': " + clientName + "\nNon ci sono altri utenti connessi...");
@@ -299,18 +313,35 @@ public class Protocol extends BaseModel implements Runnable{
 		//controlla che ci siano almeno 2 giocatori
 		if(clientList.size() > 1) {
 			match = new Match(clientList);
+//			executor = Executors.newCachedThreadPool();
 			Thread threadMatch = new Thread(match);
+			match.addActionListener(e -> {
+				System.out.println("sono entrato nel listener " + e.getActionCommand() + " " + e.getID());
+				threadMatch.interrupt();
+				sendMsgToAll("!matchfinished");
+//				try {
+//					executor.shutdownNow();
+//				} catch(InterruptedException ex) {
+//					System.out.println("Errore nell'interruzione del thread match");
+//				} finally {
+//					sendMsgToAll("!matchfinished");
+//				}
+//				
+//				
+			});
+//			executor.submit(match);
+			
+			
 			threadMatch.start();
+			
+			
+			
 			sendMsgToAll("!matchstarted");
 		} else {
 			sendMsgToAll("!matchcancelled");
 		}
 		
 	}
-//	
-//	public Match getMatch() {
-//		return match;
-//	}
 	
 	public void setSelectedWord(String word) {
 		match.setSelectedWord(word);

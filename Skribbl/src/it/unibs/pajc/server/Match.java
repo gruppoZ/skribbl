@@ -18,16 +18,18 @@ import javax.swing.Timer;
 import java.util.TimerTask;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.event.ChangeEvent;
 
+import it.unibs.pajc.client.PnlBase;
 import it.unibs.pajc.core.BaseModel;
 import it.unibs.pajc.whiteboard.WhiteBoardLine;
 
-public class Match implements Runnable {
+public class Match extends PnlBase implements Runnable {
 
 	
 	private final static String URI_FILE_WORD = "src/it/unibs/pajc/server/WORDS.dat";
@@ -38,6 +40,7 @@ public class Match implements Runnable {
 //	private List<Player> playerList = Collections.synchronizedList(new ArrayList<Player>());
 	private static ArrayList<String> words;
 	private Random random;
+	//ridondante perchè ogni protoc
 	private ArrayList<Player> playerList;
 	//timer
 
@@ -60,6 +63,7 @@ public class Match implements Runnable {
 	private Protocol painter;
 	private Player playerPainter;
 	
+	public boolean isRunning;
 	/**
 	 * @param clientList
 	 */
@@ -70,6 +74,7 @@ public class Match implements Runnable {
 		this.turnEnded = false;
 		this.random = new Random();
 		this.playersWhoGuessed = 0;
+		this.isRunning = true;
 		
 		words = new ArrayList<>();
         readFile();
@@ -82,18 +87,16 @@ public class Match implements Runnable {
 		
 		startMatch();
 		
-		
-		for (Protocol protocol : clientList) {
-			if(protocol != null) {
-				StringBuffer sb = new StringBuffer();
-				sb.append("@");
-				sb.append(generateScoreBoard());
-				protocol.sendMsgToAll(sb.toString());
-				
-				protocol.sendMsgToAll("!matchfinished");
-			}	
-			break;
+		if(!clientList.isEmpty()) {
+			Protocol designatedProtocol = clientList.get(0);
+			StringBuffer sb = new StringBuffer();
+			sb.append("@");
+			sb.append(generateScoreBoard());
+			designatedProtocol.sendMsgToAll(sb.toString());
+			
+			designatedProtocol.sendMsgToAll("!matchfinished");
 		}
+		isRunning = false;
 	}
 	
 	private void readFile() {
@@ -138,18 +141,26 @@ public class Match implements Runnable {
 	 */
 	private void startMatch() {
 		for (int i = 0; i < ROUNDS; i++) {
-			currentRound = i + 1; //i miei round saranno 1 - 2 - 3
-			startRound();
+			if(clientList.size() > 1) {
+				currentRound = i + 1; //i miei round saranno 1 - 2 - 3
+				startRound();
+			}
+//			else {
+//				isRunning = false;
+//				fireActionListener(new ActionEvent("match2", 1, "match2"));
+//			}
 		}
 	}
 	
+	private void close() {
+		fireActionListener(new ActionEvent("match", 1, "match"));
+	}
 	
 	private synchronized Protocol getPainter() {
 		return painter;
 	}
 	private void startRound() {	
 		//creazione fake lista
-//		copyList = (ArrayList<Protocol>) clientList.clone();
 		copyList = (ArrayList<Player>) playerList.clone();
 		
 		timer = new Timer(DELAY, e -> {
@@ -161,7 +172,7 @@ public class Match implements Runnable {
 				stopTimer();
 		});
 		
-		while(!copyList.isEmpty()) {
+		while(!copyList.isEmpty() && clientList.size() > 1) {
 			String words = getWordsToGuess();
 			int indexPainter = random.nextInt(copyList.size());
 //			int indexPainter = (int) (Math.random() * copyList.size());
@@ -202,9 +213,14 @@ public class Match implements Runnable {
 			//timer
 			//aspetta che il timer finisca e "freeza" il turno
 			while(timer.isRunning()) {
-//				if(clientList.isEmpty())
-//					this.endMatch();
+				if(clientList.size() <= 1) {
+					System.out.println("sono nel while");
+					stopTimer();
+					close();
+				}
 			}
+			if(timer.isRunning())
+				stopTimer();
 			
 			if(!timer.isRunning()) {
 				painter.sendMsgToAll("%system|La parola era " + selectedWord);
