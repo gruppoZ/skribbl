@@ -46,32 +46,19 @@ public class Protocol extends BaseModel implements Runnable{
 	private ObjectInputStream is;			// Input stream
     private ObjectOutputStream os;			// Output stream
     private Object obj;
-    
-	private PrintWriter out;
 	private Socket clientSocket;
 	private String clientName;
-	//TODO: per ora active è inutile
-	private boolean active;
-	private boolean painter;
 	private boolean isStopped;
 	
 	public Protocol(Socket clientSocket, String clientName) {
 		this.clientSocket = clientSocket;
 		this.clientName = clientName;
-		this.active = true;
-		this.painter = false;
 		this.isStopped = false;
 		clientList.add(this);
 	}
 	
 	public void close() {
 		clientList.remove(this);
-//		if(clientList.size() <= 1 && hasMatchStarted() && executor != null) {
-//			System.out.println("Sono nello spegnimento del executor");
-//			executor.shutdown();
-////			Protocol designatedProtocol = clientList.get(0);
-////			designatedProtocol.sendMsgToAll("!matchfinished");
-//		}
 		
 		sendClientList();
 		

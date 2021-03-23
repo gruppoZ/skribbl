@@ -145,10 +145,6 @@ public class Match extends PnlBase implements Runnable {
 				currentRound = i + 1; //i miei round saranno 1 - 2 - 3
 				startRound();
 			}
-//			else {
-//				isRunning = false;
-//				fireActionListener(new ActionEvent("match2", 1, "match2"));
-//			}
 		}
 	}
 	
@@ -214,7 +210,6 @@ public class Match extends PnlBase implements Runnable {
 			//aspetta che il timer finisca e "freeza" il turno
 			while(timer.isRunning()) {
 				if(clientList.size() <= 1) {
-					System.out.println("sono nel while");
 					stopTimer();
 					close();
 				}
