@@ -318,7 +318,6 @@ public class Protocol extends BaseModel implements Runnable{
 			match.addActionListener(e -> {
 				System.out.println("sono entrato nel listener " + e.getActionCommand() + " " + e.getID());
 				threadMatch.interrupt();
-				sendMsgToAll("!matchfinished");
 //				try {
 //					executor.shutdownNow();
 //				} catch(InterruptedException ex) {
