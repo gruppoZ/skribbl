@@ -28,7 +28,7 @@ public class PnlPaintArea extends JPanel implements MouseListener, MouseMotionLi
 	 
 	// Lines drawn, consists of a List of PolyLine instances
 	
-	//usiamo la synchronizedList perchè se no da problemi nel for del paintComponent()
+	//usiamo la synchronizedList perchï¿½ se no da problemi nel for del paintComponent()
 	private List<WhiteBoardLine> lines = Collections.synchronizedList(new ArrayList<WhiteBoardLine>());
     private WhiteBoardLine currentLine;  // the current line (for capturing)
     private Graphics2D g2;
@@ -86,11 +86,15 @@ public class PnlPaintArea extends JPanel implements MouseListener, MouseMotionLi
 //				line.draw(g2);
 //			}
 //		}
-		getLines().forEach((line) -> {
+		synchronized(this) {
+			
+			getLines().forEach((line) -> {
 			g2.setColor(line.getColor());
 			g2.setStroke(new BasicStroke(line.getStrokeSize()));
 			line.draw(g2);
 		});
+		
+		}
 		
 		
 	}
@@ -112,7 +116,7 @@ public class PnlPaintArea extends JPanel implements MouseListener, MouseMotionLi
 	}
 	
 	/**
-	 * finchè draggo il mouse continuo ad aggiungere punti alla line e la disegno a schermo (del disegnatore)
+	 * finchï¿½ draggo il mouse continuo ad aggiungere punti alla line e la disegno a schermo (del disegnatore)
 	 */
 	@Override
 	public void mouseDragged(MouseEvent e) {

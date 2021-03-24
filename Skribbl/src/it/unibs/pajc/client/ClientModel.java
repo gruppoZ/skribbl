@@ -35,20 +35,10 @@ public class ClientModel extends PnlBase{
 		commandMap.put("%", new ProcessMsg());
 		commandMap.put("+", new ProcessClientList());
 		commandMap.put("*", new ProcessHint());
-		commandMap.put("°", new ProcessTimer());
+		commandMap.put("ï¿½", new ProcessTimer());
 	}
 	
 	private String nickname;
-	private String serverName = "localhost";
-	private int port = 1234;
-	private Socket server;
-	private PrintWriter out;
-//	private BufferedReader in;
-	private String response;
-	
-	private Object obj;
-	private ObjectOutputStream os = null;
-	
 	private ClientComunicator comunicator;
 	
 	public ClientModel() {
@@ -58,7 +48,7 @@ public class ClientModel extends PnlBase{
 	}
 	
 	protected boolean isConnectionAvailable() {
-		return comunicator.isavailable();
+		return comunicator.isAvailable();
 	}
 	
 	public String getNickname() {

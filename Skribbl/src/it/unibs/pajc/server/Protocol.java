@@ -167,7 +167,7 @@ public class Protocol extends BaseModel implements Runnable{
 			}	
 			
 			this.welcome();
-			sendMsgToAll("%join|" + this.clientName + " è entrato in partita");
+			sendMsgToAll("%join|" + this.clientName + " e' entrato in partita");
 			
 			this.sendClientList();
 			
@@ -295,15 +295,14 @@ public class Protocol extends BaseModel implements Runnable{
 	
 	public void startMatch() {
 		//TODO: gestire meglio il thread
-		//TODO: gestire il fatto che più client possano schiacciare il bottone
+		//TODO: gestire il fatto che piï¿½ client possano schiacciare il bottone
 		
 		//controlla che ci siano almeno 2 giocatori
 		if(clientList.size() > 1) {
 			match = new Match(clientList);
 //			executor = Executors.newCachedThreadPool();
 			Thread threadMatch = new Thread(match);
-			match.addActionListener(e -> {
-				System.out.println("sono entrato nel listener " + e.getActionCommand() + " " + e.getID());
+			match.addChangeListener(e -> {
 				threadMatch.interrupt();
 //				try {
 //					executor.shutdownNow();

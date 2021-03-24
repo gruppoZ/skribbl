@@ -5,20 +5,28 @@ import java.net.*;
 
 public class ClientComunicator extends PnlBase{
 	
-	private String serverName = "localhost";
-	private int port = 1234;
+	private String serverName; 
+	private int port;
 	private ObjectOutputStream out;
 	private ObjectInputStream in;
 	private Socket server;
 	private Object response;
 	private Writer writer;
 	private Listener listener;
-	private boolean isavailable = false;
+	private boolean isAvailable;
 	
+	
+	public ClientComunicator() {
+		this.serverName = "localhost";
+		this.port = 1234;
+		isAvailable = false;
+	}
 	/**
 	 * Fa' partire il Thread del Writer.
-	 * Il Writer si occuperà di far partire il thread del Listener
+	 * Il Writer si occuperï¿½ di far partire il thread del Listener
 	 */
+	
+	
 	public void start() {
 		writer = new Writer();
 		listener = new Listener();
@@ -33,8 +41,8 @@ public class ClientComunicator extends PnlBase{
 		new Thread(writer).start();
 	}
 	
-	protected boolean isavailable() {
-		return this.isavailable;
+	protected boolean isAvailable() {
+		return this.isAvailable;
 	}
 	
 	/**
@@ -71,24 +79,24 @@ public class ClientComunicator extends PnlBase{
 		
 		public void run() {
 			do {
-			try{
-				
-				connect();
-				
-				
-				while((response = in.readObject()) != null) {
-//					addActionListener(e-> {
-//						e = new ActionEvent("Listener", e.getID(), "Listener");
-//						fireActionListener(e);
-//					});
-					fireActionListener(new ActionEvent("Listener", 2, "Listener"));
+				try{
 					
+					connect();
+					
+					
+					while((response = in.readObject()) != null) {
+	//					addActionListener(e-> {
+	//						e = new ActionEvent("Listener", e.getID(), "Listener");
+	//						fireActionListener(e);
+	//					});
+						fireActionListener(new ActionEvent("Listener", 2, "Listener"));
+						
+					}
+				} catch (IOException | ClassNotFoundException e) {
+					System.out.printf("Errore Listener: %s", e);
+					connect();
 				}
-			}catch (IOException | ClassNotFoundException e) {
-				System.out.printf("Errore Listener: %s", e);
-				connect();
-			}
-			}while(!isavailable());
+			} while(!isAvailable());
 
 		}
 		
@@ -101,7 +109,7 @@ public class ClientComunicator extends PnlBase{
 				} catch (Exception e) {
 					success = false;
 				} 
-			}while(!success);
+			} while(!success);
 		}
 	}
 	
@@ -115,7 +123,7 @@ public class ClientComunicator extends PnlBase{
 			do {
 				try {
 						server = new Socket(serverName, port);
-						isavailable = true;
+						isAvailable = true;
 					
 //					addActionListener(e-> {
 //						e = new ActionEvent("Writer", e.getID(), "Writer");
@@ -130,18 +138,18 @@ public class ClientComunicator extends PnlBase{
 				} catch (UnknownHostException e) {
 					// TODO Auto-generated catch block
 					//e.printStackTrace();
-					isavailable = false;
+					isAvailable = false;
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					//e.printStackTrace();
-					isavailable = false;
+					isAvailable = false;
 				}
-			} while(!isavailable);
+			} while(!isAvailable);
 			//TODO:chiuderemo out, in e socket con un metodo apposito
 			
 			//start di un thread per il listener
 			
-			if(isavailable)
+			if(isAvailable)
 				new Thread(listener).start();
 		}
 	}

@@ -1,35 +1,25 @@
 package it.unibs.pajc.server;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Random;
-import java.util.Set;
+
 
 import javax.swing.Timer;
-import java.util.TimerTask;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.event.ChangeEvent;
 
-import it.unibs.pajc.client.PnlBase;
 import it.unibs.pajc.core.BaseModel;
-import it.unibs.pajc.whiteboard.WhiteBoardLine;
 
-public class Match extends PnlBase implements Runnable {
+public class Match extends BaseModel implements Runnable {
 
 	
 	private final static String URI_FILE_WORD = "src/it/unibs/pajc/server/WORDS.dat";
@@ -40,7 +30,7 @@ public class Match extends PnlBase implements Runnable {
 //	private List<Player> playerList = Collections.synchronizedList(new ArrayList<Player>());
 	private static ArrayList<String> words;
 	private Random random;
-	//ridondante perchè ogni protoc
+	//ridondante perchï¿½ ogni protoc
 	private ArrayList<Player> playerList;
 	//timer
 
@@ -149,7 +139,7 @@ public class Match extends PnlBase implements Runnable {
 	}
 	
 	private void close() {
-		fireActionListener(new ActionEvent("match", 1, "match"));
+		fireValuesChange(new ChangeEvent(this));
 	}
 	
 	private synchronized Protocol getPainter() {
@@ -203,7 +193,7 @@ public class Match extends PnlBase implements Runnable {
 			executor.scheduleAtFixedRate(task, DEFAULT_SECONDS/4, DEFAULT_SECONDS/4, TimeUnit.SECONDS);
 			this.startTimer();		
 			
-			painter.sendMsgToAll("°starttimer," + seconds);
+			painter.sendMsgToAll("ï¿½starttimer," + seconds);
 			
 			//timer
 			//aspetta che il timer finisca e "freeza" il turno
@@ -397,7 +387,7 @@ public class Match extends PnlBase implements Runnable {
 	public void addPlayer(Protocol client) {
 		updatePlayerList();
 		client.sendMsg("/" + currentRound + "," + ROUNDS);
-		client.sendMsg("°starttimer," + seconds);
+		client.sendMsg("ï¿½starttimer," + seconds);
 		client.sendMsgToAll(generateScoreBoard());
 	}
 	
