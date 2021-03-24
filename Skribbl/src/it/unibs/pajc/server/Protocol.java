@@ -259,7 +259,7 @@ public class Protocol extends BaseModel implements Runnable{
 	/*
 	 * metodo per mandare msg "speciali"
 	 */
-	public void sendMsgToAll(Object msg) {
+	public static void sendMsgToAll(Object msg) {
 		clientList.forEach((p) -> p.sendMsg(msg));
 	}
 	
@@ -289,8 +289,8 @@ public class Protocol extends BaseModel implements Runnable{
 //	}
 	
 	public void clearAll() {
-		whiteBoard.clearAll();
 		sendMsgToAll("!deleteall");
+		whiteBoard.clearAll();
 	}
 	
 	public void startMatch() {

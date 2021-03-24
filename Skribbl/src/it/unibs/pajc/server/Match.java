@@ -11,9 +11,8 @@ import java.util.Random;
 
 
 import javax.swing.Timer;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+
+import java.util.concurrent.*;
 
 import javax.swing.event.ChangeEvent;
 
@@ -28,7 +27,7 @@ public class Match extends BaseModel implements Runnable {
 	// Protocol + punteggio + painter
 //	private ArrayList<Player> playerList;
 //	private List<Player> playerList = Collections.synchronizedList(new ArrayList<Player>());
-	private static ArrayList<String> words;
+	private static ArrayList<String> wordsFromFile;
 	private Random random;
 	//ridondante perch� ogni protoc
 	private ArrayList<Player> playerList;
@@ -66,7 +65,7 @@ public class Match extends BaseModel implements Runnable {
 		this.playersWhoGuessed = 0;
 		this.isRunning = true;
 		
-		words = new ArrayList<>();
+		wordsFromFile = new ArrayList<>();
         readFile();
 	}
 	
@@ -78,32 +77,40 @@ public class Match extends BaseModel implements Runnable {
 		startMatch();
 		
 		if(!clientList.isEmpty()) {
-			Protocol designatedProtocol = clientList.get(0);
 			StringBuffer sb = new StringBuffer();
 			sb.append("@");
 			sb.append(generateScoreBoard());
-			designatedProtocol.sendMsgToAll(sb.toString());
-			
-			designatedProtocol.sendMsgToAll("!matchfinished");
+			Protocol.sendMsgToAll(sb.toString());
+			Protocol.sendMsgToAll("!matchfinished");
 		}
 		isRunning = false;
 	}
 	
+	/**
+	 * Lettura del file con executor (Future). Viene utilizzato il metodo readFile di UtilsMatch
+	 */
 	private void readFile() {
-		File fileName = new File(URI_FILE_WORD);
-
-        try(
-                BufferedReader in = new BufferedReader(new FileReader(fileName))
-            ) {
-
-            String line;
-            while((line = in.readLine()) != null) {
-                words.add(line);
-            }
-
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+		ExecutorService globalExecutor = Executors.newCachedThreadPool();;
+		Future<ArrayList<String>> futureReadFile;
+		
+		Callable<ArrayList<String>> readFile = () -> {
+        	return UtilsMatch.readFile();
+        };
+        
+        futureReadFile = globalExecutor.submit(readFile);
+        while(!futureReadFile.isDone()) {
+			System.out.println("Lettura file WORDS.dat ancora in corso");
+		}
+        
+        System.out.println("THREAD readFile: "+Thread.currentThread().getName());
+        
+		try {
+			wordsFromFile = futureReadFile.get();
+		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
+		} finally {
+			globalExecutor.shutdown();
+		}
 	}
 	
 	/**
@@ -142,9 +149,6 @@ public class Match extends BaseModel implements Runnable {
 		fireValuesChange(new ChangeEvent(this));
 	}
 	
-	private synchronized Protocol getPainter() {
-		return painter;
-	}
 	private void startRound() {	
 		//creazione fake lista
 		copyList = (ArrayList<Player>) playerList.clone();
@@ -164,10 +168,10 @@ public class Match extends BaseModel implements Runnable {
 			playerPainter = copyList.get(indexPainter);
 			painter = playerPainter.getProtocol();
 			playerPainter.setPainter(true);
-			painter.sendMsgToAll(generateScoreBoard());
+			Protocol.sendMsgToAll(generateScoreBoard());
 			
-			painter.sendMsgToAll("%waiting|" + painter.getClientName() + " e' il disegnatore!\nSta ancora scegliendo la parola...");
-			painter.sendMsgToAll("/" + currentRound + "," + ROUNDS);
+			Protocol.sendMsgToAll("%waiting|" + painter.getClientName() + " e' il disegnatore!\nSta ancora scegliendo la parola...");
+			Protocol.sendMsgToAll("/" + currentRound + "," + ROUNDS);
 			
 			painter.sendMsg(words);
 			do {
@@ -175,25 +179,25 @@ public class Match extends BaseModel implements Runnable {
 			} while(selectedWord == null);
 			
 			painter.sendMsg("!hidewords");
-			painter.sendMsgToAll("%waiting|" + painter.getClientName() + " ha scelto, si Gioca!");
+			Protocol.sendMsgToAll("%waiting|" + painter.getClientName() + " ha scelto, si Gioca!");
 			
 			painter.sendMsg("!changepainter"); 
 			
 			//start turn
-			max_hint = calculateMaxHint(selectedWord);
-			painter.sendMsgToAll("*"+String.valueOf(getInitWordForHint(selectedWord)));
+			max_hint = UtilsMatch.calculateMaxHint(selectedWord);
+			Protocol.sendMsgToAll("*"+String.valueOf(UtilsMatch.getInitWordForHint(selectedWord)));
 			
 			Runnable task = () -> {
 				String result = getHint(selectedWord);
 				if(result != null)
-					getPainter().sendMsgToAll("*"+result+"\n");
+					Protocol.sendMsgToAll("*"+result+"\n");
 			};
 			ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 			
 			executor.scheduleAtFixedRate(task, DEFAULT_SECONDS/4, DEFAULT_SECONDS/4, TimeUnit.SECONDS);
 			this.startTimer();		
 			
-			painter.sendMsgToAll("�starttimer," + seconds);
+			Protocol.sendMsgToAll("<starttimer," + seconds);
 			
 			//timer
 			//aspetta che il timer finisca e "freeza" il turno
@@ -203,13 +207,14 @@ public class Match extends BaseModel implements Runnable {
 					close();
 				}
 			}
+			//TODO:da togliere
 			if(timer.isRunning())
 				stopTimer();
 			
 			if(!timer.isRunning()) {
-				painter.sendMsgToAll("%system|La parola era " + selectedWord);
-				resetTurn();
 				executor.shutdown();
+				Protocol.sendMsgToAll("%system|La parola era " + selectedWord);
+				resetTurn();
 			}
 			
 		}
@@ -218,19 +223,6 @@ public class Match extends BaseModel implements Runnable {
 	private String tmp_wordHint = null;
 	private int max_hint;
 	private int tmp_countHint = 0;
-	
-	private char[] getInitWordForHint(String word) {
-		char[] result = new char[word.length()];
-		
-		for(int i=0; i<result.length; i++) {
-			result[i] = '_';
-		}
-		
-		result[0] = word.charAt(0);
-		result[result.length-1] = word.charAt(word.length()-1);
-		
-		return result;
-	}
 	
 	private String getHint(String word) {
 			
@@ -244,7 +236,7 @@ public class Match extends BaseModel implements Runnable {
 			if(tmp_wordHint != null)
 				result = tmp_wordHint.toCharArray();		
 			else 
-				result = getInitWordForHint(word);
+				result = UtilsMatch.getInitWordForHint(word);
 				
 			do {
 				index = 1 + random.nextInt(word.length()-1);
@@ -262,24 +254,15 @@ public class Match extends BaseModel implements Runnable {
 		
 	}
 	
-	private int calculateMaxHint(String word) {
-		int max = 1;
-		if(word.length() >= 9)
-			max = 4;
-		if(word.length() > 7 && word.length() < 9)
-			max = 3;
-		if(word.length() > 5 && word.length() <= 7)
-			max = 2;
-	
-		return max;
-	}
-	
+	/**
+	 * Reinizializza le variabili necessarie per il corretto funzionamento dei turni del gioco
+	 */
 	private void resetTurn() {
 		tmp_wordHint = null;
 		tmp_countHint = 0;
-		painter.sendMsgToAll("!stoptimer");
+		Protocol.sendMsgToAll(ProcessMessage.STOP_TIMER);
 		painter.clearAll();
-		painter.sendMsg("!changepainter"); //TODO: cambiare in changepainterstatus
+		painter.sendMsg(ProcessMessage.CHANGE_PAINTER); //TODO: cambiare in changepainterstatus
 		playerPainter.setPainter(false);
 		//facendo il remove dalla copyList questo client non pu� pi� diventare un painter
 		copyList.remove(playerPainter);
@@ -351,10 +334,11 @@ public class Match extends BaseModel implements Runnable {
 					else
 						playerPainter.updateScore(COEFF_PAINTER_MIN);
 					
-					painter.sendMsgToAll(generateScoreBoard());
-					protocol.sendMsgToAll("%guessed|" +protocol.getClientName() + " HA INDOVINATO LA PAROLA");
+					Protocol.sendMsgToAll(generateScoreBoard());
+					Protocol.sendMsgToAll("%guessed|" +protocol.getClientName() + " HA INDOVINATO LA PAROLA");
 				} else {
-					protocol.sendMsgToAll(protocol, word);
+					Protocol.sendMsgToAll(word);
+//					protocol.sendMsgToAll(protocol, word);
 				}
 			}
 			
@@ -371,8 +355,6 @@ public class Match extends BaseModel implements Runnable {
 			}
 				
 		}
-//		System.out.println("Sono nel match, il msg e': " + word);
-//		System.out.println(Thread.currentThread().getName());
 	}
 	
 	public void removePlayer(Protocol client) {
@@ -380,15 +362,15 @@ public class Match extends BaseModel implements Runnable {
 		if(player != null) {
 			playerList.remove(player);
 			copyList.remove(player);
-			client.sendMsgToAll(generateScoreBoard());
+			Protocol.sendMsgToAll(generateScoreBoard());
 		}	
 	}
 	
 	public void addPlayer(Protocol client) {
 		updatePlayerList();
 		client.sendMsg("/" + currentRound + "," + ROUNDS);
-		client.sendMsg("�starttimer," + seconds);
-		client.sendMsgToAll(generateScoreBoard());
+		client.sendMsg(ProcessMessage.START_TIMER + seconds);
+		Protocol.sendMsgToAll(generateScoreBoard());
 	}
 	
 	/*
@@ -397,18 +379,9 @@ public class Match extends BaseModel implements Runnable {
 	 */
 	protected void setSelectedWord(String word) {
 		this.selectedWord = word;
-		words.remove(word);
+		wordsFromFile.remove(word);
 		//Thread.start()
 	}
-	/**
-	 * crea il timer
-	 * ogni x secondi manda hint
-	 * 
-	 * _ _ _ _ A _ 
-	 * for()
-	 *
-	 *sendMsgToAll("") 
-	 */
 	
 	private String getSelectedWord() {
 		return this.selectedWord;
@@ -419,17 +392,17 @@ public class Match extends BaseModel implements Runnable {
 		int[] indexes = new int[3];
 		
 		for(int i = 0; i<indexes.length; i++) {
-			indexes[i] = random.nextInt(words.size());
+			indexes[i] = random.nextInt(wordsFromFile.size());
 			for(int j = 0; j < i; j++) {
 				while(indexes[i] == indexes[j])
-					indexes[i] = random.nextInt(words.size());
+					indexes[i] = random.nextInt(wordsFromFile.size());
 			}
 		}
 		
 		StringBuffer result = new StringBuffer();
 		result.append("?word:");
 		for (int i : indexes) {
-			result.append(words.get(i).trim() + ";");
+			result.append(wordsFromFile.get(i).trim() + ";");
 		}
 		return result.toString();
 	}

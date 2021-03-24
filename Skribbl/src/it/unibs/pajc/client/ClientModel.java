@@ -35,7 +35,7 @@ public class ClientModel extends PnlBase{
 		commandMap.put("%", new ProcessMsg());
 		commandMap.put("+", new ProcessClientList());
 		commandMap.put("*", new ProcessHint());
-		commandMap.put("�", new ProcessTimer());
+		commandMap.put("<", new ProcessTimer());
 	}
 	
 	private String nickname;

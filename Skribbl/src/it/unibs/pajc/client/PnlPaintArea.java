@@ -86,15 +86,11 @@ public class PnlPaintArea extends JPanel implements MouseListener, MouseMotionLi
 //				line.draw(g2);
 //			}
 //		}
-		synchronized(this) {
-			
-			getLines().forEach((line) -> {
+		getLines().forEach((line) -> {
 			g2.setColor(line.getColor());
 			g2.setStroke(new BasicStroke(line.getStrokeSize()));
 			line.draw(g2);
 		});
-		
-		}
 		
 		
 	}
