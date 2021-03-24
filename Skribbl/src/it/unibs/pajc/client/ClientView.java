@@ -14,6 +14,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.DefaultCaret;
@@ -147,7 +148,16 @@ public class ClientView {
 		
 		btnStartGameLobby = new JButton("Start Game");
 		btnStartGameLobby.setBounds(921, 612, 118, 60);
+		btnStartGameLobby.setBorderPainted(false);
+		btnStartGameLobby.setForeground(new Color(0, 0, 0));
+		btnStartGameLobby.setBorder(UIManager.getBorder("Button.border"));
+		
+		btnStartGameLobby.setFont(new Font("Tempus Sans ITC", Font.BOLD | Font.ITALIC, 14));
+		btnStartGameLobby.setBackground(new Color(153, 255, 153));
 		frameLobby.getContentPane().add(btnStartGameLobby);
+		
+		
+		
 		
 		txtChat = new JTextPane();
 		txtChat.setEditable(false);
@@ -258,6 +268,12 @@ public class ClientView {
 		frame.getContentPane().add(pnlStrumenti);
 		
 		btnStartGame = new JButton("Start Game");
+		btnStartGame.setBorderPainted(false);
+		btnStartGame.setForeground(new Color(0, 0, 0));
+		btnStartGame.setBorder(UIManager.getBorder("Button.border"));
+		
+		btnStartGame.setFont(new Font("Tempus Sans ITC", Font.BOLD | Font.ITALIC, 14));
+		btnStartGame.setBackground(new Color(153, 255, 153));
 		btnStartGame.setBounds(921, 612, 118, 60);
 		frame.getContentPane().add(btnStartGame);
 		
