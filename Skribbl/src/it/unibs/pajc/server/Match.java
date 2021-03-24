@@ -171,7 +171,6 @@ public class Match extends PnlBase implements Runnable {
 		while(!copyList.isEmpty() && clientList.size() > 1) {
 			String words = getWordsToGuess();
 			int indexPainter = random.nextInt(copyList.size());
-//			int indexPainter = (int) (Math.random() * copyList.size());
 			playerPainter = copyList.get(indexPainter);
 			painter = playerPainter.getProtocol();
 			playerPainter.setPainter(true);
@@ -390,6 +389,7 @@ public class Match extends PnlBase implements Runnable {
 		Player player = getPlayerByClient(client);
 		if(player != null) {
 			playerList.remove(player);
+			copyList.remove(player);
 			client.sendMsgToAll(generateScoreBoard());
 		}	
 	}

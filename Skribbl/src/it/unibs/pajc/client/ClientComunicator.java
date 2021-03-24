@@ -11,31 +11,30 @@ public class ClientComunicator extends PnlBase{
 	private ObjectInputStream in;
 	private Socket server;
 	private Object response;
-	private Writer writer = new Writer();
-	private Listener listener = new Listener();
-	private boolean isAvaible = false;
+	private Writer writer;
+	private Listener listener;
+	private boolean isavailable = false;
 	
 	/**
 	 * Fa' partire il Thread del Writer.
 	 * Il Writer si occuperà di far partire il thread del Listener
 	 */
 	public void start() {
+		writer = new Writer();
+		listener = new Listener();
+		
 		writer.addActionListener(e -> {
-			
-			System.out.println("Comunicator Writer - " + e.getActionCommand());
 			fireActionListener(e);
 		});
 		listener.addActionListener(e -> {
-			
-			System.out.println("Comunicator Listener - " + e.getActionCommand());
 			fireActionListener(e);
 		});
 		
 		new Thread(writer).start();
 	}
 	
-	protected synchronized boolean isAvaible() {
-		return this.isAvaible;
+	protected boolean isavailable() {
+		return this.isavailable;
 	}
 	
 	/**
@@ -60,7 +59,7 @@ public class ClientComunicator extends PnlBase{
 	 * Restituisce oggetti ricevuti dal Sever
 	 * @return
 	 */
-	public synchronized Object updateChat() {
+	public synchronized Object update() {
 		return response;
 	}
 	
@@ -79,7 +78,7 @@ public class ClientComunicator extends PnlBase{
 				
 				while((response = in.readObject()) != null) {
 //					addActionListener(e-> {
-//						e = new ActionEvent(e.getSource(), e.getID(), "Listener");
+//						e = new ActionEvent("Listener", e.getID(), "Listener");
 //						fireActionListener(e);
 //					});
 					fireActionListener(new ActionEvent("Listener", 2, "Listener"));
@@ -89,7 +88,7 @@ public class ClientComunicator extends PnlBase{
 				System.out.printf("Errore Listener: %s", e);
 				connect();
 			}
-			}while(!isAvaible());
+			}while(!isavailable());
 
 		}
 		
@@ -116,10 +115,10 @@ public class ClientComunicator extends PnlBase{
 			do {
 				try {
 						server = new Socket(serverName, port);
-						isAvaible = true;
+						isavailable = true;
 					
 //					addActionListener(e-> {
-//						e = new ActionEvent(e.getSource(), e.getID(), "Writer");
+//						e = new ActionEvent("Writer", e.getID(), "Writer");
 //						fireActionListener(e);
 //					});
 				
@@ -131,18 +130,18 @@ public class ClientComunicator extends PnlBase{
 				} catch (UnknownHostException e) {
 					// TODO Auto-generated catch block
 					//e.printStackTrace();
-					isAvaible = false;
+					isavailable = false;
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					//e.printStackTrace();
-					isAvaible = false;
+					isavailable = false;
 				}
-			} while(!isAvaible);
+			} while(!isavailable);
 			//TODO:chiuderemo out, in e socket con un metodo apposito
 			
 			//start di un thread per il listener
 			
-			if(isAvaible)
+			if(isavailable)
 				new Thread(listener).start();
 		}
 	}

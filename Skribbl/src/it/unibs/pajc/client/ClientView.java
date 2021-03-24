@@ -49,6 +49,8 @@ public class ClientView {
 	
 	//LOBBY
 	private JTextPane txtClientList;
+	private JButton btnStartGameLobby;
+	private JButton btnSend;
 	
 	//TODO: cambiare paintArea in pnlPaintArea
 	private PnlPaintArea paintArea;
@@ -64,6 +66,7 @@ public class ClientView {
 	private PnlDatiPartita pnlDatiPartita;
 	
 	private String nickname;
+	private JTextField txtStatusServer;
 	/**
 	 * Launch the application.
 	 */
@@ -92,15 +95,27 @@ public class ClientView {
 	 * Controller App Client
 	 */
 	public ClientView() {
-		getNickname();
-		model = new ClientModel();
-		setNickname();
+		lobby(); //TODO disabilitare bottoni finchè non avviene effetivamente la connessione
+		txtStatusServer.setText("Connessione al Server in corso...");
 		
-		lobby();
-		//initialize();
-		model.addChangeListener(e -> this.update());
+		model = new ClientModel();
+		model.addActionListener(e -> this.checkEvent(e));
 	}
 
+	private void checkEvent(ActionEvent e) {
+		if(e.getActionCommand().equalsIgnoreCase("Listener"))
+			this.update();
+		if(e.getActionCommand().equalsIgnoreCase("Writer")) {
+			txtStatusServer.setText("Connessione al Server avvenuta...");
+			btnStartGameLobby.setEnabled(true);
+			btnSend.setEnabled(true);
+			txtWrite.setEditable(true);
+			getNickname();
+			setNickname();
+		}
+			
+	}
+	
 	protected void initScoreboardView() {
 		// TODO Auto-generated method stub
 		scoreboardView = new ScoreboardView(nickname);
@@ -130,7 +145,7 @@ public class ClientView {
 		txtClientList.setBounds(594, 314, 134, 302);
 		frameLobby.getContentPane().add(txtClientList);
 		
-		JButton btnStartGameLobby = new JButton("Start Game");
+		btnStartGameLobby = new JButton("Start Game");
 		btnStartGameLobby.setBounds(921, 612, 118, 60);
 		frameLobby.getContentPane().add(btnStartGameLobby);
 		
@@ -149,9 +164,14 @@ public class ClientView {
 		frameLobby.getContentPane().add(txtWrite);
 		txtWrite.setColumns(10);
 		
-		JButton btnSend = new JButton("Send");//e' creato due volte forse si potrebbe dichiarare solo da una parte
+		btnSend = new JButton("Send");//e' creato due volte forse si potrebbe dichiarare solo da una parte
 		btnSend.setBounds(935, 578, 89, 23);
 		frameLobby.getContentPane().add(btnSend);
+		
+		txtStatusServer = new JTextField();
+		txtStatusServer.setBounds(113, 128, 271, 60);
+		frameLobby.getContentPane().add(txtStatusServer);
+		txtStatusServer.setColumns(10);
 		
 		frameLobby.addWindowListener(new WindowListener() {
 			
@@ -194,6 +214,11 @@ public class ClientView {
 			}
 		});
 
+		//Verranno riattivati quando avverrà la connessione al Server
+		btnStartGameLobby.setEnabled(false);
+		btnSend.setEnabled(false);
+		txtWrite.setEditable(false);
+				
 		txtWrite.addActionListener(e -> this.send());
 		btnStartGameLobby.addActionListener(e -> this.startGame());
 		btnSend.addActionListener(e -> this.send());
@@ -320,6 +345,7 @@ public class ClientView {
 		model.close();
 	}
 	
+	//TODO: non far inviare anche messaggi che iniziano con caratteri speciali
 	protected void getNickname() {
 		StringBuffer regexNickname = new StringBuffer();
 		regexNickname.append("(?s).*[");
@@ -333,20 +359,7 @@ public class ClientView {
 			if(nickname == null)
 				this.close();
 			
-		}while(nickname.matches(regexNickname.toString()) || nickname.trim().equals(""));
-		// || nickname.trim().equals("")
-			
-			//TODO: se metti il suono non va  il welcome
-//			try {
-//				String soundName = "src/sounds/win.wav";    
-//				AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(soundName).getAbsoluteFile());
-//				Clip clip = AudioSystem.getClip();
-//				clip.open(audioInputStream);
-//				clip.start();
-//			} catch(Exception e) { 
-//				e.printStackTrace();
-//			}
-//		}
+		} while(nickname.matches(regexNickname.toString()) || nickname.trim().equals(""));
 		
 	}
 	

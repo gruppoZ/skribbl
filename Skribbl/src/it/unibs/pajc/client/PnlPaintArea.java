@@ -129,7 +129,7 @@ public class PnlPaintArea extends JPanel implements MouseListener, MouseMotionLi
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		if(painter)
-			model.sendLine(currentLine);
+			model.sendMsg(currentLine);
 	}
 	
 	@Override

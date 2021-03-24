@@ -22,7 +22,7 @@ import it.unibs.pajc.server.ProcessMessage;
 import it.unibs.pajc.whiteboard.WhiteBoard;
 import it.unibs.pajc.whiteboard.WhiteBoardLine;
 
-public class ClientModel extends BaseModel{
+public class ClientModel extends PnlBase{
 	
 	public static HashMap<String, ProcessMessageClient> commandMap;
 	
@@ -49,22 +49,16 @@ public class ClientModel extends BaseModel{
 	private Object obj;
 	private ObjectOutputStream os = null;
 	
+	private ClientComunicator comunicator;
+	
 	public ClientModel() {
-		try {
-			this.server = new Socket(serverName, port);
-			this.os = new ObjectOutputStream(this.server.getOutputStream());
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		//TODO:chiuderemo out, in e socket con un metodo apposito
-		
-		//start di un thread per il listener
-		new Thread(new Listener()).start();
-		
+		comunicator = new ClientComunicator();
+		comunicator.start();
+		comunicator.addActionListener(e -> fireActionListener(e));
+	}
+	
+	protected boolean isConnectionAvailable() {
+		return comunicator.isavailable();
 	}
 	
 	public String getNickname() {
@@ -74,40 +68,23 @@ public class ClientModel extends BaseModel{
 		this.nickname = nickname;
 	}
 	
-	public void sendMsg(String msg) {
+	public void sendMsg(Object msg) {
 //		out.println(msg);
-		if(msg.strip().length() > 0) {
-			try {
-				os.writeObject(msg);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}
-	
-	public void sendLine(WhiteBoardLine line) {
 		try {
-			os.writeObject(line);
-			os.flush();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.err.println("Error writing object");
+			if(msg.getClass().equals(String.class)) {
+				if(String.valueOf(msg).strip().length() > 0) {
+					comunicator.sendMsg(msg);
+				}
+			} else
+				comunicator.sendMsg(msg);
+		}catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
 	public Object update() {
-		
-//		if(obj.getClass().equals(String.class)) {
-//			StringBuffer sb = new StringBuffer();
-//			sb.append(obj.toString());
-//			sb.append("\n");
-//			
-//			return sb.toString();
-//		}
-//		return obj.getClass().equals(WhiteBoardLine.class) ? obj : null;
-		return obj;
+
+		return comunicator.update();
 		
 	}
 	
@@ -116,44 +93,11 @@ public class ClientModel extends BaseModel{
 //	}
 	
 	public void close() {
-		if(os != null) {
-			try {
-				os.close();
-			} catch (IOException e) {
-				System.out.println("close del clientModel");
-//				e.printStackTrace();
-			}
+		try {
+			comunicator.close();
+		} catch (IOException e) {
+			System.out.println("Close del client model");
 		}
-//		try {
-//			server.close();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-	}
-	
-	private class Listener implements Runnable {
-		@Override
-		public void run() {
-			try{
- 				ObjectInputStream is = new ObjectInputStream(server.getInputStream());
-				try {
-					while((obj = is.readObject()) != null) {	
-						fireValuesChange(new ChangeEvent(this));
-					}
-				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				System.out.println("sono nel listener");
-//				e.printStackTrace();
-			} finally {
-				close();
-			}
-		}
-
 	}
 	
 	public ProcessMessageClient getProcess(String messageType) {
