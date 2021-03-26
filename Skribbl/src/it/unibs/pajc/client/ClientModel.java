@@ -1,7 +1,10 @@
 package it.unibs.pajc.client;
 
 import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
@@ -9,11 +12,17 @@ import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 
 import it.unibs.pajc.core.BaseModel;
@@ -23,6 +32,24 @@ import it.unibs.pajc.whiteboard.WhiteBoard;
 import it.unibs.pajc.whiteboard.WhiteBoardLine;
 
 public class ClientModel extends PnlBase{
+	
+	protected static final String LOGO = "src/img/logo.gif";
+	protected static final String BACKGROUND_GIF = "src/img/logo5.gif";
+	
+	private static String[] colori = {
+			"RED", "GREEN", "BLACK", "ORANGE", "PINK"
+	};	
+	
+	private static final String RUBBER = "src/img/rubber.gif";
+	private static final String TRASHCAN = "src/img/trashcan.png";
+	private static final String DIMENSION1 = "src/img/circle12.png";
+	private static final String DIMENSION2 = "src/img/circle20.png";
+	private static final String DIMENSION3 = "src/img/circle26.png";
+	private static final String SAVE = "src/img/save.png";
+	
+	private static String[] icone = {
+			RUBBER, TRASHCAN, DIMENSION1, DIMENSION2, DIMENSION3, SAVE
+	};
 	
 	public static HashMap<String, ProcessMessageClient> commandMap;
 	
@@ -36,6 +63,7 @@ public class ClientModel extends PnlBase{
 		commandMap.put("+", new ProcessClientList());
 		commandMap.put("*", new ProcessHint());
 		commandMap.put("<", new ProcessTimer());
+		commandMap.put(";", new ProcessSelectedWord());
 	}
 	
 	private String nickname;
@@ -109,20 +137,6 @@ public class ClientModel extends PnlBase{
 	    }
 	}
 	
-	
-	private static String[] colori = {
-			"RED", "GREEN", "BLACK", "ORANGE", "PINK"
-	};	
-	
-	private static final String RUBBER = "src/img/rubber.gif";
-	private static final String TRASHCAN = "src/img/trashcan.png";
-	private static final String DIMENSION1 = "src/img/circle12.png";
-	private static final String DIMENSION2 = "src/img/circle20.png";
-	private static final String DIMENSION3 = "src/img/circle26.png";
-	private static String[] icone = {
-			RUBBER, TRASHCAN, DIMENSION1, DIMENSION2, DIMENSION3
-	};
-	
 	public boolean isRubber(String icona) {
 		return RUBBER.equalsIgnoreCase(icona);
 	}
@@ -140,6 +154,10 @@ public class ClientModel extends PnlBase{
 	
 	protected boolean isDimension3(String icona) {
 		return DIMENSION3.equalsIgnoreCase(icona);
+	}
+	
+	protected boolean isSave(String icon) {
+		return SAVE.equalsIgnoreCase(icon);
 	}
 	
 	public boolean isColor(String name) {
@@ -173,6 +191,34 @@ public class ClientModel extends PnlBase{
 		return strumenti;
 	}
 	
-	
+	/**
+	 * Salva il contenuto del JPanel
+	 * @param panel
+	 */
+	protected void savePaint(JPanel panel) {
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		
+		executor.submit(() -> {
+			Graphics2D g2d;
+			try {
+				BufferedImage bimage = new BufferedImage(panel.getWidth(), panel.getHeight(), BufferedImage.TYPE_INT_RGB);
+				g2d = bimage.createGraphics();
+				panel.print( g2d );			 
+				
+				SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");  
+			    Date date = new Date(); 
+			    String url = "src/paints/PAINT_" + formatter.format(date) + ".png";
+			    
+				ImageIO.write(bimage , "PNG", new File(url));
+				
+				g2d.dispose();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} 
+		});
+		
+		executor.shutdown();
+	}
 	
 }

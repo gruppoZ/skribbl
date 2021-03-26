@@ -167,12 +167,12 @@ public class Protocol extends BaseModel implements Runnable{
 			}	
 			
 			this.welcome();
-			sendMsgToAll("%join|" + this.clientName + " e' entrato in partita");
+			sendMsgToAll(ProcessMessage.playerJoined(this.clientName));
 			
 			this.sendClientList();
 			
 			if(hasMatchStarted()) {
-				this.sendMsg("!matchalreadyon");
+				this.sendMsg(ProcessMessage.MATCH_ALREADY_ON);
 				match.addPlayer(this);
 				
 				ArrayList<WhiteBoardLine> lines = whiteBoard.getLines();
@@ -263,13 +263,8 @@ public class Protocol extends BaseModel implements Runnable{
 		clientList.forEach((p) -> p.sendMsg(msg));
 	}
 	
-	//non worka
-	//probabilmente problema di thread(troppi thread accesi)
 	private void welcome() {
-		if(clientList.size() > 1) {
-			sendMsg(this, "Buongiorno, il tuo nome e': " + clientName);
-		} else
-			sendMsg(this, "Buongiorno, il tuo nome e': " + clientName + "\nNon ci sono altri utenti connessi...");
+		sendMsg(this, ProcessMessage.welcome(clientName, clientList.size() <= 1));
 	}
 	
 	

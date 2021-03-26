@@ -178,11 +178,13 @@ public class PnlPaintArea extends JPanel implements MouseListener, MouseMotionLi
 		if(model.isIcon(e.getActionCommand()) && model.isDimension3(e.getActionCommand()))
 			sizeStroke = 6;
 		
+		if(model.isIcon(e.getActionCommand()) && model.isSave(e.getActionCommand()))
+			model.savePaint(this);
+		
 		if(model.isIcon(e.getActionCommand()) && model.isTrash(e.getActionCommand())) {
 			model.sendMsg("!deleteall");
 			clearAll();
 		}
-		
 	}
 	
 	public void clearAll() {
