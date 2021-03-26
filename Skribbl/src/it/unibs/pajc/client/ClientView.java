@@ -533,8 +533,6 @@ public class ClientView {
     }
 
 	protected void popupScoreboard(String name, String score) {
-		//IDEA 1 : Istanza di una finestra che contiene la scoreboard + immagini per i diversi "posti" + grassetto per nome + "HAI VINTO"
-		// ogni volta che viene chiamato questo metodo, popola la HashMap della ScoreboardView, che associa a un "nome" lo "score"
 		scoreboardView.addPlayer(name, score);
 	}
 }
