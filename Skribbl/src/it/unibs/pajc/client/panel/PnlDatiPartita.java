@@ -1,4 +1,4 @@
-package it.unibs.pajc.client;
+package it.unibs.pajc.client.panel;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -72,13 +72,13 @@ public class PnlDatiPartita extends JPanel {
 		}	  
 	 });
 	
-	protected void startTimer(int seconds) {
+	public void startTimer(int seconds) {
 		//TODO: arriva sempre 1 secondo in ritardo, colpa del passaggi che deve fare
 		this.seconds = seconds;
 		timer.start();
 	}
 	
-	protected void stopTimer() {
+	public void stopTimer() {
 		//prima setta i secondi a 0 e lo stampa poi ferma il timer
 		seconds = 0;
 		lblTimer.setText(""+seconds);
@@ -87,16 +87,16 @@ public class PnlDatiPartita extends JPanel {
 		
 	}
 	
-	protected JTextField getTxtRound() {
+	public JTextField getTxtRound() {
 		return this.txtRound;
 	}
-	protected JTextField getTxtPainter() {
+	public JTextField getTxtPainter() {
 		return this.txtPainter;
 	}
-	protected JTextField getTxtGuessWord() {
+	public JTextField getTxtGuessWord() {
 		return this.txtGuessWord;
 	}
-	protected JLabel getlblTimer() {
+	public JLabel getlblTimer() {
 		return this.lblTimer;
 	}
 	

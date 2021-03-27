@@ -25,6 +25,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 
+import it.unibs.pajc.client.panel.PnlBase;
 import it.unibs.pajc.core.BaseModel;
 import it.unibs.pajc.server.ProcessCommand;
 import it.unibs.pajc.server.ProcessMessage;
@@ -144,19 +145,19 @@ public class ClientModel extends PnlBase{
 		return TRASHCAN.equalsIgnoreCase(icona);
 	}
 	
-	protected boolean isDimension1(String icona) {
+	public boolean isDimension1(String icona) {
 		return DIMENSION1.equalsIgnoreCase(icona);
 	}
 	
-	protected boolean isDimension2(String icona) {
+	public boolean isDimension2(String icona) {
 		return DIMENSION2.equalsIgnoreCase(icona);
 	}
 	
-	protected boolean isDimension3(String icona) {
+	public boolean isDimension3(String icona) {
 		return DIMENSION3.equalsIgnoreCase(icona);
 	}
 	
-	protected boolean isSave(String icon) {
+	public boolean isSave(String icon) {
 		return SAVE.equalsIgnoreCase(icon);
 	}
 	
@@ -195,7 +196,7 @@ public class ClientModel extends PnlBase{
 	 * Salva il contenuto del JPanel
 	 * @param panel
 	 */
-	protected void savePaint(JPanel panel) {
+	public void savePaint(JPanel panel) {
 		ExecutorService executor = Executors.newSingleThreadExecutor();
 		
 		executor.submit(() -> {

@@ -23,6 +23,11 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 
+import it.unibs.pajc.client.panel.PnlChat;
+import it.unibs.pajc.client.panel.PnlDatiPartita;
+import it.unibs.pajc.client.panel.PnlPaintArea;
+import it.unibs.pajc.client.panel.PnlStrumenti;
+import it.unibs.pajc.client.panel.PnlWords;
 import it.unibs.pajc.core.BaseModel;
 import it.unibs.pajc.whiteboard.WhiteBoardLine;
 
@@ -468,7 +473,6 @@ public class ClientView {
 	}
 	
 	protected void setRound(String currentRound, String totRound) {
-		//txtRound.setText(currentRound + "/" + totRound);
 		pnlDatiPartita.getTxtRound().setText(currentRound + "/" + totRound);
 	}
 	

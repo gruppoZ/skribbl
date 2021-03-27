@@ -3,6 +3,8 @@ import java.awt.event.ActionEvent;
 import java.io.*;
 import java.net.*;
 
+import it.unibs.pajc.client.panel.PnlBase;
+
 public class ClientComunicator extends PnlBase{
 	
 	private String serverName; 

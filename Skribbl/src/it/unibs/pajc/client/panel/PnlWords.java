@@ -1,4 +1,4 @@
-package it.unibs.pajc.client;
+package it.unibs.pajc.client.panel;
 
 import javax.swing.JButton;
 import java.awt.Color;
@@ -16,12 +16,12 @@ public class PnlWords extends PnlBase {
 
 	}
 
-	protected void setWords(String[] words) {
+	public void setWords(String[] words) {
 		this.words = words;
 		updateView();
 	}
 	
-	protected void updateView() {
+	public void updateView() {
 		this.removeAll();
 		for(int i = 0; i < words.length; i++) {
 			addButton(words[i]);
@@ -41,7 +41,7 @@ public class PnlWords extends PnlBase {
 	/**
 	 * Elimina tutti i bottoni di PnlWords e quindi tutte le parole che erano presenti
 	 */
-	protected void cancelBtn() {
+	public void cancelBtn() {
 		this.removeAll();
 		this.repaint();
 	}

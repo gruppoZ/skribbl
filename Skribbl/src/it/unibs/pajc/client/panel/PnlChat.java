@@ -1,4 +1,4 @@
-package it.unibs.pajc.client;
+package it.unibs.pajc.client.panel;
 
 import java.awt.*;
 import javax.swing.*;
@@ -39,15 +39,15 @@ public class PnlChat extends PnlBase {
 		add(txtMsg);
 	}
 	
-	protected JButton getBtnSend() {
+	public JButton getBtnSend() {
 		return this.btnSend;
 	}
 	
-	protected JTextField getTxtMsg() {
+	public JTextField getTxtMsg() {
 		return this.txtMsg;
 	}
 	
-	protected JTextPane getTxtChat() {
+	public JTextPane getTxtChat() {
 		return this.txtChat;
 	}
 	

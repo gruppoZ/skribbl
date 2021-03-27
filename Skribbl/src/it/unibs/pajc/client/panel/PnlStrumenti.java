@@ -1,4 +1,4 @@
-package it.unibs.pajc.client;
+package it.unibs.pajc.client.panel;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -10,6 +10,8 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+
+import it.unibs.pajc.client.ClientModel;
 
 public class PnlStrumenti extends PnlBase {
 

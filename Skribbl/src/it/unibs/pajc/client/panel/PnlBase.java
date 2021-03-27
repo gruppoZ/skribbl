@@ -1,4 +1,4 @@
-package it.unibs.pajc.client;	
+package it.unibs.pajc.client.panel;	
 
 import java.awt.Dimension;
 import java.awt.FlowLayout;

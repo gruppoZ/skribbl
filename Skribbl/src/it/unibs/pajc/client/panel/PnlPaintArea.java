@@ -1,4 +1,4 @@
-package it.unibs.pajc.client;
+package it.unibs.pajc.client.panel;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -21,6 +21,7 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import it.unibs.pajc.client.ClientModel;
 import it.unibs.pajc.whiteboard.WhiteBoardLine;
 
 
@@ -160,7 +161,7 @@ public class PnlPaintArea extends JPanel implements MouseListener, MouseMotionLi
 		}	
 	}
 	
-	protected void changePaint(ActionEvent e) {
+	public void changePaint(ActionEvent e) {
 		
 		if(model.isColor(e.getActionCommand()))
 			lineColor = ClientModel.getColorByName(e.getActionCommand());
