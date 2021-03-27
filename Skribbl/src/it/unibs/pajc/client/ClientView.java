@@ -388,10 +388,11 @@ public class ClientView {
 		Object response = model.update();
 		
 		if((response.getClass().equals(String.class)) && (response != null)) {
-			String messageType = response.toString().substring(0,1);
+			int indexOf = response.toString().indexOf(":");
+			String messageType = response.toString().substring(0, indexOf + 1);
 			ProcessMessageClient processor = model.getProcess(messageType);
 			if(processor != null) {
-				processor.process(this, response.toString().substring(1));
+				processor.process(this, response.toString().substring(indexOf + 1));
 			} else {
 //				txtChat.append(response.toString());
 //				txtChat.setCaretPosition(txtChat.getDocument().getLength());

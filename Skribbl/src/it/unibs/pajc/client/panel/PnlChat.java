@@ -3,6 +3,8 @@ package it.unibs.pajc.client.panel;
 import java.awt.*;
 import javax.swing.*;
 
+import it.unibs.pajc.client.ClientModel;
+
 public class PnlChat extends PnlBase {
 
 	private JButton btnSend;
@@ -14,13 +16,14 @@ public class PnlChat extends PnlBase {
 	 */
 	public PnlChat() {
 		super();
-		
-		Icon iconSend = new ImageIcon("src/img/right-arrow-20.png");
 		setLayout(null);
-		btnSend = new JButton(iconSend);//e' creato due volte forse si potrebbe dichiarare solo da una parte
+		
+		Icon iconSend = new ImageIcon(ClientModel.ICON_SEND);
+		
+		btnSend = new JButton(iconSend);
 		btnSend.setBackground(Color.WHITE);
 		btnSend.setBounds(220, 545, 33, 23);
-		this.add(btnSend);
+		add(btnSend);
 		
 		JScrollPane scrollPane = new JScrollPane((Component) null);
 		scrollPane.setBounds(10, 13, 242, 521);
@@ -39,14 +42,29 @@ public class PnlChat extends PnlBase {
 		add(txtMsg);
 	}
 	
+	/**
+	 * Restituisce l'oggetto JButton 
+	 * utilizzato per l'invio dei messaggi presenti in txtMsg
+	 * @return
+	 */
 	public JButton getBtnSend() {
 		return this.btnSend;
 	}
 	
+	/**
+	 * Restituisce l'oggetto JTextField 
+	 * utilizzato per l'input dei messaggi che si vogliono inviare
+	 * @return
+	 */
 	public JTextField getTxtMsg() {
 		return this.txtMsg;
 	}
 	
+	/**
+	 * Restituisce l'oggetto JTextPane 
+	 * utilizzato per l'output dei messaggi della Chat che si inviano e ricevono
+	 * @return
+	 */
 	public JTextPane getTxtChat() {
 		return this.txtChat;
 	}

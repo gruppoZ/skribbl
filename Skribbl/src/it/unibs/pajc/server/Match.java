@@ -23,17 +23,10 @@ public class Match extends BaseModel implements Runnable {
 
 	
 	private final static String URI_FILE_WORD = "src/it/unibs/pajc/server/WORDS.dat";
-	
-	//creiamo dalla clientList un insieme di player che avranno:
-	// Protocol + punteggio + painter
-//	private ArrayList<Player> playerList;
-//	private List<Player> playerList = Collections.synchronizedList(new ArrayList<Player>());
+
 	private static ArrayList<String> wordsFromFile;
 	private Random random;
-	//ridondante perch� ogni protoc
 	private ArrayList<Player> playerList;
-	//timer
-
 	private int seconds;
 	private Timer timer;
 	private static final int DELAY = 1000; //millisecondi
@@ -52,8 +45,11 @@ public class Match extends BaseModel implements Runnable {
 	
 	private Protocol painter;
 	private Player playerPainter;
-	
 	public boolean isRunning;
+	
+	private String tmp_wordHint;
+	private int max_hint;
+	private int tmp_countHint;
 	/**
 	 * @param clientList
 	 */
@@ -65,6 +61,8 @@ public class Match extends BaseModel implements Runnable {
 		this.random = new Random();
 		this.playersWhoGuessed = 0;
 		this.isRunning = true;
+		this.tmp_wordHint = null;
+		this.tmp_countHint = 0;
 		
 		wordsFromFile = new ArrayList<>();
         readFile();
@@ -79,10 +77,9 @@ public class Match extends BaseModel implements Runnable {
 		
 		if(!clientList.isEmpty()) {
 			StringBuffer sb = new StringBuffer();
-			sb.append("@");
-			sb.append(generateScoreBoard());
+			sb.append(generateScoreBoard(ProcessMessage.FINAL_SCOREBOARD_KEY));
 			Protocol.sendMsgToAll(sb.toString());
-			Protocol.sendMsgToAll(ProcessMessage.MATCH_FINISHED);
+			Protocol.sendMsgToAll(ProcessMessage.command(ProcessMessage.MATCH_FINISHED));
 		}
 		isRunning = false;
 	}
@@ -111,26 +108,6 @@ public class Match extends BaseModel implements Runnable {
 			globalExecutor.shutdown();
 		}
 	}
-	
-	/**
-	 * check se il client e' gia presente nella playerList se non lo e' lo aggiungo
-	 */
-	private void updatePlayerList() {
-		clientList.forEach(client -> {
-			if(getPlayerByClient(client) == null) {
-				playerList.add(new Player(client));
-				client.addChangeListener(e -> this.checkWord(client, String.valueOf(e.getSource())));
-			}
-		});
-	}
-	
-	private Player getPlayerByClient(Protocol client) {
-		for (Player player : playerList) {
-			if(player.getProtocol().getClientName().equals(client.getClientName()))
-				return player;
-		}
-		return null;
-	}
 
 	/**
 	 * Se sono usciti tutti => controllo da server e finisce/reset MATCH
@@ -142,10 +119,6 @@ public class Match extends BaseModel implements Runnable {
 				startRound();
 			}
 		}
-	}
-	
-	private void close() {
-		fireValuesChange(new ChangeEvent(this));
 	}
 	
 	private void startRound() {	
@@ -173,14 +146,14 @@ public class Match extends BaseModel implements Runnable {
 				break;
 			}
 			
-			painter.sendMsg(ProcessMessage.HIDE_WORDS);
+			painter.sendMsg(ProcessMessage.command(ProcessMessage.HIDE_WORDS));
 			Protocol.sendMsgToAll(ProcessMessage.playerWaiting(painter.getClientName(), ProcessMessage.WORD_CHOOSEN));
 			
-			painter.sendMsg(ProcessMessage.CHANGE_PAINTER); 
+			painter.sendMsg(ProcessMessage.command(ProcessMessage.CHANGE_PAINTER));
 			painter.sendMsg(ProcessMessage.sendSelectedWord(selectedWord));
 			//start turn
 			max_hint = UtilsMatch.calculateMaxHint(selectedWord);
-			Protocol.sendMsgToAll("*"+String.valueOf(UtilsMatch.getInitWordForHint(selectedWord)));
+			Protocol.sendMsgToAll(ProcessMessage.HINT_KEY + String.valueOf(UtilsMatch.getInitWordForHint(selectedWord)));
 			
 			Runnable task = () -> {
 				String result = getHint(selectedWord);
@@ -192,7 +165,7 @@ public class Match extends BaseModel implements Runnable {
 			executor.scheduleAtFixedRate(task, DEFAULT_SECONDS/4, DEFAULT_SECONDS/4, TimeUnit.SECONDS);
 			this.startTimer();		
 			
-			Protocol.sendMsgToAll(ProcessMessage.START_TIMER + seconds);
+			Protocol.sendMsgToAll(ProcessMessage.START_TIMER_KEY + seconds);
 			
 			//timer
 			//aspetta che il timer finisca e "freeza" il turno
@@ -216,6 +189,33 @@ public class Match extends BaseModel implements Runnable {
 	}
 
 	/**
+	 * invia l'evento al match in ascolto nel protocol che permette di chiudere questo thread
+	 */
+	private void close() {
+		fireValuesChange(new ChangeEvent(this));
+	}
+	
+	/**
+	 * check se il client e' gia presente nella playerList se non lo e' lo aggiungo
+	 */
+	private void updatePlayerList() {
+		clientList.forEach(client -> {
+			if(getPlayerByClient(client) == null) {
+				playerList.add(new Player(client));
+				client.addChangeListener(e -> this.checkWord(client, String.valueOf(e.getSource())));
+			}
+		});
+	}
+	
+	private Player getPlayerByClient(Protocol client) {
+		for (Player player : playerList) {
+			if(player.getProtocol().getClientName().equals(client.getClientName()))
+				return player;
+		}
+		return null;
+	}
+	
+	/**
 	 * serve a inizializzare il painter del turno corrente
 	 * @return TRUE se painter != null
 	 */
@@ -227,16 +227,12 @@ public class Match extends BaseModel implements Runnable {
 		if(playerPainter != null) {
 			painter = playerPainter.getProtocol();
 			playerPainter.setPainter(true);
-			Protocol.sendMsgToAll(generateScoreBoard());
+			Protocol.sendMsgToAll(generateScoreBoard(ProcessMessage.SCOREBOARD_KEY));
 			
 			Protocol.sendMsgToAll(ProcessMessage.playerWaiting(painter.getClientName(), ProcessMessage.WAIT_WORD));
 			painter.sendMsg(words);
 		}
 	}
-	
-	private String tmp_wordHint = null;
-	private int max_hint;
-	private int tmp_countHint = 0;
 	
 	private String getHint(String word) {
 			
@@ -274,9 +270,9 @@ public class Match extends BaseModel implements Runnable {
 	private void resetTurn() {
 		tmp_wordHint = null;
 		tmp_countHint = 0;
-		Protocol.sendMsgToAll(ProcessMessage.STOP_TIMER);
+		Protocol.sendMsgToAll(ProcessMessage.command(ProcessMessage.STOP_TIMER));
 		painter.clearAll();
-		painter.sendMsg(ProcessMessage.CHANGE_PAINTER); //TODO: cambiare in changepainterstatus
+		painter.sendMsg(ProcessMessage.command(ProcessMessage.CHANGE_PAINTER)); //TODO: cambiare in changepainterstatus
 		playerPainter.setPainter(false);
 		//facendo il remove dalla copyList questo client non pu� pi� diventare un painter
 		copyList.remove(playerPainter);
@@ -299,11 +295,11 @@ public class Match extends BaseModel implements Runnable {
 	}
 	
 	
-	private String generateScoreBoard() {
+	private String generateScoreBoard(String scoreBoardType) {
 		sortScoreBoard(playerList);
 		
 		StringBuffer sb = new StringBuffer();
-		sb.append(ProcessMessage.SCOREBOARD_KEY);
+		sb.append(scoreBoardType);
 		playerList.forEach((player) -> {
 			sb.append(ProcessMessage.sendScoreBoard(player.getName(), player.getScore(), player.isPainter()));
 		});
@@ -345,7 +341,7 @@ public class Match extends BaseModel implements Runnable {
 					else
 						playerPainter.updateScore(COEFF_PAINTER_MIN);
 					
-					Protocol.sendMsgToAll(generateScoreBoard());
+					Protocol.sendMsgToAll(generateScoreBoard(ProcessMessage.SCOREBOARD_KEY));
 					Protocol.sendMsgToAll(ProcessMessage.playerGuessed(protocol.getClientName()));
 				} else {
 //					Protocol.sendMsgToAll(word);
@@ -382,15 +378,15 @@ public class Match extends BaseModel implements Runnable {
 			copyList.remove(player);
 			if(player.equals(painter) && !copyList.isEmpty())
 				selectPainter(); //TODO: errore, il client che rimane solo si blocco
-			Protocol.sendMsgToAll(generateScoreBoard());
+			Protocol.sendMsgToAll(generateScoreBoard(ProcessMessage.SCOREBOARD_KEY));
 		}	
 	}
 	
 	public void addPlayer(Protocol client) {
 		updatePlayerList();
 		client.sendMsg(ProcessMessage.sendRound(currentRound, ROUNDS));
-		client.sendMsg(ProcessMessage.START_TIMER + seconds);
-		Protocol.sendMsgToAll(generateScoreBoard());
+		client.sendMsg(ProcessMessage.START_TIMER_KEY + seconds);
+		Protocol.sendMsgToAll(generateScoreBoard(ProcessMessage.SCOREBOARD_KEY));
 	}
 	
 	/*
@@ -420,7 +416,7 @@ public class Match extends BaseModel implements Runnable {
 		}
 		
 		StringBuffer result = new StringBuffer();
-		result.append("?word:");
+		result.append(ProcessMessage.WORDS_KEY + ProcessMessage.WORD);
 		for (int i : indexes) {
 			result.append(wordsFromFile.get(i).trim() + ";");
 		}

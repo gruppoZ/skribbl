@@ -64,7 +64,7 @@ public class Protocol extends BaseModel implements Runnable{
 		
 		if(os != null) {
 			try {
-				sendMsgToAll("%left|" + this.clientName + " ha abbandonato la conversazione");
+				sendMsgToAll(ProcessMessage.playerLeft(clientName));
 				if(hasMatchStarted())
 					match.removePlayer(this);
 				os.close();
@@ -172,7 +172,7 @@ public class Protocol extends BaseModel implements Runnable{
 			this.sendClientList();
 			
 			if(hasMatchStarted()) {
-				this.sendMsg(ProcessMessage.MATCH_ALREADY_ON);
+				this.sendMsg(ProcessMessage.command(ProcessMessage.MATCH_ALREADY_ON));
 				match.addPlayer(this);
 				
 				ArrayList<WhiteBoardLine> lines = whiteBoard.getLines();
@@ -196,7 +196,7 @@ public class Protocol extends BaseModel implements Runnable{
 	private void sendClientList() {
 		//ogni volta che un client entra invio a tutti la client list
 		StringBuffer list = new StringBuffer();
-		list.append("+");
+		list.append(ProcessMessage.CLIENT_LIST_KEY);
 		clientList.forEach((client) -> {
 			list.append(client.getClientName() + "/");
 		});
@@ -284,7 +284,7 @@ public class Protocol extends BaseModel implements Runnable{
 //	}
 	
 	public void clearAll() {
-		sendMsgToAll("!deleteall");
+		sendMsgToAll(ProcessMessage.command(ProcessMessage.DELETE_ALL));
 		whiteBoard.clearAll();
 	}
 	
@@ -316,9 +316,9 @@ public class Protocol extends BaseModel implements Runnable{
 			
 			
 			
-			sendMsgToAll("!matchstarted");
+			sendMsgToAll(ProcessMessage.command(ProcessMessage.MATCH_STARTED));
 		} else {
-			sendMsgToAll("!matchcancelled");
+			sendMsgToAll(ProcessMessage.command(ProcessMessage.MATCH_CANCELLED));
 		}
 		
 	}

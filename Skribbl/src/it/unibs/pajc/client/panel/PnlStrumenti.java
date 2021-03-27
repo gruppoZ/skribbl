@@ -1,61 +1,69 @@
 package it.unibs.pajc.client.panel;
 
-import java.awt.Color;
-import java.awt.Dimension;
+import java.awt.*;
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JPanel;
 
 import it.unibs.pajc.client.ClientModel;
 
 public class PnlStrumenti extends PnlBase {
 
+	private static final int BTN_SIZE = 30;
+	
 	/**
 	 * Create the panel.
 	 */
-	public PnlStrumenti(ArrayList<Object> strumenti) {
+	public PnlStrumenti(ArrayList<Object> tools) {
 		super();
-		updateOperators(strumenti);
+		updateTools(tools);
 	}
 	
-	public void updateOperators(List<Object> strumenti) {
+	/**
+	 * Viene creato il pannello dei tools necessari per poter disegnare
+	 * @param tools
+	 */
+	private void updateTools(List<Object> tools) {
 		this.removeAll();
-		for(int i = 0; i < strumenti.size(); i++) {
-			if(strumenti.get(i) instanceof String)
-				addButtonColor((String) strumenti.get(i));
-			if(strumenti.get(i) instanceof Icon)
-				addButtonIcon((Icon) strumenti.get(i));
+		
+		for(int i = 0; i < tools.size(); i++) {
+			if(tools.get(i) instanceof String)
+				addButtonColor((String) tools.get(i));
+			if(tools.get(i) instanceof Icon)
+				addButtonIcon((Icon) tools.get(i));
 		}
 		
-		this.revalidate();//forza la ridistribuzione dei componenti all'interno del container
+		this.revalidate(); //forza la ridistribuzione dei componenti all'interno del container
 		this.repaint();
 	}
 	
-	public void addButtonColor(String colore) {
+	/**
+	 * Viene aggiunto un JButton colorato in base al parametro passato
+	 * @param colore
+	 */
+	private void addButtonColor(String colore) {
 		JButton btn = new JButton(); 
-		btn.setPreferredSize(new Dimension(30, 30));
+		btn.setPreferredSize(new Dimension(BTN_SIZE, BTN_SIZE));
 		btn.setBackground(ClientModel.getColorByName(colore));
 
 		btn.setActionCommand(colore);
-		this.add(btn);
 		btn.addActionListener(e -> fireActionListener(e));
+		
+		this.add(btn);
 	}
-	public void addButtonIcon(Icon icon) {
+	
+	/**
+	 * Viene aggiunto un JButton con un'icona presa come parametro
+	 * @param icon
+	 */
+	private void addButtonIcon(Icon icon) {
 		JButton btn = new JButton(icon);
-		btn.setPreferredSize(new Dimension(30, 30));
+		btn.setPreferredSize(new Dimension(BTN_SIZE, BTN_SIZE));
 		btn.setBackground(Color.WHITE);
 		
 		btn.setActionCommand(icon.toString());
-		this.add(btn);
 		btn.addActionListener(e -> fireActionListener(e));
+		
+		this.add(btn);
 	}
-	
-//	protected void enableBtn(boolean state) {
-//		this.dis
-//	}
 }
