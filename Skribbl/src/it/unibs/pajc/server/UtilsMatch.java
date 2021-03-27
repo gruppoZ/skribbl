@@ -3,6 +3,8 @@ package it.unibs.pajc.server;
 import java.io.*;
 import java.util.*;
 
+import it.unibs.pajc.core.ProcessUtils;
+
 public class UtilsMatch {
 
 	private final static String URI_FILE_WORD = "src/it/unibs/pajc/server/WORDS.dat";
@@ -68,7 +70,7 @@ public class UtilsMatch {
 		}
 		
 		StringBuffer result = new StringBuffer();
-		result.append(ProcessMessage.WORD);
+		result.append(ProcessUtils.WORD);
 		for (int i : indexes) {
 			result.append(words.get(i).trim() + ";");
 		}

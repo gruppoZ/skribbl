@@ -52,6 +52,8 @@ import javax.swing.JScrollBar;
 
 public class ClientView {
 
+	String TXT_ADD_PLAYER = "#%s %s:%s\n";
+	
 	private JFrame frame;
 	private JFrame frameLobby;
 
@@ -103,6 +105,7 @@ public class ClientView {
 	 */
 	public ClientView() {
 		lobby(); //TODO disabilitare bottoni finchè non avviene effetivamente la connessione
+//		initialize();
 		txtStatusServer.setText("Connessione al Server in corso...");
 		
 		model = new ClientModel();
@@ -152,7 +155,7 @@ public class ClientView {
 		txtClientList = new JTextPane();
 		txtClientList.setEditable(false);
 		txtClientList.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		txtClientList.setBounds(637, 278, 134, 302);
+		txtClientList.setBounds(624, 278, 134, 302);
 		frameLobby.getContentPane().add(txtClientList);
 		
 		btnStartGameLobby = new JButton("Start Game");
@@ -238,7 +241,7 @@ public class ClientView {
 		frameLobby.setVisible(false);
 		
 		frame = new JFrame();
-		frame.setBounds(100, 100, 1065, 722);
+		frame.setBounds(100, 100, 1057, 771);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		frame.setVisible(true);
@@ -249,12 +252,12 @@ public class ClientView {
 		enableChat();
 		
 		paintArea = new PnlPaintArea(model);
-		paintArea.setBounds(10, 71, 538, 545);
+		paintArea.setBounds(236, 130, 538, 545);
 		frame.getContentPane().add(paintArea);
 		paintArea.setLayout(null);
 		
 		pnlStrumenti = new PnlStrumenti(model.getStrumenti());
-		pnlStrumenti.setBounds(10, 22, 538, 38);
+		pnlStrumenti.setBounds(236, 94, 538, 38);
 		frame.getContentPane().add(pnlStrumenti);
 		
 		btnStartGame = new JButton("Start Game");
@@ -264,21 +267,22 @@ public class ClientView {
 		
 		btnStartGame.setFont(new Font("Tempus Sans ITC", Font.BOLD | Font.ITALIC, 14));
 		btnStartGame.setBackground(new Color(153, 255, 153));
-		btnStartGame.setBounds(921, 612, 118, 60);
+		btnStartGame.setBounds(921, 671, 118, 60);
 		frame.getContentPane().add(btnStartGame);
 		
 		pnlWords = new PnlWords();
-		pnlWords.setBounds(120, 627, 428, 45);
+		pnlWords.setBounds(236, 686, 538, 45);
 		frame.getContentPane().add(pnlWords);
 		
 		txtScoreBoard = new JTextPane();
 		txtScoreBoard.setEditable(false);
 		txtScoreBoard.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		txtScoreBoard.setBounds(558, 257, 211, 301);
+		txtScoreBoard.setBounds(10, 167, 185, 301);
 		frame.getContentPane().add(txtScoreBoard);
 		
 		pnlDatiPartita = new PnlDatiPartita();
-		pnlDatiPartita.setBounds(558, 11, 211, 235);
+		pnlDatiPartita.getTxtGuessWord().setLocation(364, 21);
+		pnlDatiPartita.setBounds(10, 11, 754, 82);
 		frame.getContentPane().add(pnlDatiPartita);
 		
 		frame.addWindowListener(new WindowListener() {
@@ -338,8 +342,8 @@ public class ClientView {
 	}
 	private JPanel addPnlChat() {
 		pnlChat = new PnlChat();
-		pnlChat.getTxtChat().setBounds(35, 26, 424, 668);
-		pnlChat.setBounds(781, 11, 258, 590);
+		pnlChat.getTxtChat().setBounds(10, 11, 424, 668);
+		pnlChat.setBounds(784, 11, 258, 590);
 		return pnlChat;
 	}
 	
@@ -412,12 +416,12 @@ public class ClientView {
 		
 		if(paintArea.isPainter()) {
 			pnlStrumenti.setVisible(true);
-			pnlDatiPartita.getTxtPainter().setText("Sei il painter");
-			pnlDatiPartita.getTxtPainter().setBackground(Color.GREEN);
+//			pnlDatiPartita.getTxtPainter().setText("Sei il painter");
+//			pnlDatiPartita.getTxtPainter().setBackground(Color.GREEN);
 		} else {
 			pnlStrumenti.setVisible(false);
-			pnlDatiPartita.getTxtPainter().setText("Non sei il painter");
-			pnlDatiPartita.getTxtPainter().setBackground(Color.RED);
+//			pnlDatiPartita.getTxtPainter().setText("Non sei il painter");
+//			pnlDatiPartita.getTxtPainter().setBackground(Color.RED);
 		}
 		
 	}
@@ -496,7 +500,8 @@ public class ClientView {
 	protected void resetClientList() {
 		txtClientList.setText("");
 	}
-	protected void setScoreBoard(String name, String score, boolean isPainter) {
+	
+	protected void setScoreBoard(String name, String score, boolean isPainter, String position) {
 		Color c;
 		if(isPainter)
 			c = Color.RED;
@@ -506,7 +511,8 @@ public class ClientView {
 		if(model.getNickname().equals(name))
 			name += " (You)";
 		
-		appendToPane(txtScoreBoard, name + ":" + score + "\n", c);
+//		appendToPane(txtScoreBoard, "#" + position + " " + name + ":" + score + "\n", c);
+		appendToPane(txtScoreBoard, String.format(TXT_ADD_PLAYER, position, name, score), c);
 	}
 	
 	protected void setTxtChat(String msg, Color c) {
@@ -537,7 +543,7 @@ public class ClientView {
         tp.setEditable(false);
     }
 
-	protected void popupScoreboard(String name, String score) {
-		scoreboardView.addPlayer(name, score);
+	protected void popupScoreboard(String name, String score, String position) {
+		scoreboardView.addPlayer(TXT_ADD_PLAYER, name, score, position);
 	}
 }

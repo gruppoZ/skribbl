@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 import javax.swing.event.ChangeEvent;
 
 import it.unibs.pajc.core.BaseModel;
+import it.unibs.pajc.core.ProcessUtils;
 import it.unibs.pajc.server.ProcessMessage;
 import it.unibs.pajc.server.Protocol;
 import it.unibs.pajc.whiteboard.WhiteBoard;
@@ -64,7 +65,7 @@ public class Protocol extends BaseModel implements Runnable{
 		
 		if(os != null) {
 			try {
-				sendMsgToAll(ProcessMessage.playerLeft(clientName));
+				sendMsgToAll(ProcessUtils.playerLeft(clientName));
 				if(hasMatchStarted())
 					match.removePlayer(this);
 				os.close();
@@ -167,12 +168,12 @@ public class Protocol extends BaseModel implements Runnable{
 			}	
 			
 			this.welcome();
-			sendMsgToAll(ProcessMessage.playerJoined(this.clientName));
+			sendMsgToAll(ProcessUtils.playerJoined(this.clientName));
 			
 			this.sendClientList();
 			
 			if(hasMatchStarted()) {
-				this.sendMsg(ProcessMessage.command(ProcessMessage.MATCH_ALREADY_ON));
+				this.sendMsg(ProcessUtils.command(ProcessUtils.MATCH_ALREADY_ON));
 				match.addPlayer(this);
 				
 				ArrayList<WhiteBoardLine> lines = whiteBoard.getLines();
@@ -196,7 +197,7 @@ public class Protocol extends BaseModel implements Runnable{
 	private void sendClientList() {
 		//ogni volta che un client entra invio a tutti la client list
 		StringBuffer list = new StringBuffer();
-		list.append(ProcessMessage.CLIENT_LIST_KEY);
+		list.append(ProcessUtils.CLIENT_LIST_KEY);
 		clientList.forEach((client) -> {
 			list.append(client.getClientName() + "/");
 		});
@@ -264,7 +265,7 @@ public class Protocol extends BaseModel implements Runnable{
 	}
 	
 	private void welcome() {
-		sendMsg(this, ProcessMessage.welcome(clientName, clientList.size() <= 1));
+		sendMsg(this, ProcessUtils.welcome(clientName, clientList.size() <= 1));
 	}
 	
 	
@@ -284,7 +285,7 @@ public class Protocol extends BaseModel implements Runnable{
 //	}
 	
 	public void clearAll() {
-		sendMsgToAll(ProcessMessage.command(ProcessMessage.DELETE_ALL));
+		sendMsgToAll(ProcessUtils.command(ProcessUtils.DELETE_ALL));
 		whiteBoard.clearAll();
 	}
 	
@@ -316,9 +317,9 @@ public class Protocol extends BaseModel implements Runnable{
 			
 			
 			
-			sendMsgToAll(ProcessMessage.command(ProcessMessage.MATCH_STARTED));
+			sendMsgToAll(ProcessUtils.command(ProcessUtils.MATCH_STARTED));
 		} else {
-			sendMsgToAll(ProcessMessage.command(ProcessMessage.MATCH_CANCELLED));
+			sendMsgToAll(ProcessUtils.command(ProcessUtils.MATCH_CANCELLED));
 		}
 		
 	}

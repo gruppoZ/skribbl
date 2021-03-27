@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 
@@ -18,6 +19,8 @@ import javax.swing.event.ChangeEvent;
 
 import it.unibs.pajc.client.ProcessScoreBoard;
 import it.unibs.pajc.core.BaseModel;
+import it.unibs.pajc.core.ProcessUtils;
+import it.unibs.pajc.whiteboard.WhiteBoardLine;
 
 public class Match extends BaseModel implements Runnable {
 
@@ -26,7 +29,7 @@ public class Match extends BaseModel implements Runnable {
 
 	private static ArrayList<String> wordsFromFile;
 	private Random random;
-	private ArrayList<Player> playerList;
+	private List<Player> playerList;
 	private int seconds;
 	private Timer timer;
 	private static final int DELAY = 1000; //millisecondi
@@ -41,7 +44,7 @@ public class Match extends BaseModel implements Runnable {
 	private int currentRound;
 	private String selectedWord;
 	private boolean turnEnded;
-	private ArrayList<Player> copyList;
+	private List<Player> copyList;
 	
 	private Protocol painter;
 	private Player playerPainter;
@@ -55,7 +58,8 @@ public class Match extends BaseModel implements Runnable {
 	 */
 	public Match(ArrayList<Protocol> clientList) {
 		this.clientList = clientList;
-		this.playerList = new ArrayList<Player>();
+		this.playerList = Collections.synchronizedList(new ArrayList<Player>());
+//		this.playerList = new ArrayList<Player>();
 		this.selectedWord = null;
 		this.turnEnded = false;
 		this.random = new Random();
@@ -77,9 +81,9 @@ public class Match extends BaseModel implements Runnable {
 		
 		if(!clientList.isEmpty()) {
 			StringBuffer sb = new StringBuffer();
-			sb.append(generateScoreBoard(ProcessMessage.FINAL_SCOREBOARD_KEY));
+			sb.append(generateScoreBoard(ProcessUtils.FINAL_SCOREBOARD_KEY));
 			Protocol.sendMsgToAll(sb.toString());
-			Protocol.sendMsgToAll(ProcessMessage.command(ProcessMessage.MATCH_FINISHED));
+			Protocol.sendMsgToAll(ProcessUtils.command(ProcessUtils.MATCH_FINISHED));
 		}
 		isRunning = false;
 	}
@@ -123,7 +127,8 @@ public class Match extends BaseModel implements Runnable {
 	
 	private void startRound() {	
 		//creazione fake lista
-		copyList = (ArrayList<Player>) playerList.clone();
+		copyList = clonePlayerList();
+//		copyList = (ArrayList<Player>) playerList.clone();
 		
 		timer = new Timer(DELAY, e -> {
 			
@@ -136,7 +141,7 @@ public class Match extends BaseModel implements Runnable {
 		
 		while(!copyList.isEmpty() && clientList.size() > 1) {
 			selectPainter();
-			Protocol.sendMsgToAll(ProcessMessage.sendRound(currentRound, ROUNDS));
+			Protocol.sendMsgToAll(ProcessUtils.sendRound(currentRound, ROUNDS));
 			
 			do {
 				selectedWord = getSelectedWord();
@@ -146,26 +151,26 @@ public class Match extends BaseModel implements Runnable {
 				break;
 			}
 			
-			painter.sendMsg(ProcessMessage.command(ProcessMessage.HIDE_WORDS));
-			Protocol.sendMsgToAll(ProcessMessage.playerWaiting(painter.getClientName(), ProcessMessage.WORD_CHOOSEN));
+			painter.sendMsg(ProcessUtils.command(ProcessUtils.HIDE_WORDS));
+			Protocol.sendMsgToAll(ProcessUtils.playerWaiting(painter.getClientName(), ProcessUtils.WORD_CHOOSEN));
 			
-			painter.sendMsg(ProcessMessage.command(ProcessMessage.CHANGE_PAINTER));
-			painter.sendMsg(ProcessMessage.sendSelectedWord(selectedWord));
+			painter.sendMsg(ProcessUtils.command(ProcessUtils.CHANGE_PAINTER));
+			painter.sendMsg(ProcessUtils.sendSelectedWord(selectedWord));
 			//start turn
 			max_hint = UtilsMatch.calculateMaxHint(selectedWord);
-			Protocol.sendMsgToAll(ProcessMessage.HINT_KEY + String.valueOf(UtilsMatch.getInitWordForHint(selectedWord)));
+			Protocol.sendMsgToAll(ProcessUtils.HINT_KEY + String.valueOf(UtilsMatch.getInitWordForHint(selectedWord)));
 			
 			Runnable task = () -> {
 				String result = getHint(selectedWord);
 				if(result != null)
-					Protocol.sendMsgToAll(ProcessMessage.sendHint(result));
+					Protocol.sendMsgToAll(ProcessUtils.sendHint(result));
 			};
 			ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 			
 			executor.scheduleAtFixedRate(task, DEFAULT_SECONDS/4, DEFAULT_SECONDS/4, TimeUnit.SECONDS);
 			this.startTimer();		
 			
-			Protocol.sendMsgToAll(ProcessMessage.START_TIMER_KEY + seconds);
+			Protocol.sendMsgToAll(ProcessUtils.START_TIMER_KEY + seconds);
 			
 			//timer
 			//aspetta che il timer finisca e "freeza" il turno
@@ -181,11 +186,18 @@ public class Match extends BaseModel implements Runnable {
 			
 			if(!timer.isRunning()) {
 				executor.shutdown();
-				Protocol.sendMsgToAll(ProcessMessage.notifySelectedWord(selectedWord));
+				Protocol.sendMsgToAll(ProcessUtils.notifySelectedWord(selectedWord));
 				resetTurn();
 			}
 			
 		}
+	}
+	
+	/**
+	 * permette di clonare la lista synchronized
+	 */
+	private synchronized List<Player> clonePlayerList(){
+	    return new ArrayList<Player>(playerList);        
 	}
 
 	/**
@@ -227,9 +239,9 @@ public class Match extends BaseModel implements Runnable {
 		if(playerPainter != null) {
 			painter = playerPainter.getProtocol();
 			playerPainter.setPainter(true);
-			Protocol.sendMsgToAll(generateScoreBoard(ProcessMessage.SCOREBOARD_KEY));
+			Protocol.sendMsgToAll(generateScoreBoard(ProcessUtils.SCOREBOARD_KEY));
 			
-			Protocol.sendMsgToAll(ProcessMessage.playerWaiting(painter.getClientName(), ProcessMessage.WAIT_WORD));
+			Protocol.sendMsgToAll(ProcessUtils.playerWaiting(painter.getClientName(), ProcessUtils.WAIT_WORD));
 			painter.sendMsg(words);
 		}
 	}
@@ -270,9 +282,9 @@ public class Match extends BaseModel implements Runnable {
 	private void resetTurn() {
 		tmp_wordHint = null;
 		tmp_countHint = 0;
-		Protocol.sendMsgToAll(ProcessMessage.command(ProcessMessage.STOP_TIMER));
+		Protocol.sendMsgToAll(ProcessUtils.command(ProcessUtils.STOP_TIMER));
 		painter.clearAll();
-		painter.sendMsg(ProcessMessage.command(ProcessMessage.CHANGE_PAINTER)); //TODO: cambiare in changepainterstatus
+		painter.sendMsg(ProcessUtils.command(ProcessUtils.CHANGE_PAINTER)); //TODO: cambiare in changepainterstatus
 		playerPainter.setPainter(false);
 		//facendo il remove dalla copyList questo client non pu� pi� diventare un painter
 		copyList.remove(playerPainter);
@@ -295,19 +307,19 @@ public class Match extends BaseModel implements Runnable {
 	}
 	
 	
-	private String generateScoreBoard(String scoreBoardType) {
+	private synchronized String generateScoreBoard(String scoreBoardType) {
 		sortScoreBoard(playerList);
 		
 		StringBuffer sb = new StringBuffer();
 		sb.append(scoreBoardType);
 		playerList.forEach((player) -> {
-			sb.append(ProcessMessage.sendScoreBoard(player.getName(), player.getScore(), player.isPainter()));
+			sb.append(ProcessUtils.sendScoreBoard(player.getName(), player.getScore(), player.isPainter()));
 		});
 		//@nome:punteggio/nome2:punteggio2/
 		return sb.toString();
 	}
 	
-	private void sortScoreBoard(ArrayList<Player> unsortedScoreBoard) {
+	private void sortScoreBoard(List<Player> unsortedScoreBoard) {
 		Collections.sort(unsortedScoreBoard, new ScoreComparator());
 		Collections.reverse(unsortedScoreBoard);
 	}
@@ -341,8 +353,8 @@ public class Match extends BaseModel implements Runnable {
 					else
 						playerPainter.updateScore(COEFF_PAINTER_MIN);
 					
-					Protocol.sendMsgToAll(generateScoreBoard(ProcessMessage.SCOREBOARD_KEY));
-					Protocol.sendMsgToAll(ProcessMessage.playerGuessed(protocol.getClientName()));
+					Protocol.sendMsgToAll(generateScoreBoard(ProcessUtils.SCOREBOARD_KEY));
+					Protocol.sendMsgToAll(ProcessUtils.playerGuessed(protocol.getClientName()));
 				} else {
 //					Protocol.sendMsgToAll(word);
 					protocol.sendMsgToAll(protocol, word);
@@ -378,15 +390,15 @@ public class Match extends BaseModel implements Runnable {
 			copyList.remove(player);
 			if(player.equals(painter) && !copyList.isEmpty())
 				selectPainter(); //TODO: errore, il client che rimane solo si blocco
-			Protocol.sendMsgToAll(generateScoreBoard(ProcessMessage.SCOREBOARD_KEY));
+			Protocol.sendMsgToAll(generateScoreBoard(ProcessUtils.SCOREBOARD_KEY));
 		}	
 	}
 	
 	public void addPlayer(Protocol client) {
 		updatePlayerList();
-		client.sendMsg(ProcessMessage.sendRound(currentRound, ROUNDS));
-		client.sendMsg(ProcessMessage.START_TIMER_KEY + seconds);
-		Protocol.sendMsgToAll(generateScoreBoard(ProcessMessage.SCOREBOARD_KEY));
+		client.sendMsg(ProcessUtils.sendRound(currentRound, ROUNDS));
+		client.sendMsg(ProcessUtils.START_TIMER_KEY + seconds);
+		Protocol.sendMsgToAll(generateScoreBoard(ProcessUtils.SCOREBOARD_KEY));
 	}
 	
 	/*
@@ -416,7 +428,7 @@ public class Match extends BaseModel implements Runnable {
 		}
 		
 		StringBuffer result = new StringBuffer();
-		result.append(ProcessMessage.WORDS_KEY + ProcessMessage.WORD);
+		result.append(ProcessUtils.WORDS_KEY + ProcessUtils.WORD);
 		for (int i : indexes) {
 			result.append(wordsFromFile.get(i).trim() + ";");
 		}

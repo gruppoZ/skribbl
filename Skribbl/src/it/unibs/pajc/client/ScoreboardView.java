@@ -40,8 +40,8 @@ public class ScoreboardView extends JFrame {
 		contentPane.add(txtClassifica);
 	}
 	
-	protected void addPlayer(String name, String score) {
-		txtClassifica.append(name + " " + score + "\n");
+	protected void addPlayer(String format, String name, String score, String position) {
+		txtClassifica.append(String.format(format, position, name, score));
 	}
 	
 //	protected void close() {

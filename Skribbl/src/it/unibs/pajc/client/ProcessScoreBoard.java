@@ -5,6 +5,8 @@ public class ProcessScoreBoard implements ProcessMessageClient{
 	@Override
 	public void process(ClientView view, String msg) {
 		
+		int position = 1;
+		
 		boolean finishedMatch = false;
 		if(msg.charAt(0) == '@') {
 			finishedMatch = true;
@@ -30,10 +32,11 @@ public class ProcessScoreBoard implements ProcessMessageClient{
 			score = s.substring(s.indexOf(":") + 1);
 			
 			if(finishedMatch) {
-				view.popupScoreboard(name, score);
+				view.popupScoreboard(name, score, String.valueOf(position));
 			} else {
-				view.setScoreBoard(name, score, isPainter);
+				view.setScoreBoard(name, score, isPainter, String.valueOf(position));
 			}
+			position++;
 		}
 		
 //		if(finishedMatch)

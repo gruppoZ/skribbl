@@ -27,6 +27,7 @@ import javax.swing.event.ChangeEvent;
 
 import it.unibs.pajc.client.panel.PnlBase;
 import it.unibs.pajc.core.BaseModel;
+import it.unibs.pajc.core.ProcessUtils;
 import it.unibs.pajc.server.ProcessCommand;
 import it.unibs.pajc.server.ProcessMessage;
 import it.unibs.pajc.whiteboard.WhiteBoard;
@@ -36,6 +37,7 @@ public class ClientModel extends PnlBase{
 	
 	protected static final String LOGO = "src/img/logo.gif";
 	protected static final String BACKGROUND_GIF = "src/img/logo5.gif";
+	public static final String CLOCK_GIF = "src/img/clock.gif";
 	public static final String ICON_SEND = "src/img/right-arrow-20.png";
 	
 	private static String[] colori = {
@@ -57,15 +59,15 @@ public class ClientModel extends PnlBase{
 	
 	static {
 		commandMap = new HashMap<String, ProcessMessageClient>();
-		commandMap.put(ProcessMessage.COMMAND_KEY, new ProcessCommandClient());
-		commandMap.put(ProcessMessage.ROUND_KEY, new ProcessRound());
-		commandMap.put(ProcessMessage.WORDS_KEY, new ProcessWords());
-		commandMap.put(ProcessMessage.SCOREBOARD_KEY, new ProcessScoreBoard());
-		commandMap.put(ProcessMessage.MSGTYPE_KEY, new ProcessMsg());
-		commandMap.put(ProcessMessage.CLIENT_LIST_KEY, new ProcessClientList());
-		commandMap.put(ProcessMessage.HINT_KEY, new ProcessHint());
-		commandMap.put(ProcessMessage.START_TIMER_KEY, new ProcessTimer());
-		commandMap.put(ProcessMessage.SELECTED_WORD_KEY, new ProcessSelectedWord());
+		commandMap.put(ProcessUtils.COMMAND_KEY, new ProcessCommandClient());
+		commandMap.put(ProcessUtils.ROUND_KEY, new ProcessRound());
+		commandMap.put(ProcessUtils.WORDS_KEY, new ProcessWords());
+		commandMap.put(ProcessUtils.SCOREBOARD_KEY, new ProcessScoreBoard());
+		commandMap.put(ProcessUtils.MSGTYPE_KEY, new ProcessMsg());
+		commandMap.put(ProcessUtils.CLIENT_LIST_KEY, new ProcessClientList());
+		commandMap.put(ProcessUtils.HINT_KEY, new ProcessHint());
+		commandMap.put(ProcessUtils.START_TIMER_KEY, new ProcessTimer());
+		commandMap.put(ProcessUtils.SELECTED_WORD_KEY, new ProcessSelectedWord());
 //		commandMap.put("/", new ProcessRound());
 //		commandMap.put("?", new ProcessWords());
 //		commandMap.put("@", new ProcessScoreBoard());

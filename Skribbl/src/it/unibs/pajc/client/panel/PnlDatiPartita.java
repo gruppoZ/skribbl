@@ -5,6 +5,8 @@ import javax.swing.*;
 import java.awt.event.*;
 import javax.swing.event.*;
 
+import it.unibs.pajc.client.ClientModel;
+
 public class PnlDatiPartita extends PnlBase {
 	
 	private JTextField txtRound;
@@ -29,36 +31,41 @@ public class PnlDatiPartita extends PnlBase {
 		txtRound.setHorizontalAlignment(SwingConstants.CENTER);
 		txtRound.setFont(new Font("Stencil", Font.ITALIC, 12));
 		txtRound.setBackground(Color.WHITE);
-		txtRound.setBounds(51, 140, 107, 31);
+		txtRound.setBounds(113, 26, 107, 31);
 		txtRound.setEditable(false);
 		add(txtRound);
 		
-		txtPainter = new JTextField();
-		txtPainter.setBackground(Color.WHITE);
-        txtPainter.setHorizontalAlignment(SwingConstants.CENTER);
-        txtPainter.setFont(new Font("Stencil", Font.ITALIC, 12));
-		txtPainter.setBounds(10, 182, 187, 31);
-		txtPainter.setEditable(false);
-		add(txtPainter);
+//		txtPainter = new JTextField();
+//		txtPainter.setBackground(Color.WHITE);
+//        txtPainter.setHorizontalAlignment(SwingConstants.CENTER);
+//        txtPainter.setFont(new Font("Stencil", Font.ITALIC, 12));
+//		txtPainter.setBounds(244, 26, 187, 31);
+//		txtPainter.setEditable(false);
+//		add(txtPainter);
 		
 		txtGuessWord = new JTextField();
 		txtGuessWord.setText(DEFAULT_GUESS_WORD);
 		txtGuessWord.setHorizontalAlignment(SwingConstants.CENTER);
 		txtGuessWord.setFont(new Font("Stencil", Font.ITALIC, 12));
 		txtGuessWord.setBackground(Color.WHITE);
-		txtGuessWord.setBounds(10, 11, 187, 41);
+		txtGuessWord.setBounds(506, 21, 187, 41);
 		txtGuessWord.setEditable(false);
 		add(txtGuessWord);
 		
 
 		lblTimer = new JLabel();
-		lblTimer.setText("Timer\r\n");
 		lblTimer.setHorizontalAlignment(SwingConstants.CENTER);
 		lblTimer.setFont(new Font("Arial Black", Font.ITALIC, 12));
 		lblTimer.setBackground(Color.WHITE);
 		lblTimer.setOpaque(true);
-		lblTimer.setBounds(51, 63, 107, 56);
+		lblTimer.setBounds(40, 31, 25, 18);
 		add(lblTimer);
+		
+		JLabel lblClock = new JLabel("");
+		lblClock.setBackground(Color.WHITE);
+		lblClock.setIcon(new ImageIcon(ClientModel.CLOCK_GIF));
+		lblClock.setBounds(21, 0, 82, 76);
+		add(lblClock);
 		
 		initTimer();
 	}
