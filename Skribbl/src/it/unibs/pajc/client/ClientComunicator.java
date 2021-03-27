@@ -5,7 +5,7 @@ import java.net.*;
 
 import it.unibs.pajc.client.panel.PnlBase;
 
-public class ClientComunicator extends PnlBase{
+public class ClientComunicator extends PnlBase {
 	
 	private String serverName; 
 	private int port;

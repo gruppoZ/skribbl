@@ -31,7 +31,7 @@ public class ProcessUtils {
 	
 	public static final String WAIT_WORD = "e' il disegnatore!\nSta ancora scegliendo la parola...";
 	public static final String WORD_CHOOSEN = "ha scelto, si gioca!";
-	static final String CLIENT_GUESSED = "%s%s %s HA INDOVINATO LA PAROLA";
+	static final String CLIENT_GUESSED = "%s%s%s HA INDOVINATO LA PAROLA";
 //	static final String CLIENT_WAITING = "%s%s %s";
 	static final String CLIENT_JOINED = "e' entrato in partita";
 	static final String CLIENT_LEFT = "%s%s%s ha abbandonato la convesazione";

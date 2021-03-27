@@ -4,7 +4,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 
-public class BaseModel{
+public class BaseModel {
 
 	protected EventListenerList listenerList = new EventListenerList();
 	
