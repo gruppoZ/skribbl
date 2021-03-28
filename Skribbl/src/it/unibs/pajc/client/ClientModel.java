@@ -35,6 +35,16 @@ import it.unibs.pajc.whiteboard.WhiteBoardLine;
 
 public class ClientModel extends BaseModel{
 	
+	protected static final String WRITER = "WRITER";
+	protected static final String LISTENER = "LISTENER";
+	
+	protected static final String ERR_CLOSE_SOCKET = "Errore chiusura socket - comunocator";
+	protected static final String ERR_SEND_MSG = "Errore invio Messaggio";
+	protected static final String ERR_LISTENER = "Errore Listener";
+	protected static final String ERR_COLOR_BY_NAME = "Errore getColorByName";
+	
+	private static final String FORMAT_DATE = "yyyy-MM-dd HH-mm-ss";
+	
 	protected static final String LOGO = "src/img/logo.gif";
 	protected static final String BACKGROUND_GIF = "src/img/logo5.gif";
 	public static final String CLOCK_GIF = "src/img/clock.gif";
@@ -91,35 +101,20 @@ public class ClientModel extends BaseModel{
 	}
 	
 	public void sendMsg(Object msg) {
-//		out.println(msg);
-		try {
-			if(msg.getClass().equals(String.class)) {
-				if(String.valueOf(msg).strip().length() > 0) {
-					comunicator.sendMsg(msg);
-				}
-			} else
+		if(msg.getClass().equals(String.class)) {
+			if(String.valueOf(msg).strip().length() > 0) {
 				comunicator.sendMsg(msg);
-		}catch(Exception e) {
-			e.printStackTrace();
-		}
+			}
+		} else
+			comunicator.sendMsg(msg);
 	}
 	
 	public Object update() {
-
-		return comunicator.update();
-		
+		return comunicator.update();	
 	}
 	
-//	public WhiteBoardLine updateWhiteBoard() {
-//		return obj.getClass().equals(WhiteBoardLine.class) ? (WhiteBoardLine)obj : null;
-//	}
-	
 	public void close() {
-		try {
-			comunicator.close();
-		} catch (IOException e) {
-			System.out.println("Close del client model");
-		}
+		comunicator.close();
 	}
 	
 	public ProcessMessageClient getProcess(String messageType) {

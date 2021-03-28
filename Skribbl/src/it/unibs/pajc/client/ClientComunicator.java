@@ -1,4 +1,5 @@
 package it.unibs.pajc.client;
+
 import java.awt.event.ActionEvent;
 import java.io.*;
 import java.net.*;
@@ -24,12 +25,11 @@ public class ClientComunicator extends BaseModel {
 		this.port = 1234;
 		isAvailable = false;
 	}
+	
 	/**
 	 * Fa' partire il Thread del Writer.
 	 * Il Writer si occuper� di far partire il thread del Listener
-	 */
-	
-	
+	 */	
 	public void start() {
 		writer = new Writer();
 		listener = new Listener();
@@ -49,21 +49,27 @@ public class ClientComunicator extends BaseModel {
 	}
 	
 	/**
-	 * Chiude lo Stream in uscita
-	 * @throws IOException
+	 * chiude la connessione socket
 	 */
-	public void close() throws IOException {
-		if(out != null)
+	public void close() {
+		try {
 			out.close();
+			in.close();
+		} catch (IOException e) {
+			System.err.println(ClientModel.ERR_CLOSE_SOCKET);
+		}
 	}
 	
 	/**
-	 * Invia un Oggetto al Server
-	 * @param msg
-	 * @throws IOException
+	 * 
+	 * @param msg inviato come generico oggetto al server
 	 */
-	public void sendMsg(Object msg) throws IOException {
-		out.writeObject(msg);
+	public void sendMsg(Object msg) {
+		try {
+			out.writeObject(msg);
+		} catch (IOException e) {
+			System.err.println(ClientModel.ERR_SEND_MSG);
+		}
 	}
 	
 	/**
@@ -86,21 +92,15 @@ public class ClientComunicator extends BaseModel {
 					
 					connect();
 					
-					
 					while((response = in.readObject()) != null) {
-	//					addActionListener(e-> {
-	//						e = new ActionEvent("Listener", e.getID(), "Listener");
-	//						fireActionListener(e);
-	//					});
-						fireActionListener(new ActionEvent("Listener", 2, "Listener"));
-						
+						fireActionListener(new ActionEvent(ClientModel.LISTENER, 2, ClientModel.LISTENER));
 					}
+					
 				} catch (IOException | ClassNotFoundException e) {
-					System.out.printf("Errore Listener: %s", e);
+					System.err.printf(ClientModel.ERR_LISTENER);
 					connect();
-				}
+				} 
 			} while(!isAvailable());
-
 		}
 		
 		private void connect() {
@@ -125,30 +125,20 @@ public class ClientComunicator extends BaseModel {
 		public void run() {
 			do {
 				try {
-						server = new Socket(serverName, port);
-						isAvailable = true;
-					
-//					addActionListener(e-> {
-//						e = new ActionEvent("Writer", e.getID(), "Writer");
-//						fireActionListener(e);
-//					});
-				
+					server = new Socket(serverName, port);
+					isAvailable = true;
+
 					out = new ObjectOutputStream(server.getOutputStream());
 					out.flush();
 					
-					fireActionListener(new ActionEvent("Writer", 5, "Writer"));
+					fireActionListener(new ActionEvent(ClientModel.WRITER, 5, ClientModel.WRITER));
 					
 				} catch (UnknownHostException e) {
-					// TODO Auto-generated catch block
-					//e.printStackTrace();
 					isAvailable = false;
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					//e.printStackTrace();
 					isAvailable = false;
 				}
 			} while(!isAvailable);
-			//TODO:chiuderemo out, in e socket con un metodo apposito
 			
 			//start di un thread per il listener
 			

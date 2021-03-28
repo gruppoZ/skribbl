@@ -51,7 +51,15 @@ import javax.swing.JList;
 import javax.swing.JScrollBar;
 
 public class ClientView {
-
+	
+	private static final String ATTEMPTING_CONNESSION = "Connessione al Server in corso...";
+	private static final String SUCCESS_CONNECIION = "Connessione al Server avvenuta...";
+	private static final String ASK_NAME = "What is your name?";
+	private static final String ALONE_MSG = "Sei da solo";
+	private static final String LEFT_GAME =  "Sei uscito";
+	private static final String YOU_CLIENT_LIST = " (You)";
+	private static final String STRING_EMPTY = "";
+	
 	String TXT_ADD_PLAYER = "#%s %s:%s\n";
 	
 	private JFrame frame;
@@ -62,8 +70,7 @@ public class ClientView {
 	//LOBBY
 	private JTextPane txtClientList;
 	private JButton btnStartGameLobby;
-	
-	//TODO: cambiare paintArea in pnlPaintArea
+
 	private PnlPaintArea paintArea;
 	private PnlStrumenti pnlStrumenti;
 	private PnlWords pnlWords;
@@ -104,19 +111,19 @@ public class ClientView {
 	 * Controller App Client
 	 */
 	public ClientView() {
-		lobby(); //TODO disabilitare bottoni finchè non avviene effetivamente la connessione
+		lobby(); //TODO disabilitare bottoni finchï¿½ non avviene effetivamente la connessione
 //		initialize();
-		txtStatusServer.setText("Connessione al Server in corso...");
+		txtStatusServer.setText(ATTEMPTING_CONNESSION);
 		
 		model = new ClientModel();
 		model.addActionListener(e -> this.checkEvent(e));
 	}
 
 	private void checkEvent(ActionEvent e) {
-		if(e.getActionCommand().equalsIgnoreCase("Listener"))
+		if(e.getActionCommand().equalsIgnoreCase(ClientModel.LISTENER))
 			this.update();
-		if(e.getActionCommand().equalsIgnoreCase("Writer")) {
-			txtStatusServer.setText("Connessione al Server avvenuta...");
+		if(e.getActionCommand().equalsIgnoreCase(ClientModel.WRITER)) {
+			txtStatusServer.setText(SUCCESS_CONNECIION);
 			btnStartGameLobby.setEnabled(true);
 			pnlChat.getBtnSend().setEnabled(true);
 			pnlChat.getTxtMsg().setEditable(true);
@@ -178,7 +185,7 @@ public class ClientView {
 		frameLobby.getContentPane().add(txtStatusServer);
 		txtStatusServer.setColumns(10);
 		
-		JLabel lblBackground = new JLabel("");
+		JLabel lblBackground = new JLabel(STRING_EMPTY);
 		lblBackground.setBackground(Color.WHITE);
 		lblBackground.setIcon(new ImageIcon(ClientModel.BACKGROUND_GIF));
 		lblBackground.setBounds(63, 230, 564, 375);
@@ -225,7 +232,7 @@ public class ClientView {
 			}
 		});
 
-		//Verranno riattivati quando avverrà la connessione al Server
+		//Verranno riattivati quando avverrï¿½ la connessione al Server
 		btnStartGameLobby.setEnabled(false);
 		pnlChat.getBtnSend().setEnabled(false);
 		pnlChat.getTxtMsg().setEditable(false);	
@@ -289,42 +296,22 @@ public class ClientView {
 		frame.addWindowListener(new WindowListener() {
 			
 			@Override
-			public void windowOpened(WindowEvent e) {
-			}
-			
-			@Override
-			public void windowIconified(WindowEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void windowDeiconified(WindowEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void windowDeactivated(WindowEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
 			public void windowClosing(WindowEvent e) {
-				JOptionPane.showMessageDialog(null, "Sei uscito");
+				JOptionPane.showMessageDialog(null, LEFT_GAME);
 			}
 			
 			@Override
-			public void windowClosed(WindowEvent e) {
-				
-			}
-			
+			public void windowOpened(WindowEvent e){}
 			@Override
-			public void windowActivated(WindowEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
+			public void windowIconified(WindowEvent e){}			
+			@Override
+			public void windowDeiconified(WindowEvent e){}
+			@Override
+			public void windowDeactivated(WindowEvent e){}		
+			@Override
+			public void windowClosed(WindowEvent e) {}
+			@Override
+			public void windowActivated(WindowEvent e) {}
 		});
 		
 		pnlDatiPartita.addChangeListener(e -> this.stopTimer());
@@ -355,7 +342,7 @@ public class ClientView {
 	
 	private void send() {
 		model.sendMsg(pnlChat.getTxtMsg().getText());
-		pnlChat.getTxtMsg().setText("");
+		pnlChat.getTxtMsg().setText(STRING_EMPTY);
 	}
 	
 	private void close() {
@@ -373,13 +360,13 @@ public class ClientView {
 		regexNickname.append("].*");
 		
 		do {
-			nickname = JOptionPane.showInputDialog(frame,"What is your name?", null);
+			nickname = JOptionPane.showInputDialog(frame, ASK_NAME, null);
 			if(nickname == null) {
-				JOptionPane.showMessageDialog(null, "Sei uscito");
+				JOptionPane.showMessageDialog(null, LEFT_GAME);
 				System.exit(0);	
 			}
 			
-		} while(nickname.matches(regexNickname.toString()) || nickname.trim().equals(""));
+		} while(nickname.matches(regexNickname.toString()) || nickname.trim().equals(STRING_EMPTY));
 		
 	}
 	
@@ -415,16 +402,10 @@ public class ClientView {
 	public void startTimer(String seconds) {
 		pnlDatiPartita.startTimer(Integer.valueOf(seconds));
 		
-		if(paintArea.isPainter()) {
+		if(paintArea.isPainter()) 
 			pnlStrumenti.setVisible(true);
-//			pnlDatiPartita.getTxtPainter().setText("Sei il painter");
-//			pnlDatiPartita.getTxtPainter().setBackground(Color.GREEN);
-		} else {
-			pnlStrumenti.setVisible(false);
-//			pnlDatiPartita.getTxtPainter().setText("Non sei il painter");
-//			pnlDatiPartita.getTxtPainter().setBackground(Color.RED);
-		}
-		
+		 else 
+			pnlStrumenti.setVisible(false);	
 	}
 	
 	public void stopTimer() {
@@ -467,13 +448,13 @@ public class ClientView {
 	}
 	
 	protected void matchCancelled() {
-		JOptionPane.showMessageDialog(null, "Sei da solo");
+		JOptionPane.showMessageDialog(null, ALONE_MSG);
 	}
 	
 	//TODO:quando finisce lo fai tornare nella lobby
 	protected void matchFinished() {
 		this.setRound("0", "0");
-		pnlChat.getTxtChat().setText("");
+		pnlChat.getTxtChat().setText(STRING_EMPTY);
 		btnStartGame.setVisible(true);
 		pnlDatiPartita.stopTimer();
 	}
@@ -495,11 +476,11 @@ public class ClientView {
 	}
 	
 	protected void resetScoreBoard() {
-		txtScoreBoard.setText("");
+		txtScoreBoard.setText(STRING_EMPTY);
 	}
 	
 	protected void resetClientList() {
-		txtClientList.setText("");
+		txtClientList.setText(STRING_EMPTY);
 	}
 	
 	protected void setScoreBoard(String name, String score, boolean isPainter, String position) {
@@ -522,7 +503,7 @@ public class ClientView {
 	
 	protected void updateClientList(String name) {
 		if(model.getNickname().equals(name))
-			name += " (You)";
+			name += YOU_CLIENT_LIST;
 		appendToPane(txtClientList, name + "\n", Color.BLACK);
 	}
 	
