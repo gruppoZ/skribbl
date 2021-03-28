@@ -101,14 +101,14 @@ public class PnlDatiPartita extends PnlBase {
 	 */
 	public void stopTimer() {
 		seconds = 0;
-		lblTimer.setText(""+seconds);
+		lblTimer.setText("");
 		timer.stop();
 		txtGuessWord.setText(DEFAULT_GUESS_WORD);
 	}
 	
 	/**
 	 * Restituisce l'oggetto JTextField 
-	 * utilizzato per mostrare in che round si è durante il gioco
+	 * utilizzato per mostrare in che round si ï¿½ durante il gioco
 	 * RoundCorrente / RoundTotali
 	 * @return
 	 */

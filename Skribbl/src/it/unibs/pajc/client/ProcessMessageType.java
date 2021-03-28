@@ -2,7 +2,7 @@ package it.unibs.pajc.client;
 
 import java.awt.Color;
 
-public class ProcessMsg implements ProcessMessageClient{
+public class ProcessMessageType implements ProcessMessageClient{
 
 	@Override
 	public void process(ClientView view, String msg) {

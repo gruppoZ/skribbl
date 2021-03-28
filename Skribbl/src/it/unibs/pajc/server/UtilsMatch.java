@@ -5,6 +5,10 @@ import java.util.*;
 
 import it.unibs.pajc.core.ProcessUtils;
 
+/**
+ * Classe di supporto al Match
+ *
+ */
 public class UtilsMatch {
 
 	private final static String URI_FILE_WORD = "src/it/unibs/pajc/server/WORDS.dat";

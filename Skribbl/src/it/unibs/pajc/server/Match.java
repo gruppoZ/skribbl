@@ -1,40 +1,34 @@
 package it.unibs.pajc.server;
 
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-
-
 import javax.swing.Timer;
-
 import java.util.concurrent.*;
-
 import javax.swing.event.ChangeEvent;
-
-import it.unibs.pajc.client.ProcessScoreBoard;
 import it.unibs.pajc.core.BaseModel;
 import it.unibs.pajc.core.ProcessUtils;
-import it.unibs.pajc.whiteboard.WhiteBoardLine;
 
+/**
+ * Classe che rappresenta una Partita. Gestisce tutte le dinamiche di una partita come: scelta del Disegnatore, 
+ * assegnazione punti, rimozione Player dalla partita, ecc..
+ *
+ */
 public class Match extends BaseModel implements Runnable {
 	
-	private static ArrayList<String> wordsFromFile;
-	private Random random;
-	private List<Player> playerList;
-	private int seconds;
-	private Timer timer;
 	private static final int DELAY = 1000; //millisecondi
 	private static final int DEFAULT_SECONDS = 20; 
 	private static final int COEFF_GUESS = 5;
 	private static final int COEFF_PAINTER_MIN = 5;
 	private static final int COEFF_PAINTER_MAX = 15;
 	private static final int ROUNDS = 3;
+	
+	private static ArrayList<String> wordsFromFile;
+	private Random random;
+	private List<Player> playerList;
+	private int seconds;
+	private Timer timer;
 
 	private int playersWhoGuessed;
 	private ArrayList<Protocol> clientList;
@@ -50,13 +44,14 @@ public class Match extends BaseModel implements Runnable {
 	private String tmp_wordHint;
 	private int max_hint;
 	private int tmp_countHint;
+	
 	/**
+	 * Costruttore della classe Match. Richiede una clientList per poter creare la partita
 	 * @param clientList
 	 */
 	public Match(ArrayList<Protocol> clientList) {
 		this.clientList = clientList;
 		this.playerList = Collections.synchronizedList(new ArrayList<Player>());
-//		this.playerList = new ArrayList<Player>();
 		this.selectedWord = null;
 		this.turnEnded = false;
 		this.random = new Random();
@@ -75,7 +70,10 @@ public class Match extends BaseModel implements Runnable {
 		updatePlayerList();
 		
 		startMatch();
-		
+//		if(painter != null) {
+//			painter.clearAll();
+//			painter.sendMsg(ProcessUtils.command(ProcessUtils.CHANGE_PAINTER));
+//		}
 		if(!clientList.isEmpty()) {
 			StringBuffer sb = new StringBuffer();
 			sb.append(generateScoreBoard(ProcessUtils.FINAL_SCOREBOARD_KEY));
@@ -111,24 +109,20 @@ public class Match extends BaseModel implements Runnable {
 	}
 
 	/**
-	 * Se sono usciti tutti => controllo da server e finisce/reset MATCH
+	 * Se tutti i player sono usciti dalla partita => controllo da server e la partita viene interrotta
 	 */
 	private void startMatch() {
 		for (int i = 0; i < ROUNDS; i++) {
 			if(clientList.size() > 1) {
-				currentRound = i + 1; //i miei round saranno 1 - 2 - 3
+				currentRound = i + 1;
 				startRound();
 			}
 		}
 	}
 	
 	private void startRound() {	
-		//creazione fake lista
 		copyList = clonePlayerList();
-//		copyList = (ArrayList<Player>) playerList.clone();
-		
 		timer = new Timer(DELAY, e -> {
-			
 			if(seconds > 0)
 				seconds -= 1;
 
@@ -153,7 +147,8 @@ public class Match extends BaseModel implements Runnable {
 			
 			painter.sendMsg(ProcessUtils.command(ProcessUtils.CHANGE_PAINTER));
 			painter.sendMsg(ProcessUtils.sendSelectedWord(selectedWord));
-			//start turn
+			
+			//Start turn
 			max_hint = UtilsMatch.calculateMaxHint(selectedWord);
 			Protocol.sendMsgToAll(ProcessUtils.HINT_KEY + String.valueOf(UtilsMatch.getInitWordForHint(selectedWord)));
 			
@@ -170,7 +165,7 @@ public class Match extends BaseModel implements Runnable {
 			Protocol.sendMsgToAll(ProcessUtils.START_TIMER_KEY + seconds);
 			
 			//timer
-			//aspetta che il timer finisca e "freeza" il turno
+			//Aspetta che il timer finisca e "freeza" il turno
 			while(timer.isRunning()) {
 				if(clientList.size() <= 1) {
 					stopTimer();
@@ -191,21 +186,21 @@ public class Match extends BaseModel implements Runnable {
 	}
 	
 	/**
-	 * permette di clonare la lista synchronized
+	 * Permette di clonare la lista synchronized
 	 */
 	private synchronized List<Player> clonePlayerList(){
 	    return new ArrayList<Player>(playerList);        
 	}
 
 	/**
-	 * invia l'evento al match in ascolto nel protocol che permette di chiudere questo thread
+	 * Invia l'evento al match in ascolto nel protocol che permette di chiudere questo thread
 	 */
 	private void close() {
 		fireValuesChange(new ChangeEvent(this));
 	}
 	
 	/**
-	 * check se il client e' gia presente nella playerList se non lo e' lo aggiungo
+	 * Check se il client e' gia presente nella playerList. Se non lo e', esso viene aggiunto
 	 */
 	private void updatePlayerList() {
 		clientList.forEach(client -> {
@@ -225,7 +220,7 @@ public class Match extends BaseModel implements Runnable {
 	}
 	
 	/**
-	 * serve a inizializzare il painter del turno corrente
+	 * Inizializza il painter del turno corrente
 	 * @return TRUE se painter != null
 	 */
 	public void selectPainter() {
@@ -265,12 +260,8 @@ public class Match extends BaseModel implements Runnable {
 			tmp_countHint++;
 			tmp_wordHint = String.valueOf(result);
 			
-//			System.out.println("Parola: " + word);				
-//			System.out.println("Hint: " + tmp_wordHint);
-//			System.out.println("MAX - HINT: " + max_hint + " --> Current Count HINT: " + tmp_countHint);
 			return tmp_wordHint;
-		}
-		
+		}	
 	}
 	
 	/**
@@ -281,9 +272,9 @@ public class Match extends BaseModel implements Runnable {
 		tmp_countHint = 0;
 		Protocol.sendMsgToAll(ProcessUtils.command(ProcessUtils.STOP_TIMER));
 		painter.clearAll();
-		painter.sendMsg(ProcessUtils.command(ProcessUtils.CHANGE_PAINTER)); //TODO: cambiare in changepainterstatus
+		painter.sendMsg(ProcessUtils.command(ProcessUtils.CHANGE_PAINTER));
 		playerPainter.setPainter(false);
-		//facendo il remove dalla copyList questo client non puï¿½ piï¿½ diventare un painter
+		//Facendo il remove dalla copyList questo client non puo' piu' diventare un painter
 		copyList.remove(playerPainter);
 		selectedWord = null;
 		turnEnded = false;
@@ -312,7 +303,7 @@ public class Match extends BaseModel implements Runnable {
 		playerList.forEach((player) -> {
 			sb.append(ProcessUtils.sendScoreBoard(player.getName(), player.getScore(), player.isPainter()));
 		});
-		//@nome:punteggio/nome2:punteggio2/
+		//Esempio Stringa inviata:  @nome1:punteggio1/nome2:punteggio2/
 		return sb.toString();
 	}
 	
@@ -331,12 +322,9 @@ public class Match extends BaseModel implements Runnable {
 				}
 			}
 			
-			/**
-			 * guesser si fa qua
-			 * 
-			 * fine di ogni turno facciamo un metodo
-			 * contatore che viene incrementato qua
-			 * in base al contatore 
+			/*
+			 * Assegnazione punti una volta che una parola viene indovinata
+			 *
 			 */
 			if(guesser != null && !guesser.hasGuessed()) {
 				if(word.equalsIgnoreCase(selectedWord)) {
@@ -353,16 +341,14 @@ public class Match extends BaseModel implements Runnable {
 					Protocol.sendMsgToAll(generateScoreBoard(ProcessUtils.SCOREBOARD_KEY));
 					Protocol.sendMsgToAll(ProcessUtils.playerGuessed(protocol.getNickname()));
 				} else {
-//					Protocol.sendMsgToAll(word);
 					protocol.sendMsgToAll(protocol, word);
-					//TODO: al posto che usare questo sendMsgToAll modificare il msg da inviare
 				}
 			}
 			
-			/**
-			 * all'entrata del while si setta turnEnded a TURE
-			 * se tutti i player hanno indovinato la parola turnEnded = TRUE e esce dal while
-			 * se anche solo un player non ha indovinato turnEnded = FALSE e contnua il while
+			/*
+			 * All'entrata del while si setta turnEnded a TRUE
+			 * Se tutti i player hanno indovinato la parola turnEnded = TRUE e esce dal while
+			 * Se anche solo un player non ha indovinato turnEnded = FALSE e contnua il while
 			 */
 			turnEnded = true;
 			for (Player player : playerList) {
@@ -376,19 +362,16 @@ public class Match extends BaseModel implements Runnable {
 	
 	/**
 	 * Rimuove sia dalla playerList che dalla copyList il client inviato come parametro
-	 * Se player.equals(painter) è true vuol dire che è uscito il painter e se !copyList.isEmpty() => 
+	 * Se player.equals(painter) e' true vuol dire che e' uscito il painter e se !copyList.isEmpty() => 
 	 * seleziono un nuovo player
 	 * @param client
 	 */
-	public void removePlayer(Protocol client) {
-		if(clientList.size() <= 1)
-			isRunning = false;
-		
+	public void removePlayer(Protocol client) {	
 		Player player = getPlayerByClient(client);
 		if(player != null) {
 			playerList.remove(player);
 			copyList.remove(player);
-			if(player.equals(painter) && !copyList.isEmpty() && isRunning)
+			if(player.equals(painter) && !copyList.isEmpty())
 				selectPainter();
 			Protocol.sendMsgToAll(generateScoreBoard(ProcessUtils.SCOREBOARD_KEY));
 		}	
@@ -402,7 +385,7 @@ public class Match extends BaseModel implements Runnable {
 	}
 	
 	/*
-	 * quando fai il set della parola selezionata la rimuovi dalla lista delle parole per evitare che esca un altra
+	 * Quando fai il set della parola selezionata la rimuovi dalla lista delle parole per evitare che esca un altra
 	 * volta durante questa partita
 	 */
 	protected void setSelectedWord(String word) {

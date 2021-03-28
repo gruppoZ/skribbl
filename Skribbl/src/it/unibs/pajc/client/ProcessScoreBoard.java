@@ -1,5 +1,7 @@
 package it.unibs.pajc.client;
 
+import it.unibs.pajc.core.ProcessUtils;
+
 public class ProcessScoreBoard implements ProcessMessageClient{
 
 	@Override
@@ -13,7 +15,6 @@ public class ProcessScoreBoard implements ProcessMessageClient{
 			msg = msg.substring(msg.indexOf('@') + 1);
 			view.initScoreboardView();
 		}
-		//se @ togli e poi farai il view. diverso
 		
 		view.resetScoreBoard();
 		String[] scoreBoard = msg.split("/");
@@ -23,9 +24,9 @@ public class ProcessScoreBoard implements ProcessMessageClient{
 		
 		for (String s : scoreBoard) {
 			isPainter = false;
-			//^^^ se starta con sti tre � il painter e gli passo a setScoreBoear un boolean
+			
 			name = s.substring(0, s.indexOf(":"));
-			if(name.startsWith("^^^")) {
+			if(name.startsWith(ProcessUtils.PAINTER_SUFFIX)) {
 				isPainter = true;
 				name = name.substring(3);
 			}
@@ -38,9 +39,6 @@ public class ProcessScoreBoard implements ProcessMessageClient{
 			}
 			position++;
 		}
-		
-//		if(finishedMatch)
-//			view.displayScoreBoard();
 	}
 
 }

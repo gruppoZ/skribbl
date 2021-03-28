@@ -3,15 +3,8 @@ package it.unibs.pajc.client;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,17 +16,11 @@ import java.util.concurrent.Executors;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
-import javax.swing.event.ChangeEvent;
 
-import it.unibs.pajc.client.panel.PnlBase;
 import it.unibs.pajc.core.BaseModel;
 import it.unibs.pajc.core.ProcessUtils;
-import it.unibs.pajc.server.ProcessCommand;
-import it.unibs.pajc.server.ProcessMessage;
-import it.unibs.pajc.whiteboard.WhiteBoard;
-import it.unibs.pajc.whiteboard.WhiteBoardLine;
 
-public class ClientModel extends BaseModel{
+public class ClientModel extends BaseModel {
 	
 	protected static final String WRITER = "WRITER";
 	protected static final String LISTENER = "LISTENER";
@@ -65,6 +52,9 @@ public class ClientModel extends BaseModel{
 			RUBBER, TRASHCAN, DIMENSION1, DIMENSION2, DIMENSION3, SAVE
 	};
 	
+	/**
+	 * HashMap che associa a un messaggio di sistema (presente nella classe statica ProcessUtils) un'azione da intraprendere
+	 */
 	public static HashMap<String, ProcessMessageClient> commandMap;
 	
 	static {
@@ -73,7 +63,7 @@ public class ClientModel extends BaseModel{
 		commandMap.put(ProcessUtils.ROUND_KEY, new ProcessRound());
 		commandMap.put(ProcessUtils.WORDS_KEY, new ProcessWords());
 		commandMap.put(ProcessUtils.SCOREBOARD_KEY, new ProcessScoreBoard());
-		commandMap.put(ProcessUtils.MSGTYPE_KEY, new ProcessMsg());
+		commandMap.put(ProcessUtils.MSGTYPE_KEY, new ProcessMessageType());
 		commandMap.put(ProcessUtils.CLIENT_LIST_KEY, new ProcessClientList());
 		commandMap.put(ProcessUtils.HINT_KEY, new ProcessHint());
 		commandMap.put(ProcessUtils.START_TIMER_KEY, new ProcessTimer());
@@ -83,6 +73,9 @@ public class ClientModel extends BaseModel{
 	private String nickname;
 	private ClientComunicator comunicator;
 	
+	/**
+	 * Costruttore del ClientModel. Crea un'istanza di ClientComunicator che si occupera' della connessione al server
+	 */
 	public ClientModel() {
 		comunicator = new ClientComunicator();
 		comunicator.start();
@@ -100,6 +93,10 @@ public class ClientModel extends BaseModel{
 		this.nickname = nickname;
 	}
 	
+	/**
+	 * Metodo che passa al Comunicator un messaggio da inviare al server. Eventuali eccezioni sono gestite dal Comunicator
+	 * @param msg
+	 */
 	public void sendMsg(Object msg) {
 		if(msg.getClass().equals(String.class)) {
 			if(String.valueOf(msg).strip().length() > 0) {
@@ -124,8 +121,6 @@ public class ClientModel extends BaseModel{
 	public static Set<String> getKeySet() {
 		return commandMap.keySet();
 	}
-	
-	//gestione pnlStrumenti
 	
 	public static Color getColorByName(String colore) {
 	    try {
@@ -177,12 +172,13 @@ public class ClientModel extends BaseModel{
 		return found;
 	}
 	
-	public ArrayList getStrumenti() {
+	public ArrayList<Object> getStrumenti() {
 		ArrayList<Object> strumenti = new ArrayList<Object>();
 		
 		for (String colore : colori) {
 			strumenti.add(colore);
 		}	
+		
 		for (String icone : icone) {
 			strumenti.add(new ImageIcon(icone));
 		}	
@@ -204,7 +200,7 @@ public class ClientModel extends BaseModel{
 				g2d = bimage.createGraphics();
 				panel.print( g2d );			 
 				
-				SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");  
+				SimpleDateFormat formatter = new SimpleDateFormat(FORMAT_DATE);  
 			    Date date = new Date(); 
 			    String url = "src/paints/PAINT_" + formatter.format(date) + ".png";
 			    
@@ -212,12 +208,10 @@ public class ClientModel extends BaseModel{
 				
 				g2d.dispose();
 			} catch (IOException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			} 
 		});
 		
 		executor.shutdown();
 	}
-	
 }

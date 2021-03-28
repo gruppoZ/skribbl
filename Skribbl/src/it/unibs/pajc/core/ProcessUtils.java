@@ -1,7 +1,17 @@
 package it.unibs.pajc.core;
 
+/**
+ * Raccolta di stringhe e metodi static utili ai messaggi di sistema fra
+ * il server e il client
+ * 
+ * CLIENT ->  ?
+ * SERVER -> @
+ *
+ */
 public class ProcessUtils {
-	public static final String WORD = "word:";	//da modificare
+	
+	public static final String PAINTER_SUFFIX = "^^^";
+	public static final String WORD = "word:";
 	public static final String STOP_TIMER = "stoptimer";
 	public static final String CHANGE_PAINTER = "changepainter";
 	public static final String HIDE_WORDS = "hidewords";
@@ -13,6 +23,7 @@ public class ProcessUtils {
 	//KEY
 	public static final String COMMAND_KEY = "!command:";
 	
+	public static final String SERVER_WORD_KEY = "?word:";
 	public static final String SCOREBOARD_KEY = "@scoreboard:";
 	public static final String FINAL_SCOREBOARD_KEY = "@scoreboard:@";
 	public static final String WORDS_KEY = "@words:";
@@ -84,7 +95,7 @@ public class ProcessUtils {
 	
 	public static String sendScoreBoard(String name, int score, boolean isPainter) {
 		if(isPainter)
-			return "^^^" + String.format(SEND_SCOREBOARD, name, score);
+			return PAINTER_SUFFIX + String.format(SEND_SCOREBOARD, name, score);
 		else
 			return String.format(SEND_SCOREBOARD, name, score);
 	}

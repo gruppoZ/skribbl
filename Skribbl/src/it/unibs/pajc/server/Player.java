@@ -6,6 +6,9 @@ public class Player{
 	private boolean painter;
 	private boolean guessed;
 	/**
+	 * Classe che rappresenta un giocatore. Contiene attributi come il punteggio, il Protocol corrispondente, un boolean per 
+	 * individuare se si e' il disegnatore e metodi getter/setter relativi
+	 * 
 	 * @param client
 	 * @param score
 	 * @param painter
@@ -55,10 +58,5 @@ public class Player{
 
 	public boolean equals(Protocol protocol) {
 		return this.client.getNickname().equals(protocol.getNickname());
-	}
-	
-	
-	
-	
-	
+	}	
 }

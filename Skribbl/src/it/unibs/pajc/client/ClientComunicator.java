@@ -9,6 +9,9 @@ import it.unibs.pajc.core.BaseModel;
 
 public class ClientComunicator extends BaseModel {
 	
+	private static final String SERVER_NAME = "localhost";
+	private static final int SERVER_PORT = 1234;
+	
 	private String serverName; 
 	private int port;
 	private ObjectOutputStream out;
@@ -21,14 +24,14 @@ public class ClientComunicator extends BaseModel {
 	
 	
 	public ClientComunicator() {
-		this.serverName = "localhost";
-		this.port = 1234;
+		this.serverName = SERVER_NAME;
+		this.port = SERVER_PORT;
 		isAvailable = false;
 	}
 	
 	/**
 	 * Fa' partire il Thread del Writer.
-	 * Il Writer si occuper� di far partire il thread del Listener
+	 * Il Writer si occupera' di far partire il thread del Listener
 	 */	
 	public void start() {
 		writer = new Writer();
@@ -49,7 +52,7 @@ public class ClientComunicator extends BaseModel {
 	}
 	
 	/**
-	 * chiude la connessione socket
+	 * Chiude la connessione socket
 	 */
 	public void close() {
 		try {
@@ -62,7 +65,7 @@ public class ClientComunicator extends BaseModel {
 	
 	/**
 	 * 
-	 * @param msg inviato come generico oggetto al server
+	 * @param msg Inviato come generico oggetto al server
 	 */
 	public void sendMsg(Object msg) {
 		try {
@@ -89,9 +92,7 @@ public class ClientComunicator extends BaseModel {
 		public void run() {
 			do {
 				try{
-					
 					connect();
-					
 					while((response = in.readObject()) != null) {
 						fireActionListener(new ActionEvent(ClientModel.LISTENER, 2, ClientModel.LISTENER));
 					}
@@ -118,7 +119,7 @@ public class ClientComunicator extends BaseModel {
 	
 	/**
 	 * Thread: Inizializza la connsessione con il server, inizializza quindi la variabile out (ObjectOutputStream)
-	 * 		   Fa partire il Thread Listener 
+	 * 		   Avvia il Thread Listener 
 	 */
 	private class Writer extends PnlBase implements Runnable {	
 		@Override
@@ -140,7 +141,7 @@ public class ClientComunicator extends BaseModel {
 				}
 			} while(!isAvailable);
 			
-			//start di un thread per il listener
+			//Se la connessione e' avvenuta, avvia un thread per il listener
 			
 			if(isAvailable)
 				new Thread(listener).start();

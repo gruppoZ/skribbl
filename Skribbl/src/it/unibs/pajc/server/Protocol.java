@@ -37,8 +37,8 @@ public class Protocol extends BaseModel implements Runnable{
 	
 	static {
 		commandMap = new HashMap<String, ProcessMessage>();
-		commandMap.put("!", new ProcessCommand());
-		commandMap.put("?", new ProcessWord());
+		commandMap.put(ProcessUtils.COMMAND_KEY, new ProcessCommand());
+		commandMap.put(ProcessUtils.SERVER_WORD_KEY, new ProcessWord());
 	}
 	
 	private static ArrayList<Protocol> clientList = new ArrayList<Protocol>();
@@ -95,10 +95,12 @@ public class Protocol extends BaseModel implements Runnable{
 				if(obj.getClass().equals(String.class)) {
 					request = (String) obj;
 					//hashmap
-					String messageType = request.substring(0,1);
+					int indexOf = request.toString().indexOf(":");
+					String messageType = request.toString().substring(0, indexOf + 1);
+					//String messageType = request.substring(0,1);
 					ProcessMessage processor = commandMap.get(messageType);
 					if(processor != null) {
-						processor.process(this, request.substring(1));
+						processor.process(this, request.substring(indexOf + 1));
 					} else {
 						String response = request;
 //						sendMsgToAll(this, response);
@@ -145,16 +147,6 @@ public class Protocol extends BaseModel implements Runnable{
 		}
 		return null;
 	}
-	
-//	public void sendMsgTo(Protocol sender, Protocol dest, String msg) {
-//		if(dest != null)
-//			dest.sendMsg(sender, msg + "***");
-//	}
-	
-//	private void sendMsg(Protocol sender, String msg) {
-//		this.out.printf("[%s]: %s\r\n", sender.clientName, msg);
-//		this.out.flush();
-//	}
 	
 	private void initialize() {
 		String clientNameRequest;
@@ -219,7 +211,7 @@ public class Protocol extends BaseModel implements Runnable{
 	}
 	
 	/*
-	 * metodo per mandare msg normalmente
+	 * Metodo per mandare msg normalmente
 	 */
 	protected void sendMsg(Protocol sender, String msg) {
 		try {
@@ -235,7 +227,7 @@ public class Protocol extends BaseModel implements Runnable{
 	}
 
 	/*
-	 * metodo per mandare msg "speciali"
+	 * mMetodo per mandare msg "speciali"
 	 */
 	protected void sendMsg(Object msg) {
 		try {
@@ -250,13 +242,13 @@ public class Protocol extends BaseModel implements Runnable{
 		
 	}
 	/*
-	 * metodo per mandare msg normalmente
+	 * Metodo per mandare msg normalmente
 	 */
 	protected void sendMsgToAll(Protocol sender, String msg) {
 		clientList.forEach((p) -> p.sendMsg(sender, msg));
 	}
 	/*
-	 * metodo per mandare msg "speciali"
+	 * Metodo per mandare msg "speciali"
 	 */
 	public static void sendMsgToAll(Object msg) {
 		clientList.forEach((p) -> p.sendMsg(msg));
@@ -265,9 +257,7 @@ public class Protocol extends BaseModel implements Runnable{
 	private void welcome() {
 		sendMsg(this, ProcessUtils.welcome(clientName, clientList.size() <= 1));
 	}
-	
-	
-	//da cambiare i private
+
 	public synchronized void addLine(WhiteBoardLine line) {
 		whiteBoard.add(line, this);
 	}
@@ -308,24 +298,11 @@ public class Protocol extends BaseModel implements Runnable{
 //			executor = Executors.newCachedThreadPool();
 			Thread threadMatch = new Thread(match);
 			match.addChangeListener(e -> {
-				threadMatch.interrupt();
-//				try {
-//					executor.shutdownNow();
-//				} catch(InterruptedException ex) {
-//					System.out.println("Errore nell'interruzione del thread match");
-//				} finally {
-//					sendMsgToAll("!matchfinished");
-//				}
-//				
-//				
+				threadMatch.interrupt();			
 			});
-//			executor.submit(match);
-			
-			
+	
 			threadMatch.start();
-			
-			
-			
+	
 			sendMsgToAll(ProcessUtils.command(ProcessUtils.MATCH_STARTED));
 		} else {
 			sendMsgToAll(ProcessUtils.command(ProcessUtils.MATCH_CANCELLED));
