@@ -23,10 +23,7 @@ import it.unibs.pajc.core.ProcessUtils;
 import it.unibs.pajc.whiteboard.WhiteBoardLine;
 
 public class Match extends BaseModel implements Runnable {
-
 	
-	private final static String URI_FILE_WORD = "src/it/unibs/pajc/server/WORDS.dat";
-
 	private static ArrayList<String> wordsFromFile;
 	private Random random;
 	private List<Player> playerList;
@@ -152,7 +149,7 @@ public class Match extends BaseModel implements Runnable {
 			}
 			
 			painter.sendMsg(ProcessUtils.command(ProcessUtils.HIDE_WORDS));
-			Protocol.sendMsgToAll(ProcessUtils.playerWaiting(painter.getClientName(), ProcessUtils.WORD_CHOOSEN));
+			Protocol.sendMsgToAll(ProcessUtils.playerWaiting(painter.getNickname(), ProcessUtils.WORD_CHOOSEN));
 			
 			painter.sendMsg(ProcessUtils.command(ProcessUtils.CHANGE_PAINTER));
 			painter.sendMsg(ProcessUtils.sendSelectedWord(selectedWord));
@@ -221,7 +218,7 @@ public class Match extends BaseModel implements Runnable {
 	
 	private Player getPlayerByClient(Protocol client) {
 		for (Player player : playerList) {
-			if(player.getProtocol().getClientName().equals(client.getClientName()))
+			if(player.getProtocol().getNickname().equals(client.getNickname()))
 				return player;
 		}
 		return null;
@@ -241,7 +238,7 @@ public class Match extends BaseModel implements Runnable {
 			playerPainter.setPainter(true);
 			Protocol.sendMsgToAll(generateScoreBoard(ProcessUtils.SCOREBOARD_KEY));
 			
-			Protocol.sendMsgToAll(ProcessUtils.playerWaiting(painter.getClientName(), ProcessUtils.WAIT_WORD));
+			Protocol.sendMsgToAll(ProcessUtils.playerWaiting(painter.getNickname(), ProcessUtils.WAIT_WORD));
 			painter.sendMsg(words);
 		}
 	}
@@ -354,7 +351,7 @@ public class Match extends BaseModel implements Runnable {
 						playerPainter.updateScore(COEFF_PAINTER_MIN);
 					
 					Protocol.sendMsgToAll(generateScoreBoard(ProcessUtils.SCOREBOARD_KEY));
-					Protocol.sendMsgToAll(ProcessUtils.playerGuessed(protocol.getClientName()));
+					Protocol.sendMsgToAll(ProcessUtils.playerGuessed(protocol.getNickname()));
 				} else {
 //					Protocol.sendMsgToAll(word);
 					protocol.sendMsgToAll(protocol, word);

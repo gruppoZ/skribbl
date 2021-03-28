@@ -128,7 +128,7 @@ public class ClientView {
 	
 	protected void initScoreboardView() {
 		// TODO Auto-generated method stub
-		scoreboardView = new ScoreboardView(nickname);
+		scoreboardView = new ScoreboardView();
 		scoreboardView.setVisible(true);
 	}
 
@@ -258,7 +258,6 @@ public class ClientView {
 		
 		pnlStrumenti = new PnlStrumenti(model.getStrumenti());
 		pnlStrumenti.setBounds(236, 94, 538, 38);
-		pnlStrumenti.setBackground(Color.WHITE);
 		frame.getContentPane().add(pnlStrumenti);
 		
 		btnStartGame = new JButton("Start Game");

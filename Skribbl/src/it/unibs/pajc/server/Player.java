@@ -50,11 +50,11 @@ public class Player{
 	}
 	
 	public String getName() {
-		return this.client.getClientName();
+		return this.client.getNickname();
 	}
 
 	public boolean equals(Protocol protocol) {
-		return this.client.getClientName().equals(protocol.getClientName());
+		return this.client.getNickname().equals(protocol.getNickname());
 	}
 	
 	

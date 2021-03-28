@@ -33,7 +33,7 @@ import it.unibs.pajc.server.ProcessMessage;
 import it.unibs.pajc.whiteboard.WhiteBoard;
 import it.unibs.pajc.whiteboard.WhiteBoardLine;
 
-public class ClientModel extends PnlBase{
+public class ClientModel extends BaseModel{
 	
 	protected static final String LOGO = "src/img/logo.gif";
 	protected static final String BACKGROUND_GIF = "src/img/logo5.gif";

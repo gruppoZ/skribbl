@@ -1,25 +1,72 @@
 package it.unibs.pajc.core;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 
 public class BaseModel {
 
-	protected EventListenerList listenerList = new EventListenerList();
+	private ArrayList<ActionListener> listenerList = new ArrayList<ActionListener>();
+	protected EventListenerList changeListenerList = new EventListenerList();
 	
+	//change listener
 	public void addChangeListener(ChangeListener l) {
-		listenerList.add(ChangeListener.class ,l);
+		changeListenerList.add(ChangeListener.class ,l);
 	}
 	
 	public void removeChangeListener(ChangeListener l) {
-		listenerList.remove(ChangeListener.class, l);
+		changeListenerList.remove(ChangeListener.class, l);
 	}
 	
 	public void fireValuesChange(ChangeEvent e) {
 		
-		for (ChangeListener changeListener : listenerList.getListeners(ChangeListener.class)) {
+		for (ChangeListener changeListener : changeListenerList.getListeners(ChangeListener.class)) {
 			changeListener.stateChanged(e);
+		}
+	}
+	
+	//action listener
+	
+	/**
+	 * Aggiunge un actionListener alla lista delle listener
+	 * @param l
+	 */
+	public void addActionListener(ActionListener l) {
+		listenerList.add(l);
+	}
+	
+	/**
+	 * Rimuove l'actionListener l dalla lista delle listener se presente
+	 * @param l
+	 */
+	public void removeActionListener(ActionListener l) {
+		listenerList.remove(l);
+	}
+	
+	/**
+	 * Viene notificato l'actionPerformed a tutti gli ActionListener finora aggiunti
+	 * @param e
+	 */
+	public void fireActionListener(ActionEvent e) {
+		/**
+		 * non gli passo e ma gli passo un evento che voglio io
+		 * per nascondere i bottoni all'esterno
+		 * Sto isolando il mio sistema
+		 */
+		ActionEvent myEvent = new ActionEvent(this, 
+				ActionEvent.ACTION_PERFORMED,
+				e.getActionCommand(),
+				e.getWhen(),
+				e.getModifiers() //se quando premo con il mouse ho anche schiacciato ctrl questo è un modifiers
+		);
+		
+		
+		for (ActionListener actionListener : listenerList) {
+			actionListener.actionPerformed(myEvent);
 		}
 	}
 }

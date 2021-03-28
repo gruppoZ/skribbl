@@ -42,7 +42,6 @@ public class Protocol extends BaseModel implements Runnable{
 	}
 	
 	private static ArrayList<Protocol> clientList = new ArrayList<Protocol>();
-	//private static ArrayList<Protocol> fakeClientList = new ArrayList<Protocol>();
 	
 	private ObjectInputStream is;			// Input stream
     private ObjectOutputStream os;			// Output stream
@@ -199,13 +198,12 @@ public class Protocol extends BaseModel implements Runnable{
 		StringBuffer list = new StringBuffer();
 		list.append(ProcessUtils.CLIENT_LIST_KEY);
 		clientList.forEach((client) -> {
-			list.append(client.getClientName() + "/");
+			list.append(client.getNickname() + "/");
 		});
 		sendMsgToAll(list.toString());
 	}
 	
-	//che senso ha getClientName (?) --> solo getName()
-	public String getClientName() {
+	public String getNickname() {
 		return clientName;
 	}
 	
@@ -289,9 +287,20 @@ public class Protocol extends BaseModel implements Runnable{
 		whiteBoard.clearAll();
 	}
 	
+	public void setSelectedWord(String word) {
+		match.setSelectedWord(word);
+	}
+	
+	public void stopTimer() {
+		isStopped = true;
+	}
+
+	public boolean isStopped() {
+		return isStopped;
+	}
+	
 	public void startMatch() {
 		//TODO: gestire meglio il thread
-		//TODO: gestire il fatto che pi� client possano schiacciare il bottone
 		
 		//controlla che ci siano almeno 2 giocatori
 		if(clientList.size() > 1) {
@@ -323,19 +332,4 @@ public class Protocol extends BaseModel implements Runnable{
 		}
 		
 	}
-	
-	public void setSelectedWord(String word) {
-		match.setSelectedWord(word);
-	}
-	
-	public void stopTimer() {
-		isStopped = true;
-	}
-
-	public boolean isStopped() {
-		return isStopped;
-	}
-	
-	
-	
 }
