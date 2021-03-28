@@ -381,12 +381,15 @@ public class Match extends BaseModel implements Runnable {
 	 * @param client
 	 */
 	public void removePlayer(Protocol client) {
+		if(clientList.size() <= 1)
+			isRunning = false;
+		
 		Player player = getPlayerByClient(client);
 		if(player != null) {
 			playerList.remove(player);
 			copyList.remove(player);
-			if(player.equals(painter) && !copyList.isEmpty())
-				selectPainter(); //TODO: errore, il client che rimane solo si blocco
+			if(player.equals(painter) && !copyList.isEmpty() && isRunning)
+				selectPainter();
 			Protocol.sendMsgToAll(generateScoreBoard(ProcessUtils.SCOREBOARD_KEY));
 		}	
 	}

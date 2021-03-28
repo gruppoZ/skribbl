@@ -281,6 +281,7 @@ public class ClientView {
 		frame.getContentPane().add(txtScoreBoard);
 		
 		pnlDatiPartita = new PnlDatiPartita();
+		pnlDatiPartita.getTxtGuessWord().setFont(new Font("DialogInput", Font.ITALIC, 12));
 		pnlDatiPartita.getTxtGuessWord().setLocation(364, 21);
 		pnlDatiPartita.setBounds(10, 11, 754, 82);
 		frame.getContentPane().add(pnlDatiPartita);
@@ -511,7 +512,7 @@ public class ClientView {
 		if(model.getNickname().equals(name))
 			name += " (You)";
 		
-//		appendToPane(txtScoreBoard, "#" + position + " " + name + ":" + score + "\n", c);
+
 		appendToPane(txtScoreBoard, String.format(TXT_ADD_PLAYER, position, name, score), c);
 	}
 	

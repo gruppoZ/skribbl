@@ -38,7 +38,7 @@ public class ScoreboardView extends JFrame {
 		contentPane.setLayout(null);
 		
 		txtScoreBoard = new JTextPane();
-		txtScoreBoard.setBounds(88, 59, 261, 191);
+		txtScoreBoard.setBounds(146, 62, 278, 191);
 		txtScoreBoard.setEditable(false);
 		contentPane.add(txtScoreBoard);
 		
@@ -52,6 +52,7 @@ public class ScoreboardView extends JFrame {
 		txtTitle.setHorizontalAlignment(JTextField.CENTER);
 		contentPane.add(txtTitle);
 		txtTitle.setColumns(10);
+
 	}
 	
 	protected void addPlayer(String format, String name, String score, String position) {

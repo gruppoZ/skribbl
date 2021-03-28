@@ -68,14 +68,6 @@ public class ClientModel extends BaseModel{
 		commandMap.put(ProcessUtils.HINT_KEY, new ProcessHint());
 		commandMap.put(ProcessUtils.START_TIMER_KEY, new ProcessTimer());
 		commandMap.put(ProcessUtils.SELECTED_WORD_KEY, new ProcessSelectedWord());
-//		commandMap.put("/", new ProcessRound());
-//		commandMap.put("?", new ProcessWords());
-//		commandMap.put("@", new ProcessScoreBoard());
-//		commandMap.put("%", new ProcessMsg());
-//		commandMap.put("+", new ProcessClientList());
-//		commandMap.put("*", new ProcessHint());
-//		commandMap.put("<", new ProcessTimer());
-//		commandMap.put(";", new ProcessSelectedWord());
 	}
 	
 	private String nickname;
