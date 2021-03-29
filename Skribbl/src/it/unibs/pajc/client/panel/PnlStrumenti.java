@@ -13,12 +13,16 @@ import it.unibs.pajc.client.ClientModel;
 public class PnlStrumenti extends PnlBase {
 
 	private static final int BTN_SIZE = 30;
+	private ArrayList<JButton> btnColorList;
+	private ArrayList<JButton> btnIconList;
 	
 	/**
 	 * Create the panel.
 	 */
 	public PnlStrumenti(ArrayList<Object> tools) {
 		super();
+		btnColorList = new ArrayList<JButton>();
+		btnIconList = new ArrayList<JButton>();
 		updateTools(tools);
 	}
 	
@@ -52,6 +56,20 @@ public class PnlStrumenti extends PnlBase {
 		btn.setActionCommand(colore);
 		btn.addActionListener(e -> fireActionListener(e));
 		
+		btn.addMouseListener(new java.awt.event.MouseAdapter() {
+		    
+		    public void mouseClicked(java.awt.event.MouseEvent e) {
+		    	btnColorList.forEach((btn) -> {
+		    		btn.setBorder(new LineBorder(UIManager.getColor("control")));
+		    	});
+		    	btn.setBorder(new LineBorder(Color.BLUE, 2));
+		    }
+		});
+		
+		if(btn.getActionCommand().equals("BLACK"))
+			btn.setBorder(new LineBorder(Color.BLUE, 2));
+		
+		btnColorList.add(btn);
 		this.add(btn);
 	}
 	
@@ -67,18 +85,29 @@ public class PnlStrumenti extends PnlBase {
 		btn.setActionCommand(icon.toString());
 		btn.addActionListener(e -> fireActionListener(e));
 		
+		
 		btn.addMouseListener(new java.awt.event.MouseAdapter() {
-		    public void mouseEntered(java.awt.event.MouseEvent evt) {
-//		    	btn.setBackground(Color.GREEN);
-		    	btn.setBorder(new LineBorder(Color.RED));
+
+			public void mouseEntered(java.awt.event.MouseEvent evt) {
+				if(ClientModel.isTrash(btn.getActionCommand()) || ClientModel.isSave(btn.getActionCommand()))
+					btn.setBorder(new LineBorder(Color.BLUE, 2));
 		    }
 
 		    public void mouseExited(java.awt.event.MouseEvent evt) {
-//		    	btn.setBackground(UIManager.getColor("control"));
-		    	btn.setBorder(new LineBorder(UIManager.getColor("control")));
+		    	if(ClientModel.isTrash(btn.getActionCommand()) || ClientModel.isSave(btn.getActionCommand()))
+		    		btn.setBorder(new LineBorder(UIManager.getColor("control")));
+		    }
+		    
+			public void mouseClicked(java.awt.event.MouseEvent e) {
+				
+				btnIconList.forEach((btn) -> {
+		    		btn.setBorder(new LineBorder(UIManager.getColor("control")));
+		    	});
+				btn.setBorder(new LineBorder(Color.BLUE, 2));
 		    }
 		});
 		
+		btnIconList.add(btn);
 		this.add(btn);
 	}
 }

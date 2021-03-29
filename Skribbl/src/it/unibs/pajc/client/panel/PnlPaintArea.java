@@ -1,6 +1,8 @@
 package it.unibs.pajc.client.panel;
 
 import java.awt.*;
+
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import java.awt.event.*;
 import java.util.ArrayList;
@@ -161,8 +163,11 @@ public class PnlPaintArea extends JPanel implements MouseListener, MouseMotionLi
 		if(model.isIcon(e.getActionCommand()) && model.isDimension3(e.getActionCommand()))
 			sizeStroke = 6;
 		
-		if(model.isIcon(e.getActionCommand()) && model.isSave(e.getActionCommand()))
+		if(model.isIcon(e.getActionCommand()) && model.isSave(e.getActionCommand())) {
 			model.savePaint(this);
+			JOptionPane.showMessageDialog(null, "Hai salvato il disegno");
+		}
+			
 		
 		if(model.isIcon(e.getActionCommand()) && model.isTrash(e.getActionCommand())) {
 			model.sendMsg("!deleteall");

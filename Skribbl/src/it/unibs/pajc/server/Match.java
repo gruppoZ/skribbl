@@ -272,9 +272,9 @@ public class Match extends BaseModel implements Runnable {
 	private void resetTurn() {
 		tmp_wordHint = null;
 		tmp_countHint = 0;
-		Protocol.sendMsgToAll(ProcessUtils.command(ProcessUtils.STOP_TIMER));
 		painter.clearAll();
 		painter.sendMsg(ProcessUtils.command(ProcessUtils.CHANGE_PAINTER));
+		Protocol.sendMsgToAll(ProcessUtils.command(ProcessUtils.STOP_TIMER));
 		playerPainter.setPainter(false);
 		//Facendo il remove dalla copyList questo client non puo' piu' diventare un painter
 		copyList.remove(playerPainter);

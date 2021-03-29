@@ -385,7 +385,10 @@ public class ClientView {
 	 */
 	public void startTimer(String seconds) {
 		pnlDatiPartita.startTimer(Integer.valueOf(seconds));
-		
+		managePnlStrumenti();
+	}
+	
+	private void managePnlStrumenti() {
 		if(paintArea.isPainter()) 
 			pnlStrumenti.setVisible(true);
 		 else 
@@ -394,6 +397,7 @@ public class ClientView {
 	
 	public void stopTimer() {
 		pnlDatiPartita.stopTimer();
+		managePnlStrumenti();
 	}
 	
 	protected void setWordWithHint(String word) {
@@ -410,7 +414,7 @@ public class ClientView {
 	}
 	
 	public void clearAll() {
-		paintArea.clearAll();	
+		paintArea.clearAll();
 	}
 	
 	private void startGame() {
@@ -425,6 +429,7 @@ public class ClientView {
 		if(frameLobby.isVisible()) {
 			initialize();
 		}
+		managePnlStrumenti();
 		frame.repaint();
 		btnStartGame.setVisible(false);
 	}

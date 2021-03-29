@@ -131,26 +131,26 @@ public class ClientModel extends BaseModel {
 	    }
 	}
 	
-	public boolean isRubber(String icona) {
+	public static boolean isRubber(String icona) {
 		return RUBBER.equalsIgnoreCase(icona);
 	}
-	public boolean isTrash(String icona) {
+	public static boolean isTrash(String icona) {
 		return TRASHCAN.equalsIgnoreCase(icona);
 	}
 	
-	public boolean isDimension1(String icona) {
+	public static boolean isDimension1(String icona) {
 		return DIMENSION1.equalsIgnoreCase(icona);
 	}
 	
-	public boolean isDimension2(String icona) {
+	public static boolean isDimension2(String icona) {
 		return DIMENSION2.equalsIgnoreCase(icona);
 	}
 	
-	public boolean isDimension3(String icona) {
+	public static boolean isDimension3(String icona) {
 		return DIMENSION3.equalsIgnoreCase(icona);
 	}
 	
-	public boolean isSave(String icon) {
+	public static boolean isSave(String icon) {
 		return SAVE.equalsIgnoreCase(icon);
 	}
 	
