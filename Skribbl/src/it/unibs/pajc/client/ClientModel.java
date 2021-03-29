@@ -3,8 +3,7 @@ package it.unibs.pajc.client;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,11 +34,7 @@ public class ClientModel extends BaseModel {
 	protected static final String LOGO = "src/img/logo.gif";
 	protected static final String BACKGROUND_GIF = "src/img/logo5.gif";
 	public static final String CLOCK_GIF = "src/img/clock.gif";
-	public static final String ICON_SEND = "src/img/right-arrow-20.png";
-	
-	private static String[] colori = {
-			"RED", "GREEN", "BLACK", "ORANGE", "PINK"
-	};	
+	public static final String ICON_SEND = "src/img/right-arrow-20.png";	
 	
 	private static final String RUBBER = "src/img/rubber.gif";
 	private static final String TRASHCAN = "src/img/trashcan.png";
@@ -156,8 +151,8 @@ public class ClientModel extends BaseModel {
 	
 	public boolean isColor(String name) {
 		boolean found = false;
-		for (String colore : colori) {
-			if(colore.equalsIgnoreCase(name))
+		for (Colors colore : Colors.values()) {
+			if(colore.getValue().equalsIgnoreCase(name))
 				return found = true;
 		}	
 		return found;
@@ -175,9 +170,9 @@ public class ClientModel extends BaseModel {
 	public ArrayList<Object> getStrumenti() {
 		ArrayList<Object> strumenti = new ArrayList<Object>();
 		
-		for (String colore : colori) {
-			strumenti.add(colore);
-		}	
+		for (Colors colore : Colors.values()) {
+			strumenti.add(colore.getValue());
+		}
 		
 		for (String icone : icone) {
 			strumenti.add(new ImageIcon(icone));

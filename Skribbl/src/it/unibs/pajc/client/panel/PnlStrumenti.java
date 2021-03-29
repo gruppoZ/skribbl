@@ -2,13 +2,13 @@ package it.unibs.pajc.client.panel;
 
 import java.awt.*;
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import it.unibs.pajc.client.ClientModel;
+import it.unibs.pajc.client.Colors;
 
 public class PnlStrumenti extends PnlBase {
 
@@ -66,7 +66,7 @@ public class PnlStrumenti extends PnlBase {
 		    }
 		});
 		
-		if(btn.getActionCommand().equals("BLACK"))
+		if(btn.getActionCommand().equals(Colors.BLACK.getValue()))
 			btn.setBorder(new LineBorder(Color.BLUE, 2));
 		
 		btnColorList.add(btn);
@@ -106,6 +106,9 @@ public class PnlStrumenti extends PnlBase {
 				btn.setBorder(new LineBorder(Color.BLUE, 2));
 		    }
 		});
+		
+		if(ClientModel.isDimension1(btn.getActionCommand()))
+			btn.setBorder(new LineBorder(Color.BLUE, 2));
 		
 		btnIconList.add(btn);
 		this.add(btn);
