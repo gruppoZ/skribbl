@@ -2,6 +2,9 @@ package it.unibs.pajc.client.panel;
 
 import java.awt.*;
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.LineBorder;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,6 +66,18 @@ public class PnlStrumenti extends PnlBase {
 		
 		btn.setActionCommand(icon.toString());
 		btn.addActionListener(e -> fireActionListener(e));
+		
+		btn.addMouseListener(new java.awt.event.MouseAdapter() {
+		    public void mouseEntered(java.awt.event.MouseEvent evt) {
+//		    	btn.setBackground(Color.GREEN);
+		    	btn.setBorder(new LineBorder(Color.RED));
+		    }
+
+		    public void mouseExited(java.awt.event.MouseEvent evt) {
+//		    	btn.setBackground(UIManager.getColor("control"));
+		    	btn.setBorder(new LineBorder(UIManager.getColor("control")));
+		    }
+		});
 		
 		this.add(btn);
 	}

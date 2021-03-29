@@ -16,6 +16,7 @@ import javax.swing.JTextPane;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.DefaultCaret;
 import javax.swing.text.SimpleAttributeSet;
@@ -244,13 +245,15 @@ public class ClientView {
 		enableChat();
 		
 		paintArea = new PnlPaintArea(model);
-		paintArea.setBounds(236, 130, 538, 545);
+		paintArea.setBounds(236, 132, 538, 555);
 		frame.getContentPane().add(paintArea);
 		paintArea.setLayout(null);
 		
 		pnlStrumenti = new PnlStrumenti(model.getStrumenti());
 		pnlStrumenti.setBounds(236, 94, 538, 38);
 		frame.getContentPane().add(pnlStrumenti);
+		pnlStrumenti.setBackground(Color.WHITE);
+		pnlStrumenti.setBorder(new LineBorder(Color.BLACK));
 		
 		btnStartGame = new JButton("Start Game");
 		btnStartGame.setBorderPainted(false);
@@ -263,8 +266,9 @@ public class ClientView {
 		frame.getContentPane().add(btnStartGame);
 		
 		pnlWords = new PnlWords();
-		pnlWords.setBounds(236, 686, 538, 45);
+		pnlWords.setBounds(236, 687, 538, 44);
 		frame.getContentPane().add(pnlWords);
+		pnlWords.setBorder(new LineBorder(Color.BLACK));
 		
 		txtScoreBoard = new JTextPane();
 		txtScoreBoard.setEditable(false);
@@ -273,7 +277,7 @@ public class ClientView {
 		frame.getContentPane().add(txtScoreBoard);
 		
 		pnlDatiPartita = new PnlDatiPartita();
-		pnlDatiPartita.getTxtGuessWord().setFont(new Font("DialogInput", Font.ITALIC, 12));
+		pnlDatiPartita.getTxtGuessWord().setFont(new Font("Arial Black", Font.ITALIC, 12));
 		pnlDatiPartita.getTxtGuessWord().setLocation(364, 21);
 		pnlDatiPartita.setBounds(10, 11, 754, 82);
 		frame.getContentPane().add(pnlDatiPartita);
@@ -299,7 +303,7 @@ public class ClientView {
 			public void windowActivated(WindowEvent e) {}
 		});
 		
-		pnlDatiPartita.addChangeListener(e -> this.stopTimer());
+		pnlDatiPartita.addChangeListener(e -> this.stopTimer()); //TODO: serve ancora?
 
 		this.addListenerChat();
 		btnStartGame.addActionListener(e -> this.startGame());
@@ -413,12 +417,15 @@ public class ClientView {
 		model.sendMsg(ProcessUtils.COMMAND_KEY + ProcessUtils.MATCH_STARTED);
 	}
 	
+	/**
+	 * Viene chiamato se il client entra durante una partita in corso.
+	 * Chiama initialize() e nasconde il bottone "StartGame"
+	 */
 	protected void matchStarted() {
 		if(frameLobby.isVisible()) {
 			initialize();
-			frame.repaint();
 		}
-		
+		frame.repaint();
 		btnStartGame.setVisible(false);
 	}
 	
@@ -426,15 +433,21 @@ public class ClientView {
 		JOptionPane.showMessageDialog(null, ALONE_MSG);
 	}
 	
-	//TODO:quando finisce lo fai tornare nella lobby
+	/**
+	 * resetta i componenti di initialize() e fa tornare tutti alla lobby
+	 */
 	protected void matchFinished() {
 		this.setRound("0", "0");
 		pnlChat.getTxtChat().setText(STRING_EMPTY);
 		btnStartGame.setVisible(true);
 		pnlDatiPartita.stopTimer();
+		txtScoreBoard.setText(STRING_EMPTY);
+		hidePnlWords();
 		if(paintArea.isPainter()) 
 			paintArea.setPainter();
-		hidePnlWords();
+		
+		frame.setVisible(false);
+		frameLobby.setVisible(true);
 	}
 	
 	protected void setRound(String currentRound, String totRound) {

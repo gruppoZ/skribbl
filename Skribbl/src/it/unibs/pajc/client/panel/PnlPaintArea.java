@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 
 import it.unibs.pajc.client.ClientModel;
+import it.unibs.pajc.core.ProcessUtils;
 import it.unibs.pajc.whiteboard.WhiteBoardLine;
 
 
@@ -165,6 +166,7 @@ public class PnlPaintArea extends JPanel implements MouseListener, MouseMotionLi
 		
 		if(model.isIcon(e.getActionCommand()) && model.isTrash(e.getActionCommand())) {
 			model.sendMsg("!deleteall");
+			model.sendMsg(ProcessUtils.COMMAND_KEY + ProcessUtils.DELETE_ALL);
 			clearAll();
 		}
 	}

@@ -224,17 +224,19 @@ public class Match extends BaseModel implements Runnable {
 	 * @return TRUE se painter != null
 	 */
 	public void selectPainter() {
-		String words = getWordsToGuess();
-		int indexPainter = random.nextInt(copyList.size());
-		playerPainter = copyList.get(indexPainter);
-		
-		if(playerPainter != null) {
-			painter = playerPainter.getProtocol();
-			playerPainter.setPainter(true);
-			Protocol.sendMsgToAll(generateScoreBoard(ProcessUtils.SCOREBOARD_KEY));
+		if(!copyList.isEmpty()) { //aggiunto questo if
+			String words = getWordsToGuess();
+			int indexPainter = random.nextInt(copyList.size());
+			playerPainter = copyList.get(indexPainter);
 			
-			Protocol.sendMsgToAll(ProcessUtils.playerWaiting(painter.getNickname(), ProcessUtils.WAIT_WORD));
-			painter.sendMsg(words);
+			if(playerPainter != null && clientList.size() > 1) {//NB: ho aggiunto clientSize > 1 se non fa forse è questo
+				painter = playerPainter.getProtocol();
+				playerPainter.setPainter(true);
+				Protocol.sendMsgToAll(generateScoreBoard(ProcessUtils.SCOREBOARD_KEY));
+				
+				Protocol.sendMsgToAll(ProcessUtils.playerWaiting(painter.getNickname(), ProcessUtils.WAIT_WORD));
+				painter.sendMsg(words);
+			}
 		}
 	}
 	
@@ -368,10 +370,10 @@ public class Match extends BaseModel implements Runnable {
 	 */
 	public void removePlayer(Protocol client) {	
 		Player player = getPlayerByClient(client);
-		if(player != null) {
+		if(player != null && !copyList.isEmpty()) {
 			playerList.remove(player);
 			copyList.remove(player);
-			if(player.equals(painter) && !copyList.isEmpty())
+			if(player.equals(painter) )
 				selectPainter();
 			Protocol.sendMsgToAll(generateScoreBoard(ProcessUtils.SCOREBOARD_KEY));
 		}	

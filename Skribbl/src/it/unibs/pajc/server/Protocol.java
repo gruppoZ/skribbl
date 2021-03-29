@@ -1,38 +1,29 @@
 package it.unibs.pajc.server;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import javax.swing.event.ChangeEvent;
 
 import it.unibs.pajc.core.BaseModel;
 import it.unibs.pajc.core.ProcessUtils;
-import it.unibs.pajc.server.ProcessMessage;
 import it.unibs.pajc.server.Protocol;
 import it.unibs.pajc.whiteboard.WhiteBoard;
 import it.unibs.pajc.whiteboard.WhiteBoardLine;
 
 public class Protocol extends BaseModel implements Runnable{
 
-	//TODO: controllare che non ci siano conflitti all'interno di match
+	protected static final String ERR_CLOSE_SOCKET = "Errore chiusura socket - durante la richiesta del nome";
+	protected static final String ERR_CLOSE_OS = "Errore chiusura os - protocol";
+	protected static final String ERR_CLIENT_EXIT = "errore socket - il client e' uscito";
+	
 	private static Match match;
-	
-	private static WhiteBoard whiteBoard = new WhiteBoard();;
-	
+	private static WhiteBoard whiteBoard = new WhiteBoard();
 	private static HashMap<String, ProcessMessage> commandMap;
 	
 	static {
@@ -57,9 +48,9 @@ public class Protocol extends BaseModel implements Runnable{
 		clientList.add(this);
 	}
 	
+	//TODO: errore se ci sono sia sendClientList - sendMsgToAll(ProcessUtils.playerLeft(clientName));
 	public void close() {
 		clientList.remove(this);
-		
 		sendClientList();
 		
 		if(os != null) {
@@ -68,10 +59,9 @@ public class Protocol extends BaseModel implements Runnable{
 				if(hasMatchStarted())
 					match.removePlayer(this);
 				os.close();
+//				os = null; //aggiundo 29/03
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				System.err.println("sono nel protocol");
-//				e.printStackTrace();
+				System.err.println(ERR_CLOSE_OS);
 			}
 		}
 		
@@ -127,7 +117,7 @@ public class Protocol extends BaseModel implements Runnable{
 			}
 			
 		} catch(SocketException e) {
-			System.out.println("errore socket");
+			System.err.println(ERR_CLIENT_EXIT);
 		}
 		catch (IOException e) {
 			System.out.printf("Errore durante i msg %s ", e);
@@ -174,6 +164,8 @@ public class Protocol extends BaseModel implements Runnable{
 					);
 				}
 			}
+		} catch(SocketException e) {
+			System.err.println(ERR_CLOSE_SOCKET);
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -236,8 +228,7 @@ public class Protocol extends BaseModel implements Runnable{
 				this.os.flush();
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Errore nel sendMsg " + clientName);
 		}
 		
 	}
