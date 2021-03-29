@@ -1,6 +1,7 @@
 package it.unibs.pajc.client;
 
 public enum Colors {
+	
 	RED("RED"), GREEN("GREEN"), BLACK("BLACK"), ORANGE("ORANGE"), PINK("PINK");
 	
 	private String value;

@@ -70,10 +70,7 @@ public class Match extends BaseModel implements Runnable {
 		updatePlayerList();
 		
 		startMatch();
-//		if(painter != null) {
-//			painter.clearAll();
-//			painter.sendMsg(ProcessUtils.command(ProcessUtils.CHANGE_PAINTER));
-//		}
+		
 		if(!clientList.isEmpty()) {
 			StringBuffer sb = new StringBuffer();
 			sb.append(generateScoreBoard(ProcessUtils.FINAL_SCOREBOARD_KEY));
@@ -163,16 +160,14 @@ public class Match extends BaseModel implements Runnable {
 			this.startTimer();		
 			
 			Protocol.sendMsgToAll(ProcessUtils.START_TIMER_KEY + seconds);
-			
-			//timer
-			//Aspetta che il timer finisca e "freeza" il turno
+
 			while(timer.isRunning()) {
 				if(clientList.size() <= 1) {
 					stopTimer();
 					close();
 				}
 			}
-			//TODO:da togliere
+
 			if(timer.isRunning())
 				stopTimer();
 			
@@ -224,12 +219,12 @@ public class Match extends BaseModel implements Runnable {
 	 * @return TRUE se painter != null
 	 */
 	public void selectPainter() {
-		if(!copyList.isEmpty()) { //aggiunto questo if
+		if(!copyList.isEmpty()) {
 			String words = getWordsToGuess();
 			int indexPainter = random.nextInt(copyList.size());
 			playerPainter = copyList.get(indexPainter);
 			
-			if(playerPainter != null && clientList.size() > 1) {//NB: ho aggiunto clientSize > 1 se non fa forse è questo
+			if(playerPainter != null && clientList.size() > 1) {
 				painter = playerPainter.getProtocol();
 				playerPainter.setPainter(true);
 				Protocol.sendMsgToAll(generateScoreBoard(ProcessUtils.SCOREBOARD_KEY));
@@ -276,6 +271,7 @@ public class Match extends BaseModel implements Runnable {
 		painter.sendMsg(ProcessUtils.command(ProcessUtils.CHANGE_PAINTER));
 		Protocol.sendMsgToAll(ProcessUtils.command(ProcessUtils.STOP_TIMER));
 		playerPainter.setPainter(false);
+		
 		//Facendo il remove dalla copyList questo client non puo' piu' diventare un painter
 		copyList.remove(playerPainter);
 		selectedWord = null;
@@ -324,10 +320,8 @@ public class Match extends BaseModel implements Runnable {
 				}
 			}
 			
-			/*
-			 * Assegnazione punti una volta che una parola viene indovinata
-			 *
-			 */
+			 // Assegnazione punti una volta che una parola viene indovinata
+
 			if(guesser != null && !guesser.hasGuessed()) {
 				if(word.equalsIgnoreCase(selectedWord)) {
 					
@@ -375,7 +369,8 @@ public class Match extends BaseModel implements Runnable {
 			copyList.remove(player);
 			if(player.equals(painter) )
 				selectPainter();
-			Protocol.sendMsgToAll(generateScoreBoard(ProcessUtils.SCOREBOARD_KEY));
+			if(clientList.size() > 1)
+				Protocol.sendMsgToAll(generateScoreBoard(ProcessUtils.SCOREBOARD_KEY));
 		}	
 	}
 	

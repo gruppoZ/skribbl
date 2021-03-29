@@ -32,7 +32,7 @@ public class ClientModel extends BaseModel {
 	private static final String FORMAT_DATE = "yyyy-MM-dd HH-mm-ss";
 	
 	protected static final String LOGO = "src/img/logo.gif";
-	protected static final String BACKGROUND_GIF = "src/img/logo5.gif";
+	protected static final String BACKGROUND_GIF = "src/img/background.gif";
 	public static final String CLOCK_GIF = "src/img/clock.gif";
 	public static final String ICON_SEND = "src/img/right-arrow-20.png";	
 	

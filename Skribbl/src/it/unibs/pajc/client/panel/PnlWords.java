@@ -44,8 +44,9 @@ public class PnlWords extends PnlBase {
 	private void addButton(String word) {
 		JButton btn = new JButton(word); 
 		btn.setActionCommand(word);
+		btn.setBackground(Color.WHITE);
 		btn.addActionListener(e -> fireActionListener(e));
-		
+
 		add(btn);
 	}
 	

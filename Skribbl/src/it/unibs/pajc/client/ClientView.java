@@ -4,55 +4,31 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
 
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextPane;
-import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-import javax.swing.border.EmptyBorder;
+import javax.swing.*;
 import javax.swing.border.LineBorder;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.DefaultCaret;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyleContext;
+import javax.swing.text.*;
 
-import it.unibs.pajc.client.panel.PnlChat;
-import it.unibs.pajc.client.panel.PnlDatiPartita;
-import it.unibs.pajc.client.panel.PnlPaintArea;
-import it.unibs.pajc.client.panel.PnlStrumenti;
-import it.unibs.pajc.client.panel.PnlWords;
-import it.unibs.pajc.core.BaseModel;
+import it.unibs.pajc.client.panel.*;
 import it.unibs.pajc.core.ProcessUtils;
 import it.unibs.pajc.whiteboard.WhiteBoardLine;
 
 import javax.swing.JButton;
-import javax.swing.JTextField;
-import javax.swing.JTextArea;
-import javax.swing.JScrollPane;
-import javax.swing.DropMode;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.File;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
-import javax.swing.JTable;
-import javax.swing.JList;
-import javax.swing.JScrollBar;
 
 public class ClientView {
 	
+	private static final String USER_LIST = "User List";
+	private static final String START_GAME = "Start Game";
 	private static final String ATTEMPTING_CONNESSION = "Connessione al Server in corso...";
 	private static final String SUCCESS_CONNECIION = "Connessione al Server avvenuta...";
 	private static final String ASK_NAME = "What is your name?";
@@ -72,19 +48,18 @@ public class ClientView {
 	//LOBBY
 	private JTextPane txtClientList;
 	private JButton btnStartGameLobby;
-
-	private PnlPaintArea paintArea;
+	private JProgressBar pgsBar;
+	
+	private PnlPaintArea pnlPaintArea;
 	private PnlStrumenti pnlStrumenti;
 	private PnlWords pnlWords;
 	
 	private JTextPane txtScoreBoard;
 	private ScoreboardView scoreboardView;
-	private JButton btnStartGame;
 	private PnlDatiPartita pnlDatiPartita;
 	private PnlChat pnlChat;
 	
 	private String nickname;
-	private JTextField txtStatusServer;
 	
 	/**
 	 * Main della classe ClientView. Inizializza la FrameLobby e crea la ClientView.
@@ -98,12 +73,12 @@ public class ClientView {
 					window.frameLobby.setVisible(true);
 					window.frameLobby.setLocationRelativeTo(null);
 				} catch (NullPointerException e) {
-					JOptionPane.showMessageDialog(null, "Sei uscito");
+					JOptionPane.showMessageDialog(null, LEFT_GAME);
 					System.exit(0);
 				}
 				catch (Exception e) {
 	//					e.printStackTrace();
-					System.out.println("client view run");
+					System.out.println("Client view run");
 				}
 			}
 		});
@@ -114,9 +89,7 @@ public class ClientView {
 	 * 
 	 */
 	public ClientView() {
-		lobby(); //TODO disabilitare bottoni finch� non avviene effetivamente la connessione
-//		initialize();
-		txtStatusServer.setText(ATTEMPTING_CONNESSION);
+		lobby();
 		
 		model = new ClientModel();
 		model.addActionListener(e -> this.checkEvent(e));
@@ -131,7 +104,9 @@ public class ClientView {
 		if(e.getActionCommand().equalsIgnoreCase(ClientModel.LISTENER))
 			this.update();
 		if(e.getActionCommand().equalsIgnoreCase(ClientModel.WRITER)) {
-			txtStatusServer.setText(SUCCESS_CONNECIION);
+			pgsBar.setIndeterminate(false);
+			pgsBar.setString(SUCCESS_CONNECIION);
+			pgsBar.setBackground(Color.GREEN);
 			btnStartGameLobby.setEnabled(true);
 			pnlChat.getBtnSend().setEnabled(true);
 			pnlChat.getTxtMsg().setEditable(true);
@@ -161,6 +136,7 @@ public class ClientView {
 		frameLobby.setBounds(100, 100, 1065, 722);
 		frameLobby.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frameLobby.getContentPane().setLayout(null);
+		frameLobby.setResizable(false);
 		
 		frameLobby.getContentPane().add(addPnlChat());
 		enableChat();
@@ -168,11 +144,11 @@ public class ClientView {
 		txtClientList = new JTextPane();
 		txtClientList.setEditable(false);
 		txtClientList.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		txtClientList.setBounds(624, 278, 134, 302);
+		txtClientList.setBounds(640, 230, 134, 375);
 		frameLobby.getContentPane().add(txtClientList);
 		
-		btnStartGameLobby = new JButton("Start Game");
-		btnStartGameLobby.setBounds(921, 612, 118, 60);
+		btnStartGameLobby = new JButton(START_GAME);
+		btnStartGameLobby.setBounds(655, 631, 119, 41);
 		btnStartGameLobby.setBorderPainted(false);
 		btnStartGameLobby.setForeground(new Color(0, 0, 0));
 		btnStartGameLobby.setBorder(UIManager.getBorder("Button.border"));
@@ -186,16 +162,19 @@ public class ClientView {
 		btnStartGameLobby.setBackground(new Color(153, 255, 153));
 		frameLobby.getContentPane().add(btnStartGameLobby);
 		
-		txtStatusServer = new JTextField();
-		txtStatusServer.setBounds(10, 627, 242, 46);
-		frameLobby.getContentPane().add(txtStatusServer);
-		txtStatusServer.setColumns(10);
-		
 		JLabel lblBackground = new JLabel(STRING_EMPTY);
 		lblBackground.setBackground(Color.WHITE);
 		lblBackground.setIcon(new ImageIcon(ClientModel.BACKGROUND_GIF));
 		lblBackground.setBounds(63, 230, 564, 375);
 		frameLobby.getContentPane().add(lblBackground);
+		
+		pgsBar = new JProgressBar();
+		pgsBar.setIndeterminate(true);
+		pgsBar.setBounds(63, 634, 242, 22);
+		pgsBar.setStringPainted(true);
+		pgsBar.setString(ATTEMPTING_CONNESSION);
+		
+		frameLobby.getContentPane().add(pgsBar);
 		
 		frameLobby.addWindowListener(new WindowListener() {
 			
@@ -222,6 +201,15 @@ public class ClientView {
 		btnStartGameLobby.setEnabled(false);
 		pnlChat.getBtnSend().setEnabled(false);
 		pnlChat.getTxtMsg().setEditable(false);	
+		
+		JLabel lblUserList = new JLabel(USER_LIST);
+		lblUserList.setHorizontalAlignment(SwingConstants.CENTER);
+		lblUserList.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		lblUserList.setBounds(640, 179, 134, 47);
+		lblUserList.setBackground(Color.WHITE);
+		lblUserList.setOpaque(true);
+		
+		frameLobby.getContentPane().add(lblUserList);
 		this.addListenerChat();
 		
 		btnStartGameLobby.addActionListener(e -> this.startGame());
@@ -232,7 +220,7 @@ public class ClientView {
 	 */
 	private void initialize() {
 		frameLobby.setVisible(false);
-		
+
 		frame = new JFrame();
 		frame.setBounds(100, 100, 1057, 771);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -244,27 +232,17 @@ public class ClientView {
 		frame.getContentPane().add(addPnlChat());
 		enableChat();
 		
-		paintArea = new PnlPaintArea(model);
-		paintArea.setBounds(236, 132, 538, 555);
-		frame.getContentPane().add(paintArea);
-		paintArea.setLayout(null);
+		pnlPaintArea = new PnlPaintArea(model);
+		pnlPaintArea.setBounds(236, 132, 538, 555);
+		frame.getContentPane().add(pnlPaintArea);
+		pnlPaintArea.setLayout(null);
 		
 		pnlStrumenti = new PnlStrumenti(model.getStrumenti());
 		pnlStrumenti.setBounds(236, 94, 538, 38);
 		frame.getContentPane().add(pnlStrumenti);
 		pnlStrumenti.setBackground(Color.WHITE);
 		pnlStrumenti.setBorder(new LineBorder(Color.BLACK));
-		
-		btnStartGame = new JButton("Start Game");
-		btnStartGame.setBorderPainted(false);
-		btnStartGame.setForeground(new Color(0, 0, 0));
-		btnStartGame.setBorder(UIManager.getBorder("Button.border"));
-		
-		btnStartGame.setFont(new Font("Tempus Sans ITC", Font.BOLD | Font.ITALIC, 14));
-		btnStartGame.setBackground(new Color(153, 255, 153));
-		btnStartGame.setBounds(921, 671, 118, 60);
-		frame.getContentPane().add(btnStartGame);
-		
+
 		pnlWords = new PnlWords();
 		pnlWords.setBounds(236, 687, 538, 44);
 		frame.getContentPane().add(pnlWords);
@@ -303,11 +281,10 @@ public class ClientView {
 			public void windowActivated(WindowEvent e) {}
 		});
 		
-		pnlDatiPartita.addChangeListener(e -> this.stopTimer()); //TODO: serve ancora?
+		pnlDatiPartita.addChangeListener(e -> this.stopTimer());
 
 		this.addListenerChat();
-		btnStartGame.addActionListener(e -> this.startGame());
-		pnlStrumenti.addActionListener(e -> paintArea.changePaint(e));
+		pnlStrumenti.addActionListener(e -> pnlPaintArea.changePaint(e));
 		pnlWords.addActionListener(e -> this.sendSelectedWord(e.getActionCommand()));
 		
 	}
@@ -318,8 +295,10 @@ public class ClientView {
 	}
 	private JPanel addPnlChat() {
 		pnlChat = new PnlChat();
-		pnlChat.getTxtChat().setBounds(10, 11, 424, 668);
-		pnlChat.setBounds(784, 11, 258, 590);
+		pnlChat.getBtnSend().setLocation(220, 640);
+		pnlChat.getTxtMsg().setLocation(10, 640);
+		pnlChat.getTxtChat().setBounds(11, 14, 240, 560);
+		pnlChat.setBounds(784, 11, 267, 673);
 		return pnlChat;
 	}
 	
@@ -375,7 +354,7 @@ public class ClientView {
 		}
 		
 		if((response.getClass().equals(WhiteBoardLine.class)) && (response != null)) {
-			paintArea.updateWhiteBoard((WhiteBoardLine)response);
+			pnlPaintArea.updateWhiteBoard((WhiteBoardLine)response);
 		}	
 	}
 	
@@ -389,7 +368,7 @@ public class ClientView {
 	}
 	
 	private void managePnlStrumenti() {
-		if(paintArea.isPainter()) 
+		if(pnlPaintArea.isPainter()) 
 			pnlStrumenti.setVisible(true);
 		 else 
 			pnlStrumenti.setVisible(false);	
@@ -401,7 +380,7 @@ public class ClientView {
 	}
 	
 	protected void setWordWithHint(String word) {
-		if(!paintArea.isPainter())	
+		if(!pnlPaintArea.isPainter())	
 			pnlDatiPartita.getTxtGuessWord().setText(word);
 	}
 	
@@ -410,14 +389,22 @@ public class ClientView {
 	}
 	
 	public void setPainter() {
-		paintArea.setPainter();
+		pnlPaintArea.setPainter();
 	}
 	
 	public void clearAll() {
-		paintArea.clearAll();
+		pnlPaintArea.clearAll();
 	}
 	
 	private void startGame() {
+		try {
+	        Clip clip = AudioSystem.getClip();
+	        AudioInputStream inputStream = AudioSystem.getAudioInputStream(new File("src/sounds/complete.wav"));
+	        clip.open(inputStream);
+	        clip.start(); 
+	      } catch (Exception e) {
+	        System.err.println(e.getMessage());
+	      }
 		model.sendMsg(ProcessUtils.COMMAND_KEY + ProcessUtils.MATCH_STARTED);
 	}
 	
@@ -426,12 +413,12 @@ public class ClientView {
 	 * Chiama initialize() e nasconde il bottone "StartGame"
 	 */
 	protected void matchStarted() {
+
 		if(frameLobby.isVisible()) {
 			initialize();
 		}
 		managePnlStrumenti();
 		frame.repaint();
-		btnStartGame.setVisible(false);
 	}
 	
 	protected void matchCancelled() {
@@ -444,12 +431,11 @@ public class ClientView {
 	protected void matchFinished() {
 		this.setRound("0", "0");
 		pnlChat.getTxtChat().setText(STRING_EMPTY);
-		btnStartGame.setVisible(true);
 		pnlDatiPartita.stopTimer();
 		txtScoreBoard.setText(STRING_EMPTY);
 		hidePnlWords();
-		if(paintArea.isPainter()) 
-			paintArea.setPainter();
+		if(pnlPaintArea.isPainter()) 
+			pnlPaintArea.setPainter();
 		
 		frame.setVisible(false);
 		frameLobby.setVisible(true);

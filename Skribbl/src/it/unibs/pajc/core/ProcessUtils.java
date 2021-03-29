@@ -20,9 +20,9 @@ public class ProcessUtils {
 	public static final String MATCH_FINISHED = "matchfinished";
 	public static final String MATCH_ALREADY_ON = "matchalreadyon";
 	public static final String DELETE_ALL = "deleteall";
+	
 	//KEY
 	public static final String COMMAND_KEY = "!command:";
-	
 	public static final String SERVER_WORD_KEY = "?word:";
 	public static final String SCOREBOARD_KEY = "@scoreboard:";
 	public static final String FINAL_SCOREBOARD_KEY = "@scoreboard:@";
@@ -34,19 +34,20 @@ public class ProcessUtils {
 	public static final String START_TIMER_KEY = "@starttimer:";	
 	public static final String SELECTED_WORD_KEY = "@selectedword:";
 	
-	public static final String GUESSED_KEY = "guessed|";
-	public static final String WAITING_KEY = "waiting|";
-	public static final String SYSTEM_KEY = "system|";
-	public static final String JOIN_KEY = "join|";
-	public static final String LEFT_KEY = "left|";
+	public static final String GUESSED_KEY = "guessed";
+	public static final String WAITING_KEY = "waiting";
+	public static final String SYSTEM_KEY = "system";
+	public static final String JOIN_KEY = "join";
+	public static final String LEFT_KEY = "left";
+	
+	public static final String MSG_TYPE_SEPARATOR = "|";
 	
 	public static final String WAIT_WORD = "e' il disegnatore!\nSta ancora scegliendo la parola...";
 	public static final String WORD_CHOOSEN = "ha scelto, si gioca!";
-	static final String CLIENT_GUESSED = "%s%s%s HA INDOVINATO LA PAROLA";
-//	static final String CLIENT_WAITING = "%s%s %s";
+	static final String CLIENT_GUESSED = "%s%s%s%s HA INDOVINATO LA PAROLA";
 	static final String CLIENT_JOINED = "e' entrato in partita";
-	static final String CLIENT_LEFT = "%s%s%s ha abbandonato la convesazione";
-	static final String SELECTED_WORD = "%s%sLa parola era: %s";
+	static final String CLIENT_LEFT = "%s%s%s%s ha abbandonato la convesazione";
+	static final String SELECTED_WORD = "%s%s%sLa parola era: %s";
 	
 	static final String CLIENT_WELCOME = "Buongiorno, il tuo nome e': %s";
 	static final String CLIENT_ALONE = "Buongiorno, il tuo nome e': %s \nNon ci sono altri utenti connessi...";
@@ -70,23 +71,23 @@ public class ProcessUtils {
 	}
 	
 	public static String playerGuessed(String name) {
-		return String.format(CLIENT_GUESSED, MSGTYPE_KEY, GUESSED_KEY, name);
+		return String.format(CLIENT_GUESSED, MSGTYPE_KEY, GUESSED_KEY, MSG_TYPE_SEPARATOR, name);
 	}
 	
 	public static String playerWaiting(String name, String msg) {
-		return MSGTYPE_KEY + WAITING_KEY + name + " " + msg;
+		return MSGTYPE_KEY + WAITING_KEY + MSG_TYPE_SEPARATOR + name + " " + msg;
 	}
 	
 	public static String playerJoined(String name) {
-		return MSGTYPE_KEY + JOIN_KEY + name + " " + CLIENT_JOINED;
+		return MSGTYPE_KEY + JOIN_KEY + MSG_TYPE_SEPARATOR + name + " " + CLIENT_JOINED;
 	}
 	
 	public static String playerLeft(String name) {
-		return String.format(CLIENT_LEFT, MSGTYPE_KEY, LEFT_KEY, name);
+		return String.format(CLIENT_LEFT, MSGTYPE_KEY, LEFT_KEY, MSG_TYPE_SEPARATOR, name);
 	}
 	
 	public static String notifySelectedWord(String selectedWord) {
-		return String.format(SELECTED_WORD, MSGTYPE_KEY, WAITING_KEY, selectedWord);
+		return String.format(SELECTED_WORD, MSGTYPE_KEY, SYSTEM_KEY, MSG_TYPE_SEPARATOR, selectedWord);
 	}
 	
 	public static String sendHint(String result) {

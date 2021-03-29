@@ -87,21 +87,19 @@ public class ClientComunicator extends BaseModel {
 	 * Thread: Inizializza la variabile in (ObjectInputStream)
 	 * 		   Lancia un fireEvent nel caso di messaggi ricevuti dal server
 	 */
-	private class Listener extends PnlBase implements Runnable {
+	private class Listener extends BaseModel implements Runnable {
 		
 		public void run() {
-			do {
-				try{
-					connect();
-					while((response = in.readObject()) != null) {
-						fireActionListener(new ActionEvent(ClientModel.LISTENER, 2, ClientModel.LISTENER));
-					}
-					
-				} catch (IOException | ClassNotFoundException e) {
-					System.err.printf(ClientModel.ERR_LISTENER);
-					connect();
-				} 
-			} while(!isAvailable());
+			
+			try{
+				connect();
+				while((response = in.readObject()) != null) {
+					fireActionListener(new ActionEvent(ClientModel.LISTENER, 2, ClientModel.LISTENER));
+				}
+				
+			} catch (IOException | ClassNotFoundException e) {
+				System.err.printf(ClientModel.ERR_LISTENER);
+			} 
 		}
 		
 		private void connect() {
@@ -121,7 +119,7 @@ public class ClientComunicator extends BaseModel {
 	 * Thread: Inizializza la connsessione con il server, inizializza quindi la variabile out (ObjectOutputStream)
 	 * 		   Avvia il Thread Listener 
 	 */
-	private class Writer extends PnlBase implements Runnable {	
+	private class Writer extends BaseModel implements Runnable {	
 		@Override
 		public void run() {
 			do {

@@ -22,11 +22,12 @@ public class PnlChat extends PnlBase {
 		
 		btnSend = new JButton(iconSend);
 		btnSend.setBackground(Color.WHITE);
-		btnSend.setBounds(220, 545, 33, 23);
+		btnSend.setBounds(219, 634, 33, 23);
 		add(btnSend);
 		
 		JScrollPane scrollPane = new JScrollPane((Component) null);
-		scrollPane.setBounds(10, 13, 242, 521);
+		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		scrollPane.setBounds(10, 13, 242, 611);
 		add(scrollPane);
 		
 		txtChat = new JTextPane();
@@ -38,7 +39,7 @@ public class PnlChat extends PnlBase {
 		txtMsg.setBackground(Color.WHITE);
 		txtMsg.setEditable(false);
 		txtMsg.setColumns(10);
-		txtMsg.setBounds(10, 545, 200, 23);
+		txtMsg.setBounds(10, 634, 200, 23);
 		add(txtMsg);
 	}
 	
