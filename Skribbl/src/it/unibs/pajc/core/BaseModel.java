@@ -12,8 +12,7 @@ public class BaseModel {
 
 	private ArrayList<ActionListener> listenerList = new ArrayList<ActionListener>();
 	protected EventListenerList changeListenerList = new EventListenerList();
-	
-	//change listener
+
 	public void addChangeListener(ChangeListener l) {
 		changeListenerList.add(ChangeListener.class ,l);
 	}
@@ -28,8 +27,6 @@ public class BaseModel {
 			changeListener.stateChanged(e);
 		}
 	}
-	
-	//action listener
 	
 	/**
 	 * Aggiunge un actionListener alla lista delle listener
@@ -53,7 +50,7 @@ public class BaseModel {
 	 */
 	public void fireActionListener(ActionEvent e) {
 		/**
-		 * non gli passo e ma gli passo un evento che voglio io
+		 * Non gli passo e ma gli passo un evento che voglio io
 		 * per nascondere i bottoni all'esterno
 		 * Sto isolando il mio sistema
 		 */
@@ -61,7 +58,7 @@ public class BaseModel {
 				ActionEvent.ACTION_PERFORMED,
 				e.getActionCommand(),
 				e.getWhen(),
-				e.getModifiers() //se quando premo con il mouse ho anche schiacciato ctrl questo è un modifiers
+				e.getModifiers() //se quando premo con il mouse ho anche schiacciato ctrl questo e' un modifiers
 		);
 		
 		

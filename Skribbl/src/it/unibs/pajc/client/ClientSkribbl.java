@@ -25,7 +25,7 @@ import java.io.File;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
 
-public class ClientView {
+public class ClientSkribbl {
 	
 	private static final String USER_LIST = "User List";
 	private static final String START_GAME = "Start Game";
@@ -62,13 +62,13 @@ public class ClientView {
 	private String nickname;
 	
 	/**
-	 * Main della classe ClientView. Inizializza la FrameLobby e crea la ClientView.
+	 * Main della classe ClientSkribbl. Inizializza la FrameLobby e crea la ClientSkribbl.
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					ClientView window = new ClientView();
+					ClientSkribbl window = new ClientSkribbl();
 //					window.frame.setVisible(false);
 					window.frameLobby.setVisible(true);
 					window.frameLobby.setLocationRelativeTo(null);
@@ -77,7 +77,6 @@ public class ClientView {
 					System.exit(0);
 				}
 				catch (Exception e) {
-	//					e.printStackTrace();
 					System.out.println("Client view run");
 				}
 			}
@@ -85,10 +84,10 @@ public class ClientView {
 	}
 
 	/**
-	 * Costruttore della classe ClientView. Inizialmente visualizza la lobby e attende la connessione al server. Aggiunge actionlistener al model
+	 * Costruttore della classe ClientSkribbl. Inizialmente visualizza la lobby e attende la connessione al server. Aggiunge actionlistener al model
 	 * 
 	 */
-	public ClientView() {
+	public ClientSkribbl() {
 		lobby();
 		
 		model = new ClientModel();
@@ -426,7 +425,7 @@ public class ClientView {
 	}
 	
 	/**
-	 * resetta i componenti di initialize() e fa tornare tutti alla lobby
+	 * Resetta i componenti di initialize() e fa tornare tutti alla lobby
 	 */
 	protected void matchFinished() {
 		this.setRound("0", "0");

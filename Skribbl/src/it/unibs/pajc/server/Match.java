@@ -17,6 +17,7 @@ import it.unibs.pajc.core.ProcessUtils;
  */
 public class Match extends BaseModel implements Runnable {
 	
+	private static final String READING_FILE = "Lettura file WORDS.dat ancora in corso";
 	private static final int DELAY = 1000; //millisecondi
 	private static final int DEFAULT_SECONDS = 20; 
 	private static final int COEFF_GUESS = 5;
@@ -66,7 +67,7 @@ public class Match extends BaseModel implements Runnable {
 	
 	@Override
 	public void run() {
-		//inizializzazione liste
+		//Inizializzazione liste
 		updatePlayerList();
 		
 		startMatch();
@@ -84,16 +85,16 @@ public class Match extends BaseModel implements Runnable {
 	 * Lettura del file con executor (Future). Viene utilizzato il metodo readFile di UtilsMatch
 	 */
 	private void readFile() {
-		ExecutorService globalExecutor = Executors.newCachedThreadPool();;
+		ExecutorService executor = Executors.newCachedThreadPool();;
 		Future<ArrayList<String>> futureReadFile;
 		
 		Callable<ArrayList<String>> readFile = () -> {
         	return UtilsMatch.readFile();
         };
         
-        futureReadFile = globalExecutor.submit(readFile);
+        futureReadFile = executor.submit(readFile);
         while(!futureReadFile.isDone()) {
-			System.out.println("Lettura file WORDS.dat ancora in corso");
+			System.out.println(READING_FILE);
 		}
         
 		try {
@@ -101,7 +102,7 @@ public class Match extends BaseModel implements Runnable {
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		} finally {
-			globalExecutor.shutdown();
+			executor.shutdown();
 		}
 	}
 
@@ -395,7 +396,11 @@ public class Match extends BaseModel implements Runnable {
 		return this.selectedWord;
 	}
 	
-	
+	/**
+	 * Costruisce un array contenente 3 parole prelevate casualmente dalla lista di parole a disposizione del Match 
+	 * (provenienti dal file WORDS.dat) 
+	 * @return
+	 */
 	private String getWordsToGuess() {
 		int[] indexes = new int[3];
 		

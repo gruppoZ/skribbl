@@ -17,7 +17,7 @@ public class ScoreboardView extends JFrame {
 	private JTextField txtTitle;
 
 	/**
-	 * Create the frame.
+	 * Classe che mostra la classifica finale della partita
 	 */
 	public ScoreboardView() {
 		

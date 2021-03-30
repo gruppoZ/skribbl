@@ -149,7 +149,7 @@ public class ClientModel extends BaseModel {
 		return SAVE.equalsIgnoreCase(icon);
 	}
 	
-	public boolean isColor(String name) {
+	public static boolean isColor(String name) {
 		boolean found = false;
 		for (Colors colore : Colors.values()) {
 			if(colore.getValue().equalsIgnoreCase(name))
@@ -158,7 +158,7 @@ public class ClientModel extends BaseModel {
 		return found;
 	}
 	
-	public boolean isIcon(String icon) {
+	public static boolean isIcon(String icon) {
 		boolean found = false;
 		for (String icone : icone) {
 			if(icone.equalsIgnoreCase(icon))

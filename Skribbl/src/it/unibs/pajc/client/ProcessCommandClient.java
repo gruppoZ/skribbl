@@ -6,7 +6,7 @@ public class ProcessCommandClient implements ProcessMessageClient{
 	
 	private static final String DEFAULT_MSG = "Errore nei messaggi di sistema";
 
-	public void process(ClientView view, String msg) {
+	public void process(ClientSkribbl view, String msg) {
 		switch(msg) {
 			case ProcessUtils.DELETE_ALL:
 				view.clearAll();

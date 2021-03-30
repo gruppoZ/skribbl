@@ -10,8 +10,9 @@ public class PnlBase extends JPanel {
 
 	private ArrayList<ActionListener> listenerList;
 	private EventListenerList listenerChangeListenerList;
+	
 	/**
-	 * Create the panel.
+	 * Create the panel
 	 */
 	public PnlBase() {
 		listenerList = new ArrayList<ActionListener>();
@@ -55,7 +56,7 @@ public class PnlBase extends JPanel {
 	 */
 	public void fireActionListener(ActionEvent e) {
 		/**
-		 * non gli passo e ma gli passo un evento che voglio io
+		 * Non gli passo e ma gli passo un evento che voglio io
 		 * per nascondere i bottoni all'esterno
 		 * Sto isolando il mio sistema
 		 */
@@ -63,7 +64,7 @@ public class PnlBase extends JPanel {
 				ActionEvent.ACTION_PERFORMED,
 				e.getActionCommand(),
 				e.getWhen(),
-				e.getModifiers() //se quando premo con il mouse ho anche schiacciato ctrl questo è un modifiers
+				e.getModifiers() //se quando premo con il mouse ho anche schiacciato ctrl questo e' un modifiers
 		);
 		
 		

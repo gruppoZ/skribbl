@@ -16,9 +16,10 @@ import it.unibs.pajc.whiteboard.WhiteBoardLine;
 
 public class PnlPaintArea extends JPanel implements MouseListener, MouseMotionListener{
 	 
+	private static final String IMAGE_SAVED = "Hai salvato il disegno";
 	private List<WhiteBoardLine> lines;
 	private ClientModel model;
-    private WhiteBoardLine currentLine;  // the current line (for capturing)
+    private WhiteBoardLine currentLine;
     private Graphics2D g2;
     private Color lineColor;
     private float sizeStroke;
@@ -46,7 +47,7 @@ public class PnlPaintArea extends JPanel implements MouseListener, MouseMotionLi
 	}
 
 	/**
-	 * resetta il sizeStroke al valore di default
+	 * Resetta il sizeStroke al valore di default
 	 */
 	protected void useDefaultSizeStroke() {
 		sizeStroke = DEFAULT_SIZESTROKE;
@@ -72,7 +73,7 @@ public class PnlPaintArea extends JPanel implements MouseListener, MouseMotionLi
 	}
 	
 	/**
-	 * quando il mouse si muove creo la line e gli aggiungo il primo punto della linea disegnata
+	 * Quando il mouse si muove creo la line e gli aggiungo il primo punto della linea disegnata
 	 */
 	@Override
 	public void mouseMoved(MouseEvent e) {
@@ -84,7 +85,7 @@ public class PnlPaintArea extends JPanel implements MouseListener, MouseMotionLi
 	}
 	
 	/**
-	 * finche' draggo il mouse continuo ad aggiungere punti alla line e la disegno a schermo (del disegnatore)
+	 * Finche' trascino il mouse continuo ad aggiungere punti alla line e la disegno a schermo (del disegnatore)
 	 */
 	@Override
 	public void mouseDragged(MouseEvent e) {
@@ -96,7 +97,7 @@ public class PnlPaintArea extends JPanel implements MouseListener, MouseMotionLi
 	}
 	
 	/**
-	 * quando rilascio il mouse invio al server la line con tutti i punti
+	 * Quando rilascio il mouse invio al server la line con tutti i punti
 	 */
 	@Override
 	public void mouseReleased(MouseEvent e) {
@@ -117,7 +118,7 @@ public class PnlPaintArea extends JPanel implements MouseListener, MouseMotionLi
 	public void mouseExited(MouseEvent e) {}
 	
 	/**
-	 * inverto lo stato del painter  (se era falso diventa vero e viceversa)
+	 * Inverto lo stato del painter  (se era falso diventa vero e viceversa)
 	 */
 	public void setPainter() {
 		this.painter = !painter;
@@ -125,7 +126,7 @@ public class PnlPaintArea extends JPanel implements MouseListener, MouseMotionLi
 	
 	/**
 	 * 
-	 * @return lo stato del painter, se true allora sono il painter e posso disegnare
+	 * @return Lo stato del painter, se true allora sono il painter e posso disegnare
 	 */
 	public boolean isPainter() {
 		return painter;
@@ -148,29 +149,28 @@ public class PnlPaintArea extends JPanel implements MouseListener, MouseMotionLi
 	 */
 	public void changePaint(ActionEvent e) {
 		
-		if(model.isColor(e.getActionCommand()))
+		if(ClientModel.isColor(e.getActionCommand()))
 			lineColor = ClientModel.getColorByName(e.getActionCommand());
 			
-		if(model.isIcon(e.getActionCommand()) && model.isRubber(e.getActionCommand()))
+		if(ClientModel.isIcon(e.getActionCommand()) && ClientModel.isRubber(e.getActionCommand()))
 			lineColor = Color.WHITE;
 		
-		if(model.isIcon(e.getActionCommand()) && model.isDimension1(e.getActionCommand()))
+		if(ClientModel.isIcon(e.getActionCommand()) && ClientModel.isDimension1(e.getActionCommand()))
 			sizeStroke = 2;
 		
-		if(model.isIcon(e.getActionCommand()) && model.isDimension2(e.getActionCommand()))
+		if(ClientModel.isIcon(e.getActionCommand()) && ClientModel.isDimension2(e.getActionCommand()))
 			sizeStroke = 4;
 		
-		if(model.isIcon(e.getActionCommand()) && model.isDimension3(e.getActionCommand()))
+		if(ClientModel.isIcon(e.getActionCommand()) && ClientModel.isDimension3(e.getActionCommand()))
 			sizeStroke = 6;
 		
-		if(model.isIcon(e.getActionCommand()) && model.isSave(e.getActionCommand())) {
+		if(ClientModel.isIcon(e.getActionCommand()) && ClientModel.isSave(e.getActionCommand())) {
 			model.savePaint(this);
-			JOptionPane.showMessageDialog(null, "Hai salvato il disegno");
+			JOptionPane.showMessageDialog(null, IMAGE_SAVED);
 		}
 			
 		
-		if(model.isIcon(e.getActionCommand()) && model.isTrash(e.getActionCommand())) {
-			model.sendMsg("!deleteall");
+		if(ClientModel.isIcon(e.getActionCommand()) && ClientModel.isTrash(e.getActionCommand())) {
 			model.sendMsg(ProcessUtils.COMMAND_KEY + ProcessUtils.DELETE_ALL);
 			clearAll();
 		}

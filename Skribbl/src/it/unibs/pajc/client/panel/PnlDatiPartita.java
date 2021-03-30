@@ -35,14 +35,6 @@ public class PnlDatiPartita extends PnlBase {
 		txtRound.setEditable(false);
 		add(txtRound);
 		
-//		txtPainter = new JTextField();
-//		txtPainter.setBackground(Color.WHITE);
-//        txtPainter.setHorizontalAlignment(SwingConstants.CENTER);
-//        txtPainter.setFont(new Font("Stencil", Font.ITALIC, 12));
-//		txtPainter.setBounds(244, 26, 187, 31);
-//		txtPainter.setEditable(false);
-//		add(txtPainter);
-		
 		txtGuessWord = new JTextField();
 		txtGuessWord.setText(DEFAULT_GUESS_WORD);
 		txtGuessWord.setHorizontalAlignment(SwingConstants.CENTER);
@@ -52,7 +44,6 @@ public class PnlDatiPartita extends PnlBase {
 		txtGuessWord.setEditable(false);
 		add(txtGuessWord);
 		
-
 		lblTimer = new JLabel();
 		lblTimer.setHorizontalAlignment(SwingConstants.CENTER);
 		lblTimer.setFont(new Font("Arial Black", Font.ITALIC, 12));
@@ -108,7 +99,7 @@ public class PnlDatiPartita extends PnlBase {
 	
 	/**
 	 * Restituisce l'oggetto JTextField 
-	 * utilizzato per mostrare in che round si � durante il gioco
+	 * utilizzato per mostrare in che round si e' durante il gioco
 	 * RoundCorrente / RoundTotali
 	 * @return
 	 */

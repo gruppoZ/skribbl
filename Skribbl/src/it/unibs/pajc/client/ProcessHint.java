@@ -3,7 +3,7 @@ package it.unibs.pajc.client;
 public class ProcessHint implements ProcessMessageClient {
 
 	@Override
-	public void process(ClientView view, String msg) {
+	public void process(ClientSkribbl view, String msg) {
 		String hint = msg;
 		
 		char[] result = new char[hint.length()*2];

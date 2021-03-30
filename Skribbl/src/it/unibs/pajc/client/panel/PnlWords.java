@@ -15,7 +15,7 @@ public class PnlWords extends PnlBase {
 	}
 	
 	/**
-	 * inizializza le parole che verranno mostrati come buttoni dal PnlWords
+	 * Inizializza le parole che verranno mostrati come buttoni dal PnlWords
 	 * @param words
 	 */
 	public void setWords(String[] words) {

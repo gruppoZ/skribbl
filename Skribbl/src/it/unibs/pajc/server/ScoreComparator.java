@@ -2,9 +2,11 @@ package it.unibs.pajc.server;
 
 import java.util.Comparator;
 import java.util.Map;
-
+/**
+ * Classe utilizzata per poter comparare due giocatori diversi fra di loro in base al punteggio totalizzato e in ordine alfabetico del nome
+ *
+ */
 public class ScoreComparator implements Comparator<Player>{
-
 
 	@Override
 	public int compare(Player p1, Player p2) {

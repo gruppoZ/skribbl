@@ -2,7 +2,7 @@ package it.unibs.pajc.client;
 
 public class ProcessClientList implements ProcessMessageClient{
 	@Override
-	public void process(ClientView view, String msg) {
+	public void process(ClientSkribbl view, String msg) {
 		view.resetClientList();
 		String[] clientList = msg.split("/");
 		

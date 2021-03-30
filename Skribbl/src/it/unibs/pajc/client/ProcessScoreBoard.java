@@ -5,7 +5,7 @@ import it.unibs.pajc.core.ProcessUtils;
 public class ProcessScoreBoard implements ProcessMessageClient{
 
 	@Override
-	public void process(ClientView view, String msg) {
+	public void process(ClientSkribbl view, String msg) {
 		
 		int position = 1;
 		

@@ -247,7 +247,7 @@ public class Protocol extends BaseModel implements Runnable{
 	}
 
 	public synchronized void addLine(WhiteBoardLine line) {
-		whiteBoard.add(line, this);
+		whiteBoard.add(line);
 	}
 	
 	public void clearAll() {

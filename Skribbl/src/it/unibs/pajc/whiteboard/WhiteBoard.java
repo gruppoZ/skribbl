@@ -12,11 +12,10 @@ public class WhiteBoard {
 	public WhiteBoard() {
 		this.lines = new ArrayList<WhiteBoardLine>();
 	}
-	
-	//togliere synchronized
-	public synchronized void add(WhiteBoardLine line, Protocol protocol) { //add a line to the whiteboard
+
+	public synchronized void add(WhiteBoardLine line) { //add a line to the whiteboard
 		lines.add(line);
-		protocol.sendMsgToAll(line);
+		Protocol.sendMsgToAll(line);
 	}
 	
 	public void clearAll() {

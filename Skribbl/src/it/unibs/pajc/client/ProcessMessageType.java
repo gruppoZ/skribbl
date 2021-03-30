@@ -7,7 +7,7 @@ import it.unibs.pajc.core.ProcessUtils;
 public class ProcessMessageType implements ProcessMessageClient{
 
 	@Override
-	public void process(ClientView view, String msg) {
+	public void process(ClientSkribbl view, String msg) {
 		int index = msg.indexOf(ProcessUtils.MSG_TYPE_SEPARATOR);
 		String msgType = msg.substring(0, index);
 		msg = msg.substring(index + 1) + "\n";
