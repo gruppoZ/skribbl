@@ -69,7 +69,6 @@ public class ClientSkribbl {
 			public void run() {
 				try {
 					ClientSkribbl window = new ClientSkribbl();
-//					window.frame.setVisible(false);
 					window.frameLobby.setVisible(true);
 					window.frameLobby.setLocationRelativeTo(null);
 				} catch (NullPointerException e) {
